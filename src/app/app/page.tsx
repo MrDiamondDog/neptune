@@ -29,6 +29,15 @@ export default function App() {
 			.filter(m => m.days.includes(dayToday));
 
 		return courseMeetingsToday.length >= 1;
+	}).sort((a, b) => {
+		const dayToday = getDayOfWeekAbbr();
+		const aMeetingsToday = meetings.filter(m => m.courseId === a.id)
+			.filter(m => m.days.includes(dayToday));
+		const bMeetingsToday = meetings.filter(m => m.courseId === b.id)
+			.filter(m => m.days.includes(dayToday));
+
+		// There really should only be one meeting a day, if there is more than one, this still uses the first
+		return aMeetingsToday[0].timeStart - bMeetingsToday[0].timeStart;
 	});
 
 	return <main className="mx-auto w-fit min-w-200">

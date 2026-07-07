@@ -3,9 +3,7 @@
 import { DateInput, DurationInput, EventClickArg } from "@fullcalendar/core/index.js";
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
-import { RefObject, useEffect, useRef, useState } from "react";
-import { Popover, PopoverContent } from "../primitives/Popover";
-import { PopoverAnchor } from "@radix-ui/react-popover";
+import { useEffect, useState } from "react";
 import Portal from "../primitives/Portal";
 import { useApp } from "../context/NeptuneContext";
 import { Course, Meeting } from "@/db/types";
