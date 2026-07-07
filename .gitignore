@@ -1,0 +1,6 @@
+node_modules
+.env
+next-env.d.ts
+data/
+.next
+src/example-data.ts
