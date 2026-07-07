@@ -1,14 +1,15 @@
 "use client";
 
-import { Course, Meeting, Task } from "@/db/types"
+import { Course, Meeting, Task, Term } from "@/db/types"
 import { CoursesAction, coursesReducer } from "./courses";
 import { MeetingsAction, meetingsReducer } from "./meetings";
 import { ActionDispatch, createContext, useContext, useEffect, useReducer } from "react";
-import { exampleCourses, exampleMeetings } from "@/example-data";
+import { exampleCourses, exampleMeetings, exampleTerms } from "@/example-data";
 
 export type NeptuneData = {
 	courses: Course[],
 	meetings: Meeting[],
+	terms: Term[],
 	tasks: Task[],
 }
 
@@ -16,6 +17,7 @@ export type NeptuneData = {
 export const defaultNeptuneData: NeptuneData = {
 	courses: exampleCourses,
 	meetings: exampleMeetings,
+	terms: exampleTerms,
 	tasks: [],
 }
 

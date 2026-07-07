@@ -21,16 +21,27 @@ export const usersTable = sqliteTable("user", {
 	name: text("name").notNull()
 });
 
+export const termsTable = sqliteTable("term", {
+	...id,
+	userId: text("userId").references(() => usersTable.id).notNull(),
+
+	// Ex. fall, spring, summer
+	season: text("season").notNull(),
+	year: integer("year").notNull(),
+
+	start: integer("start", { mode: "timestamp" }).notNull(),
+	end: integer("end", { mode: "timestamp" }).notNull(),
+});
+
 // Represents a course. Each course is divided into sections.
 export const coursesTable = sqliteTable("course", {
 	...id,
 	userId: text("userId").references(() => usersTable.id).notNull(),
+	// The term that this course is a part of.
+	termId: text("termId").notNull(),
 
 	// This course's formal name, ex. "Data Structures"
 	name: text("name").notNull(),
-	// The term for this course. Formatted "{season abbr.}-{year}"
-	// Ex. "FA-2026", "SP-2027", "SU-2027" (FA = fall, SP = spring, SU = summer)
-	term: text("term").notNull(),
 	// Subject code for the course
 	subject: text("subject").notNull(),
 	// Course number (string for flexibility)

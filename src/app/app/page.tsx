@@ -1,10 +1,11 @@
 "use client";
 
+import WeeklyCalendar from "@/components/calendars/WeeklyCalendar";
 import { useApp } from "@/components/context/NeptuneContext";
 import CourseInline from "@/components/courses/CourseInline";
 import MeetingsInline from "@/components/meetings/MeetingsInline";
 import Divider from "@/components/primitives/Divider";
-import { getDayOfWeekAbbr } from "@/lib/meetings";
+import { getDayOfWeekAbbr, meetingToCalendar } from "@/lib/meetings";
 import { useSession } from "next-auth/react";
 
 function DashboardCard({ children }: React.PropsWithChildren) {
@@ -16,7 +17,8 @@ function DashboardCard({ children }: React.PropsWithChildren) {
 export default function App() {
 	const session = useSession();
 
-	const { courses, meetings } = useApp();
+	const data = useApp();
+	const { courses, meetings } = data;
 
 	if (!session || !session.data?.user)
 		return null;
@@ -29,13 +31,13 @@ export default function App() {
 		return courseMeetingsToday.length >= 1;
 	});
 
-	return <main className="mx-auto w-fit min-w-150">
+	return <main className="mx-auto w-fit min-w-200">
 		<h1>Good morning, {session.data.user.name}</h1>
 		<Divider />
 
-		<div className="flex gap-2">
+		<div className="flex gap-2 mb-2">
 			<DashboardCard>
-				<h2>Your day</h2>
+				<h2>Your Day</h2>
 
 				{coursesToday.map(course => <div key={course.id}>
 					<Divider />
@@ -48,5 +50,11 @@ export default function App() {
 				<Divider />
 			</DashboardCard>
 		</div>
+		<DashboardCard>
+			<h2>Your Schedule</h2>
+			<Divider />
+
+			<WeeklyCalendar events={meetings.map(m => meetingToCalendar(data, m.id)).filter(e => !!e)} />
+		</DashboardCard>
 	</main>
 }
