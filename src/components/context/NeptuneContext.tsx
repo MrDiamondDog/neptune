@@ -4,7 +4,7 @@ import { Course, Meeting, Task, Term } from "@/db/types"
 import { CoursesAction, coursesReducer } from "./courses";
 import { MeetingsAction, meetingsReducer } from "./meetings";
 import { ActionDispatch, createContext, useContext, useEffect, useReducer } from "react";
-import { exampleCourses, exampleMeetings, exampleTerms } from "@/example-data";
+import { exampleCourses, exampleMeetings, exampleTasks, exampleTerms } from "@/example-data";
 
 export type NeptuneData = {
 	courses: Course[],
@@ -18,7 +18,7 @@ export const defaultNeptuneData: NeptuneData = {
 	courses: exampleCourses,
 	meetings: exampleMeetings,
 	terms: exampleTerms,
-	tasks: [],
+	tasks: exampleTasks,
 }
 
 export type ContextAction = CoursesAction | MeetingsAction;

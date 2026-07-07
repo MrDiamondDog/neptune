@@ -78,7 +78,7 @@ export const tasksTable = sqliteTable("task", {
 
 	title: text("title").notNull(),
 	complete: integer("complete", { mode: "boolean" }).notNull().default(false),
-	dueDate: integer("timestamp"),
+	dueDate: integer("dueDate", { mode: "timestamp" }),
 	// Optionally attach a course to this task.
 	courseId: text("courseId").references(() => coursesTable.id),
 	link: text("link"),

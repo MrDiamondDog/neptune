@@ -5,11 +5,12 @@ import { useApp } from "@/components/context/NeptuneContext";
 import CourseInline from "@/components/courses/CourseInline";
 import MeetingsInline from "@/components/meetings/MeetingsInline";
 import Divider from "@/components/primitives/Divider";
+import Task from "@/components/tasks/Task";
 import { getDayOfWeekAbbr, meetingToCalendar } from "@/lib/meetings";
 import { useSession } from "next-auth/react";
 
 function DashboardCard({ children }: React.PropsWithChildren) {
-	return <div className="w-full border-2 border-bg-lighter bg-bg-light p-2">
+	return <div className="w-full border-2 border-bg-lighter bg-bg-light p-2 max-h-[750px] overflow-x-hidden overflow-y-scroll">
 		{children}
 	</div>
 }
@@ -18,7 +19,7 @@ export default function App() {
 	const session = useSession();
 
 	const data = useApp();
-	const { courses, meetings } = data;
+	const { courses, meetings, tasks } = data;
 
 	if (!session || !session.data?.user)
 		return null;
@@ -57,6 +58,9 @@ export default function App() {
 			<DashboardCard>
 				<h2>Tasks</h2>
 				<Divider />
+
+				{tasks.sort((a, b) => (a.dueDate ?? new Date()).getTime() - (b.dueDate ?? new Date()).getTime())
+					.map(task => <Task task={task} key={task.id} />)}
 			</DashboardCard>
 		</div>
 		<DashboardCard>
