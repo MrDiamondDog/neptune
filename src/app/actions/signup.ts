@@ -1,8 +1,9 @@
 "use server";
 
+import bcrypt from "bcryptjs";
+
 import { db, usersTable } from "@/db/schema";
 import { User } from "@/db/types";
-import bcrypt from "bcryptjs";
 
 export async function signUp(email: string, name: string, password: string): Promise<User> {
 	if (process.env.ALLOW_SIGNUPS !== "true" || process.env.IS_DEMO === "true")

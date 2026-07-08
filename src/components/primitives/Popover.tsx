@@ -3,7 +3,7 @@ import * as RadixPopover from "@radix-ui/react-popover";
 export function Popover(props: RadixPopover.PopoverProps) {
 	return <RadixPopover.Root {...props}>
 		{props.children}
-	</RadixPopover.Root>
+	</RadixPopover.Root>;
 }
 
 export function PopoverContent(props: RadixPopover.PopoverContentProps) {

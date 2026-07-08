@@ -1,3 +1,4 @@
+import stylistic from "@stylistic/eslint-plugin";
 import { defineConfig, globalIgnores } from "eslint/config";
 import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
@@ -8,7 +9,6 @@ import unusedImports from "eslint-plugin-unused-imports";
 const eslintConfig = defineConfig([
 	...nextVitals,
 	...nextTs,
-	{ ignores: ["dist", "browser", "packages/vencord-types"] },
 	{
 		files: ["src/**/*.{tsx,ts,mts,mjs,js,jsx}", "eslint.config.mjs"],
 		settings: {
@@ -19,6 +19,7 @@ const eslintConfig = defineConfig([
 		...react.configs.flat.recommended,
 		rules: {
 			...react.configs.flat.recommended.rules,
+			"react-hooks/set-state-in-effect": "off",
 			"react/react-in-jsx-scope": "off",
 			"react/prop-types": "off",
 			"react/display-name": "off",
@@ -29,31 +30,10 @@ const eslintConfig = defineConfig([
 		files: ["src/**/*.{tsx,ts,mts,mjs,js,jsx}", "eslint.config.mjs"],
 		plugins: {
 			"@stylistic": stylistic,
-			"@typescript-eslint": tseslint.plugin,
 			"simple-import-sort": simpleImportSort,
 			"unused-imports": unusedImports,
-			"path-alias": pathAlias
-		},
-		settings: {
-			"import/resolver": {
-				map: [
-					["@webpack", "./src/webpack"],
-					["@webpack/common", "./src/webpack/common"],
-					["@utils", "./src/utils"],
-					["@api", "./src/api"],
-					["@components", "./src/components"]
-				]
-			}
-		},
-		languageOptions: {
-			parser: tseslint.parser,
-			parserOptions: {
-				project: ["./tsconfig.json"],
-				tsconfigRootDir: import.meta.dirname
-			}
 		},
 		rules: {
-			// Style Rules
 			"@stylistic/jsx-quotes": ["error", "prefer-double"],
 			"@stylistic/quotes": ["error", "double", { "avoidEscape": true }],
 			"@stylistic/no-mixed-spaces-and-tabs": "error",
@@ -69,11 +49,7 @@ const eslintConfig = defineConfig([
 			"@stylistic/object-curly-spacing": ["error", "always"],
 			"@stylistic/spaced-comment": ["error", "always", { "markers": ["!"] }],
 			"@stylistic/no-extra-semi": "error",
-
-			// TS Rules
 			"@stylistic/function-call-spacing": ["error", "never"],
-
-			// ESLint Rules
 			"yoda": "error",
 			"eqeqeq": ["error", "always", { "null": "ignore" }],
 			"prefer-destructuring": ["error", {
@@ -86,19 +62,7 @@ const eslintConfig = defineConfig([
 			"no-invalid-regexp": "error",
 			"no-constant-condition": ["error", { "checkLoops": false }],
 			"no-duplicate-imports": "error",
-			"@typescript-eslint/dot-notation": [
-				"error",
-				{
-					"allowPrivateClassPropertyAccess": true,
-					"allowProtectedClassPropertyAccess": true
-				}
-			],
-			"no-useless-escape": [
-				"error",
-				{
-					"allowRegexCharacters": ["i"]
-				}
-			],
+			"no-useless-escape": "error",
 			"no-fallthrough": "error",
 			"for-direction": "error",
 			"no-async-promise-executor": "error",
@@ -117,14 +81,10 @@ const eslintConfig = defineConfig([
 			"use-isnan": "error",
 			"prefer-const": ["error", { destructuring: "all" }],
 			"prefer-spread": "error",
-			// These are old deprecated browser globals which may be used by mistake, e.g. `addEventListener(e => console.log(event))`
 			"no-restricted-globals": ["error", "event", "name"],
-
-			// Plugin Rules
 			"simple-import-sort/imports": "error",
 			"simple-import-sort/exports": "error",
 			"unused-imports/no-unused-imports": "error",
-			"path-alias/no-relative": "error"
 		}
 	},
 	// Override default ignores of eslint-config-next.

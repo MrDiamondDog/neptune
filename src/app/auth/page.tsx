@@ -1,14 +1,16 @@
 "use client";
 
+import { useSearchParams } from "next/navigation";
+import { signIn } from "next-auth/react";
+import { useEffect, useState } from "react";
+
 import Button from "@/components/primitives/Button";
 import Divider from "@/components/primitives/Divider";
 import Input from "@/components/primitives/Input";
 import LinkButton from "@/components/primitives/LinkButton";
 import { throwToast } from "@/lib/errors";
 import { getPublicEnv } from "@/public-env";
-import { signIn } from "next-auth/react";
-import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+
 import { signUp } from "../actions/signup";
 
 export default function HomePage() {
@@ -28,7 +30,7 @@ export default function HomePage() {
 		setError(searchParams.has("error") ? "Invalid email or password." : "");
 		if (password !== confirmPassword && mode === "signup")
 			return void setError("Passwords do not match");
-	}, [password, confirmPassword]);
+	}, [password, confirmPassword, mode, searchParams]);
 
 	async function login() {
 		setLoading(true);
@@ -39,7 +41,7 @@ export default function HomePage() {
 			email,
 			password,
 		}).catch(e => {
-			throwToast("Unable to sign in", e)
+			throwToast("Unable to sign in", e);
 			setLoading(false);
 		});
 	}
@@ -69,7 +71,7 @@ export default function HomePage() {
 			email,
 			password,
 		}).catch(e => {
-			throwToast("Unable to sign in", e)
+			throwToast("Unable to sign in", e);
 			setLoading(false);
 		});
 
@@ -81,11 +83,11 @@ export default function HomePage() {
 			<h2>{mode === "signin" ? "Log In" : "Sign Up"}</h2>
 			<Divider />
 			<div className="flex flex-col gap-1">
-				<Input placeholder="Email" type="email" onChange={setEmail} value={email} />
-				{mode === "signup" && <Input placeholder="Name" onChange={setName} value={name} />}
-				<Input placeholder="Password" type="password" onChange={setPassword} value={password} />
+				<Input placeholder="Email" type="email" onChange={setEmail} value={email} className="w-full" />
+				{mode === "signup" && <Input placeholder="Name" onChange={setName} value={name} className="w-full" />}
+				<Input placeholder="Password" type="password" onChange={setPassword} value={password} className="w-full" />
 				{mode === "signup" &&
-					<Input placeholder="Confirm Password" type="password" onChange={setConfirmPassword} value={confirmPassword} />}
+					<Input placeholder="Confirm Password" type="password" onChange={setConfirmPassword} value={confirmPassword} className="w-full" />}
 				{mode === "signin" ? <Button onClick={login} loading={loading}>Log In</Button> :
 					<Button onClick={signup} loading={loading}>Sign Up</Button>}
 				{error && <p className="text-danger text-wrap overflow-hidden">{error}</p>}

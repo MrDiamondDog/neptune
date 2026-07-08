@@ -1,14 +1,15 @@
 "use client";
 
 import { Info, OctagonAlert, X } from "lucide-react";
+
 import Divider from "./Divider";
-import Subtext from "./Subtext";
 import Portal from "./Portal";
+import Subtext from "./Subtext";
 
 export type ModalProps = {
 	open: boolean,
 	onClose: () => void
-}
+};
 
 type Props = {
 	title: string;
@@ -29,8 +30,8 @@ export default function Modal({ children, title, open, onClose, danger }: Props)
 
 		{open && <div
 			key="content"
-			className={`fixed top-1/2 left-1/2 -translate-1/2 bg-ctp-base min-h-25 max-h-[95vh] md:w-fit w-[98vw]
-                overflow-scroll border-2 ${danger ? "border-ctp-red" : "border-ctp-surface0"} px-4 py-3 z-110`}
+			className={`fixed top-1/2 left-1/2 -translate-1/2 bg-bg-light min-h-25 max-h-[95vh] md:w-fit w-[98vw]
+                overflow-scroll border-2 ${danger ? "border-danger" : "border-bg-lighter"} px-4 py-3 z-110`}
 		>
 			<ModalTitle onClose={onClose}>{title}</ModalTitle>
 
@@ -58,8 +59,8 @@ export function ModalFooter({ children, tip, error }: { tip?: string, error?: st
 		<Divider />
 		<div className="flex flex-col gap-2 md:flex-row justify-between w-full items-end">
 			<div className="flex flex-col gap-2 w-full">
-				{error && <p className="text-ctp-subtext0 flex flex-row gap-2 items-center">
-					<OctagonAlert className="text-ctp-red min-w-8 min-h-8" /> {error}
+				{error && <p className="text-gray-400 flex flex-row gap-2 items-center">
+					<OctagonAlert className="text-danger min-w-8 min-h-8" /> {error}
 				</p>}
 				{tip && <Subtext className="text-xs flex flex-row gap-2 items-center md:min-w-0 min-w-75">
 					<Info className="text-primary min-w-8 min-h-8" /> {tip}

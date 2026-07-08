@@ -1,6 +1,6 @@
-import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { createClient } from "@libsql/client";
 import { drizzle } from "drizzle-orm/libsql";
+import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
 const client = createClient({
 	url: "file:./data/neptune.db",
@@ -11,14 +11,16 @@ const id = {
 	id: text("id")
 		.primaryKey()
 		.$defaultFn(() => crypto.randomUUID())
-}
+};
 
 export const usersTable = sqliteTable("user", {
 	...id,
 	email: text("email")
 		.unique(),
 	password: text("password").notNull(),
-	name: text("name").notNull()
+	name: text("name").notNull(),
+
+	icalUrl: text("icalUrl"),
 });
 
 export const termsTable = sqliteTable("term", {
@@ -29,7 +31,9 @@ export const termsTable = sqliteTable("term", {
 	season: text("season").notNull(),
 	year: integer("year").notNull(),
 
+	// Start must be a Sunday.
 	start: integer("start", { mode: "timestamp" }).notNull(),
+	// End must be a Saturday.
 	end: integer("end", { mode: "timestamp" }).notNull(),
 });
 
@@ -86,4 +90,4 @@ export const tasksTable = sqliteTable("task", {
 	priority: integer("priority"),
 	// In minutes
 	timeToComplete: integer("timeToComplete"),
-})
+});

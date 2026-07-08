@@ -1,9 +1,11 @@
+import "./globals.css";
+
+import { CheckCircle2, CircleAlert, Info } from "lucide-react";
 import type { Metadata } from "next";
 import { Lexend } from "next/font/google";
-import "./globals.css";
-import { Toaster } from "sonner";
-import { CheckCircle2, CircleAlert, Info } from "lucide-react";
 import { SessionProvider } from "next-auth/react";
+import { Toaster } from "sonner";
+
 import { PublicEnv } from "@/public-env";
 
 const lexend = Lexend({

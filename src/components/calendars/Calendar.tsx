@@ -1,14 +1,20 @@
 "use client";
 
 import { DateInput, DurationInput, EventClickArg } from "@fullcalendar/core/index.js";
+import dayGridPlugin from "@fullcalendar/daygrid";
+import iCalendarPlugin from "@fullcalendar/icalendar";
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import { useEffect, useState } from "react";
-import Portal from "../primitives/Portal";
+
+import { Course } from "@/db/types";
+import { prettyTimeRange } from "@/lib/time";
+
 import { useApp } from "../context/NeptuneContext";
-import { Course, Meeting } from "@/db/types";
 import CourseInline from "../courses/CourseInline";
 import MeetingsInline from "../meetings/MeetingsInline";
+import Portal from "../primitives/Portal";
+import Subtext from "../primitives/Subtext";
 
 export type CalendarEvent = {
 	id?: string;
@@ -16,6 +22,7 @@ export type CalendarEvent = {
 	start: DateInput;
 	end: DateInput;
 	allDay?: boolean;
+	color?: string;
 };
 
 export type RecurringEvent = {
@@ -29,49 +36,54 @@ export type RecurringEvent = {
 	endRecur: DateInput;
 };
 
-export default function WeeklyCalendar({ events }: { events: (CalendarEvent | RecurringEvent)[] }) {
+export default function Calendar({ events }: { events: (CalendarEvent | RecurringEvent)[] }) {
 	const { courses, meetings } = useApp();
 
 	const [selectedEvent, setSelectedEvent] = useState<EventClickArg>();
 	const [selectedCourse, setSelectedCourse] = useState<Course>();
 
 	useEffect(() => {
-		if (!selectedEvent) {
-			setSelectedCourse(undefined);
-			return;
-		}
+		if (!selectedEvent || selectedEvent.event.id.startsWith("ical-"))
+			return void setSelectedCourse(undefined);
 
 		const newMeeting = meetings.find(m => m.id === selectedEvent.event.id);
 		if (!newMeeting)
 			return;
+
 		setSelectedCourse(courses.find(c => c.id === newMeeting.courseId));
-	}, [selectedEvent])
+	}, [selectedEvent, meetings, courses]);
 
 	return <>
 		<FullCalendar
-			plugins={[timeGridPlugin]}
+			plugins={[timeGridPlugin, dayGridPlugin, iCalendarPlugin]}
 			initialView="timeGridWeek"
 			editable={false}
 			events={events}
 			scrollTime="7:00"
-			allDaySlot={events.findIndex(e => e.allDay) === -1 ? false : true}
+			allDaySlot={events.findIndex(e => e.allDay) !== -1}
 			nowIndicator
 			headerToolbar={{
 				left: "title",
-				right: "prev,next",
+				right: "prev,next,dayGridMonth,timeGridWeek",
 			}}
 			eventClick={e => setSelectedEvent(e)}
 		/>
 
-		{selectedEvent && <Portal>
+		{(selectedEvent) && <Portal>
 			<div className="absolute inset-0 z-10" onClick={() => setSelectedEvent(undefined)} />
 			<div className="absolute z-20 bg-bg-lighter p-2 drop-shadow-lg border-2 border-bg-lightest" style={{
 				left: `${selectedEvent.el.getBoundingClientRect().x + selectedEvent.el.clientWidth}px`,
 				top: `${selectedEvent.el.getBoundingClientRect().y + window.scrollY}px`
 			}}>
-				{selectedCourse && <CourseInline course={selectedCourse} />}
-				{selectedCourse && <MeetingsInline meetings={meetings.filter(m => m.courseId === selectedCourse.id)} />}
+				{!selectedEvent.event.id.startsWith("ical-") ? <>
+					{selectedCourse && <CourseInline course={selectedCourse} />}
+					{selectedCourse && <MeetingsInline meetings={meetings.filter(m => m.courseId === selectedCourse.id)} />}
+				</> : <>
+					<p className="font-bold">{selectedEvent.event.title}</p>
+					<p>{prettyTimeRange(selectedEvent.event.start!, selectedEvent.event.end!)}</p>
+					<Subtext>From iCal</Subtext>
+				</>}
 			</div>
 		</Portal>}
-	</>
+	</>;
 }

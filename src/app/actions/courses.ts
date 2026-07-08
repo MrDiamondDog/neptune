@@ -1,8 +1,10 @@
 "use server";
 
-import { coursesTable, db, usersTable } from "@/db/schema";
-import { actionError, authenticate } from ".";
 import { eq } from "drizzle-orm";
+
+import { coursesTable, db } from "@/db/schema";
+
+import { actionError, authenticate } from ".";
 
 export async function getCourses() {
 	const user = await authenticate();
@@ -11,5 +13,5 @@ export async function getCourses() {
 		throw actionError("Not authenticated.");
 
 	return await db.select().from(coursesTable)
-		.where(eq(coursesTable.userId, user.id!))
+		.where(eq(coursesTable.userId, user.id!));
 }

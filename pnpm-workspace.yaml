@@ -1,8 +1,10 @@
 allowBuilds:
-  esbuild: true
-  sharp: true
-  sqlite3: true
-  unrs-resolver: true
+    esbuild: true
+    sharp: true
+    sqlite3: true
+    unrs-resolver: true
 ignoredBuiltDependencies:
-  - sharp
-  - unrs-resolver
+    - sharp
+    - unrs-resolver
+overrides:
+    "@js-temporal/polyfill": "npm:temporal-polyfill@^0.3.0"

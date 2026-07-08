@@ -1,6 +1,5 @@
-import { RecurringEvent } from "@/components/calendars/WeeklyCalendar";
+import { RecurringEvent } from "@/components/calendars/Calendar";
 import { NeptuneData } from "@/components/context/NeptuneContext";
-import { Course, Meeting, Term } from "@/db/types";
 
 const dayOrder = [..."UMTWRFS"];
 
@@ -27,7 +26,7 @@ export function prettyDaysOfWeek(days: string): string {
 		"S": "Sat"
 	};
 
-	return [...sortDaysOfWeek(days)].map(d => abbr[d as keyof typeof abbr]).join(", ")
+	return [...sortDaysOfWeek(days)].map(d => abbr[d as keyof typeof abbr]).join(", ");
 }
 
 /**
@@ -42,7 +41,7 @@ export function minutesToTime(mins: number, mode: "24" | "12" = "12"): string {
 		hours -= 12;
 	}
 
-	return `${hours}:${minutes < 10 ? "0" : ""}${minutes}${mode === "12" ? ampm : ""}`
+	return `${hours}:${minutes < 10 ? "0" : ""}${minutes}${mode === "12" ? ampm : ""}`;
 }
 
 /**
@@ -74,5 +73,5 @@ export function meetingToCalendar(data: NeptuneData, meetingId: string): Recurri
 		endRecur: new Date(term.end.getTime() + 1000 * 60 * 60 * 24),
 		startTime: minutesToTime(meeting.timeStart, "24"),
 		endTime: minutesToTime(meeting.timeEnd, "24"),
-	}
+	};
 }

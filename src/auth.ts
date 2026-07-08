@@ -1,9 +1,10 @@
-import bcrypt from "bcryptjs";
-import { db, usersTable } from "./db/schema";
-import Credentials from "next-auth/providers/credentials";
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
-import NextAuth from "next-auth";
+import bcrypt from "bcryptjs";
 import { eq } from "drizzle-orm";
+import NextAuth from "next-auth";
+import Credentials from "next-auth/providers/credentials";
+
+import { db, usersTable } from "./db/schema";
 import { getPublicEnv } from "./public-env";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({

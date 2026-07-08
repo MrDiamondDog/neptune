@@ -1,6 +1,7 @@
+import { redirect } from "next/navigation";
+
 import { auth } from "@/auth";
 import { NeptuneProvider } from "@/components/context/NeptuneContext";
-import { redirect } from "next/navigation";
 
 export default async function AppLayout({
 	children,
@@ -12,5 +13,5 @@ export default async function AppLayout({
 
 	return <NeptuneProvider>
 		{children}
-	</NeptuneProvider>
+	</NeptuneProvider>;
 }

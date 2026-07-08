@@ -1,15 +1,15 @@
-import { Meeting } from "@/db/types";
-import { minutesToTime, prettyDaysOfWeek, sortDaysOfWeek } from "@/lib/meetings";
+import { MeetingInsert } from "@/db/types";
+import { minutesToTime, prettyDaysOfWeek } from "@/lib/meetings";
 
-export default function MeetingsInline({ meetings }: { meetings: Meeting[] }) {
+export default function MeetingsInline({ meetings }: { meetings: MeetingInsert[] }) {
 	// Gets a list of all the unique instructors among the meetings to change how it is displayed if there is one.
 	// Also reverses the name to "Last, First"
-	const uniqueInstructors = meetings.map(m => m.instructor).filter(p => p !== null)
+	const uniqueInstructors = meetings.map(m => m.instructor).filter(p => p !== null && p !== undefined)
 		.reduce((prev, curr) => (!prev.includes(curr) ? [...prev, curr] : prev), [] as string[])
-		.map(i => i.split(" ").reverse().join(", "))
+		.map(i => i.split(" ").reverse().join(", "));
 	// Same as above, but for location.
-	const uniqueLocations = meetings.map(m => m.location).filter(l => l !== null)
-		.reduce((prev, curr) => (!prev.includes(curr) ? [...prev, curr] : prev), [] as string[])
+	const uniqueLocations = meetings.map(m => m.location).filter(l => l !== null && l !== undefined)
+		.reduce((prev, curr) => (!prev.includes(curr) ? [...prev, curr] : prev), [] as string[]);
 
 	return <>
 		{uniqueInstructors.length === 1 && <p>{uniqueInstructors[0]}</p>}
@@ -19,5 +19,5 @@ export default function MeetingsInline({ meetings }: { meetings: Meeting[] }) {
 			{uniqueLocations.length > 1 && `| ${meeting.location}`}{" "}
 			{uniqueInstructors.length > 1 && `| ${meeting.instructor}`}
 		</p>)}
-	</>
+	</>;
 }

@@ -9,7 +9,7 @@ export default function Button({ loading, look, ...props }:
 	{ loading?: boolean, look?: ButtonLooks } & React.ButtonHTMLAttributes<HTMLButtonElement>) {
 	return <button {...props} disabled={props.disabled || loading} className={`${props.className ?? ""}
 		${look ?? ButtonLooks.PRIMARY}
-		w-full p-2 enabled:cursor-pointer transition-all flex gap-1 justify-center items-center`}>
+		w-full p-2 enabled:cursor-pointer transition-all flex gap-1 justify-center items-center outline-none`}>
 		{loading ? <Spinner /> : props.children}
 	</button>;
 }

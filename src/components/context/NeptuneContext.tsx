@@ -1,17 +1,19 @@
 "use client";
 
-import { Course, Meeting, Task, Term } from "@/db/types"
+import { ActionDispatch, createContext, useContext, useEffect, useReducer } from "react";
+
+import { Course, Meeting, Task, Term } from "@/db/types";
+import { exampleCourses, exampleMeetings, exampleTasks, exampleTerms } from "@/example-data";
+
 import { CoursesAction, coursesReducer } from "./courses";
 import { MeetingsAction, meetingsReducer } from "./meetings";
-import { ActionDispatch, createContext, useContext, useEffect, useReducer } from "react";
-import { exampleCourses, exampleMeetings, exampleTasks, exampleTerms } from "@/example-data";
 
 export type NeptuneData = {
 	courses: Course[],
 	meetings: Meeting[],
 	terms: Term[],
 	tasks: Task[],
-}
+};
 
 // Currently uses default data from example-data.ts. This file is gitignored as it contains my schedule from my uni.
 export const defaultNeptuneData: NeptuneData = {
@@ -19,17 +21,17 @@ export const defaultNeptuneData: NeptuneData = {
 	meetings: exampleMeetings,
 	terms: exampleTerms,
 	tasks: exampleTasks,
-}
+};
 
 export type ContextAction = CoursesAction | MeetingsAction;
 
 export function reducer(data: NeptuneData, action: ContextAction): NeptuneData {
 	switch (action.context) {
 		case "courses": {
-			return { ...data, courses: coursesReducer(data.courses, action) }
+			return { ...data, courses: coursesReducer(data.courses, action) };
 		}
 		case "meetings": {
-			return { ...data, meetings: meetingsReducer(data.meetings, action) }
+			return { ...data, meetings: meetingsReducer(data.meetings, action) };
 		}
 		default: {
 			console.error("Unknown context", action);

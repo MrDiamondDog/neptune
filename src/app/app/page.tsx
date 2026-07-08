@@ -1,18 +1,27 @@
 "use client";
 
-import WeeklyCalendar from "@/components/calendars/WeeklyCalendar";
+import { Plus, Settings } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { useEffect, useState } from "react";
+
+import Calendar, { CalendarEvent } from "@/components/calendars/Calendar";
 import { useApp } from "@/components/context/NeptuneContext";
 import CourseInline from "@/components/courses/CourseInline";
+import EditCourseModal from "@/components/courses/EditCourseModal";
 import MeetingsInline from "@/components/meetings/MeetingsInline";
+import Button, { ButtonLooks } from "@/components/primitives/Button";
 import Divider from "@/components/primitives/Divider";
+import { Dropdown, DropdownContent, DropdownItem, DropdownTrigger } from "@/components/primitives/Dropdown";
 import Task from "@/components/tasks/Task";
+import { throwToast } from "@/lib/errors";
 import { getDayOfWeekAbbr, meetingToCalendar } from "@/lib/meetings";
-import { useSession } from "next-auth/react";
+
+import { getCalendarEvents } from "../actions/users";
 
 function DashboardCard({ children }: React.PropsWithChildren) {
 	return <div className="w-full border-2 border-bg-lighter bg-bg-light p-2 max-h-[750px] overflow-x-hidden overflow-y-scroll">
 		{children}
-	</div>
+	</div>;
 }
 
 export default function App() {
@@ -21,9 +30,19 @@ export default function App() {
 	const data = useApp();
 	const { courses, meetings, tasks } = data;
 
+	const [icalEvents, setIcalEvents] = useState<CalendarEvent[]>([]);
+
+	const [openModal, setOpenModal] = useState("");
+
+	// Fetches from listed iCal source.
+	useEffect(() => {
+		getCalendarEvents().then(setIcalEvents).catch(e => throwToast("Could not fetch iCal events", e));
+	}, []);
+
 	if (!session || !session.data?.user)
 		return null;
 
+	// Gets all the courses that have a meeting today, in the order that they happen.
 	const coursesToday = courses.filter(course => {
 		const dayToday = getDayOfWeekAbbr();
 		const courseMeetingsToday = meetings.filter(m => m.courseId === course.id)
@@ -42,7 +61,22 @@ export default function App() {
 	});
 
 	return <main className="mx-auto w-fit min-w-200">
-		<h1>Good morning, {session.data.user.name}</h1>
+		<div className="flex w-full justify-between items-center mt-2">
+			<h1>Good morning, {session.data.user.name}</h1>
+			<div className="flex gap-2 items-center">
+				<Dropdown>
+					<DropdownTrigger asChild>
+						<Button><Plus /></Button>
+					</DropdownTrigger>
+					<DropdownContent>
+						<DropdownItem onClick={() => setOpenModal("new-course")}>New Course...</DropdownItem>
+					</DropdownContent>
+				</Dropdown>
+				<a href="/app/settings">
+					<Button look={ButtonLooks.SECONDARY}><Settings /></Button>
+				</a>
+			</div>
+		</div>
 		<Divider />
 
 		<div className="flex gap-2 mb-2">
@@ -67,7 +101,10 @@ export default function App() {
 			<h2>Your Schedule</h2>
 			<Divider />
 
-			<WeeklyCalendar events={meetings.map(m => meetingToCalendar(data, m.id)).filter(e => !!e)} />
+			<Calendar events={[...meetings.map(m => meetingToCalendar(data, m.id)).filter(e => !!e), ...icalEvents]} />
 		</DashboardCard>
-	</main>
+		<Divider />
+
+		<EditCourseModal open={openModal === "new-course"} onClose={() => setOpenModal("")} />
+	</main>;
 }
