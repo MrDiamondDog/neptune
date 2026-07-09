@@ -1,3 +1,4 @@
+import { DateInput } from "@fullcalendar/core/index.js";
 import { createClient } from "@libsql/client";
 import { drizzle } from "drizzle-orm/libsql";
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
@@ -74,6 +75,9 @@ export const meetingsTable = sqliteTable("meeting", {
 	instructor: text("instructor"),
 	// Meeting location for this section
 	location: text("location"),
+	// A list of excluded dates this meeting will not happen on.
+	exclusions: text("exclusions", { mode: "json" }).default("[]")
+		.$type<DateInput[]>()
 });
 
 export const tasksTable = sqliteTable("task", {

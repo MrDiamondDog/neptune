@@ -4,6 +4,7 @@ import { DateInput, DurationInput, EventClickArg } from "@fullcalendar/core/inde
 import dayGridPlugin from "@fullcalendar/daygrid";
 import iCalendarPlugin from "@fullcalendar/icalendar";
 import FullCalendar from "@fullcalendar/react";
+import rrulePlugin from "@fullcalendar/rrule";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import { useEffect, useState } from "react";
 
@@ -28,12 +29,11 @@ export type CalendarEvent = {
 export type RecurringEvent = {
 	id?: string;
 	title: string;
-	daysOfWeek: number[];
 	allDay?: boolean;
-	startTime?: DurationInput;
-	endTime?: DurationInput;
-	startRecur: DateInput;
-	endRecur: DateInput;
+	duration: DurationInput;
+	// I don't know what type FullCalendar is expecting here
+	rrule: object;
+	exdate?: DateInput[]
 };
 
 export default function Calendar({ events }: { events: (CalendarEvent | RecurringEvent)[] }) {
@@ -55,7 +55,7 @@ export default function Calendar({ events }: { events: (CalendarEvent | Recurrin
 
 	return <>
 		<FullCalendar
-			plugins={[timeGridPlugin, dayGridPlugin, iCalendarPlugin]}
+			plugins={[timeGridPlugin, dayGridPlugin, iCalendarPlugin, rrulePlugin]}
 			initialView="timeGridWeek"
 			editable={false}
 			events={events}
@@ -67,6 +67,7 @@ export default function Calendar({ events }: { events: (CalendarEvent | Recurrin
 				right: "prev,next,dayGridMonth,timeGridWeek",
 			}}
 			eventClick={e => setSelectedEvent(e)}
+			timeZone="America/Denver"
 		/>
 
 		{(selectedEvent) && <Portal>
@@ -76,7 +77,7 @@ export default function Calendar({ events }: { events: (CalendarEvent | Recurrin
 				top: `${selectedEvent.el.getBoundingClientRect().y + window.scrollY}px`
 			}}>
 				{!selectedEvent.event.id.startsWith("ical-") ? <>
-					{selectedCourse && <CourseInline course={selectedCourse} />}
+					{selectedCourse && <CourseInline course={selectedCourse} day={selectedEvent.event.start} meetingId={selectedEvent.event.id} />}
 					{selectedCourse && <MeetingsInline meetings={meetings.filter(m => m.courseId === selectedCourse.id)} />}
 				</> : <>
 					<p className="font-bold">{selectedEvent.event.title}</p>

@@ -1,7 +1,20 @@
+import { RRule } from "rrule";
+
 import { RecurringEvent } from "@/components/calendars/Calendar";
 import { NeptuneData } from "@/components/context/NeptuneContext";
 
+import { DAYS, MINUTES } from "./time";
+
 const dayOrder = [..."UMTWRFS"];
+const rruleDaysOfWeek = {
+	U: RRule.SU,
+	M: RRule.MO,
+	T: RRule.TU,
+	W: RRule.WE,
+	R: RRule.TH,
+	F: RRule.FR,
+	S: RRule.SA
+};
 
 /**
  * Sorts a days-of-the-week string by order of days of the week.
@@ -64,14 +77,24 @@ export function meetingToCalendar(data: NeptuneData, meetingId: string): Recurri
 	if (!term)
 		return null;
 
+	const firstMeeting = new Date(
+		term.start.getTime() +
+		(DAYS * dayOrder.indexOf(sortDaysOfWeek(meeting.days)[0])) +
+		(MINUTES * meeting.timeStart)
+	);
+
 	return {
 		id: meeting.id,
 		title: course.name,
-		daysOfWeek: [...meeting.days].map(d => dayOrder.indexOf(d)),
-		startRecur: term.start,
-		// Add one day to term end since endRecur is exclusive for some reason
-		endRecur: new Date(term.end.getTime() + 1000 * 60 * 60 * 24),
-		startTime: minutesToTime(meeting.timeStart, "24"),
-		endTime: minutesToTime(meeting.timeEnd, "24"),
+		duration: { minutes: meeting.timeEnd - meeting.timeStart },
+		exdate: meeting.exclusions ?? [],
+		rrule: {
+			freq: RRule.WEEKLY,
+			interval: 1,
+			byweekday: [...meeting.days].map(d => rruleDaysOfWeek[d as keyof typeof rruleDaysOfWeek]),
+			dtstart: firstMeeting,
+			until: term.end.toISOString(),
+			wkst: RRule.SU,
+		}
 	};
 }

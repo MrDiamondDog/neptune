@@ -35,7 +35,7 @@ export function DropdownTrigger(props: DropdownMenuTriggerProps) {
 export function DropdownContent(props: DropdownMenuContentProps) {
 	return (<DropdownMenuPortal>
 		<DropdownMenuContent {...props}
-			className={`${props.className ?? ""} bg-bg-lighter p-2 min-w-40 shadow-md z-20`}>
+			className={`${props.className ?? ""} bg-bg-lighter p-2 min-w-40 drop-shadow-lg z-20`}>
 			{props.children}
 		</DropdownMenuContent>
 	</DropdownMenuPortal>);

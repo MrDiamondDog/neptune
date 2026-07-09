@@ -1,4 +1,4 @@
-const daysOfWeek = [
+export const daysOfWeek = [
 	"Sun",
 	"Mon",
 	"Tue",
@@ -8,7 +8,7 @@ const daysOfWeek = [
 	"Sat"
 ];
 
-const months = [
+export const months = [
 	"Jan",
 	"Feb",
 	"Mar",
@@ -22,6 +22,10 @@ const months = [
 	"Nov",
 	"Dec"
 ];
+
+export const MINUTES = 1000 * 60;
+export const HOURS = MINUTES * 60;
+export const DAYS = HOURS * 24;
 
 export function prettyTimeRange(start: Date, end: Date, timeMode: "24" | "12" = "12") {
 	let startStr = "";
@@ -62,9 +66,7 @@ export function prettyDate(date: Date, mode: "24" | "12" | "hide" = "12") {
 }
 
 export function relativeDate(date: Date) {
-	const MINUTES = 1000 * 60;
-	const HOURS = MINUTES * 60;
-	const DAYS = HOURS * 24;
+
 
 	const now = new Date();
 
@@ -124,4 +126,17 @@ export function minutesToTime(minutes: number): string {
 	const hours = Math.floor(minutes / 60);
 	minutes -= hours * 60;
 	return `${hours < 10 ? "0" : ""}${hours}:${minutes < 10 ? "0" : ""}${minutes}`;
+}
+
+export function toUTCDate(date: Date): Date {
+	return new Date(
+		Date.UTC(
+			date.getFullYear(),
+			date.getMonth(),
+			date.getDate(),
+			date.getHours(),
+			date.getMinutes(),
+			date.getSeconds()
+		)
+	);
 }

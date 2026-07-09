@@ -11,6 +11,9 @@ export function meetingsReducer(data: Meeting[], action: MeetingsAction): Meetin
 		case "create": {
 			return [...data, action.data];
 		}
+		case "edit": {
+			return [...data.filter(d => d.id !== action.data.id), action.data];
+		}
 		case "set": {
 			return action.data;
 		}

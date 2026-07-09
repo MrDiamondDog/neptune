@@ -42,3 +42,28 @@ export async function createMeeting(data: MeetingInsert): ActionRes<Meeting> {
 
 	return res[0];
 }
+
+export async function editMeeting(data: Partial<Meeting> & { id: string }): ActionRes<Meeting> {
+	const user = await authenticate();
+
+	if (!user)
+		throw actionError("Not authenticated.");
+
+	const meeting = (
+		await db.select().from(meetingsTable)
+		.where(and(eq(meetingsTable.userId, user.id!), eq(meetingsTable.id, data.id)))
+			.catch(e => { throw actionError("Could not edit meeting", e); })
+	)[0];
+
+	if (!meeting)
+		throw actionError("Could not find meeting", `could not find meeting id: ${data.id}`);
+
+	const res = (
+		await db.update(meetingsTable).set(data)
+			.where(and(eq(meetingsTable.userId, user.id!), eq(meetingsTable.id, data.id)))
+			.returning()
+			.catch(e => { throw actionError("Could not edit meeting", e); })
+	)[0];
+
+	return res;
+}

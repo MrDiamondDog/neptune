@@ -6,7 +6,7 @@ import { useState } from "react";
 import { createCourse } from "@/app/actions/courses";
 import { createMeeting } from "@/app/actions/meetings";
 import { meetingsTable } from "@/db/schema";
-import { Course, CourseInsert, MeetingInsert } from "@/db/types";
+import { CourseInsert, MeetingInsert } from "@/db/types";
 import { deleteFromArray, modifyArrayItem } from "@/lib/array";
 import { throwToast } from "@/lib/errors";
 import { useObjectState } from "@/lib/hooks";
@@ -43,10 +43,10 @@ const defaultMeeting: typeof meetingsTable.$inferInsert = {
 	userId: "",
 };
 
-export default function EditCourseModal({ course: defaultCourse, ...props }: { course?: Course } & ModalProps) {
+export default function EditCourseModal({ course: defaultCourse, ...props }: { course?: CourseInsert } & ModalProps) {
 	const session = useSession();
 
-	const { terms } = useApp();
+	const { terms, meetings: meetingsList } = useApp();
 	const dispatch = useAppDispatch();
 
 	const [course, setCourse] = useObjectState<CourseInsert>(defaultCourse ?? {
@@ -56,7 +56,7 @@ export default function EditCourseModal({ course: defaultCourse, ...props }: { c
 		type: "lecture",
 		termId: "",
 	});
-	const [meetings, setMeetings] = useState<MeetingInsert[]>([]);
+	const [meetings, setMeetings] = useState<MeetingInsert[]>(defaultCourse?.id ? meetingsList.filter(m => m.courseId === defaultCourse.id) : []);
 
 	const [step, setStep] = useState(0);
 	const [termPopover, setTermPopover] = useState(false);
@@ -139,15 +139,14 @@ export default function EditCourseModal({ course: defaultCourse, ...props }: { c
 					<p>Meetings</p>
 					<Plus size={20} className="cursor-pointer" onClick={() => setMeetings([...meetings, { ...defaultMeeting, id: (meetings.length - 1) + "" }])} />
 				</div>
-				{meetings.map(m => <>
+				{meetings.map(m => <div key={m.id}>
 					<Divider />
 					<MeetingEditor
 						meeting={m}
 						onChange={m => setMeetings(modifyArrayItem(meetings, m, "id"))}
 						onDelete={() => setMeetings(deleteFromArray(meetings, m, "id"))}
-						key={m.id}
 					/>
-				</>)}
+				</div>)}
 			</div>
 		</>}
 

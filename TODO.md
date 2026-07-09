@@ -1,17 +1,32 @@
 # Core Features
-- [x] Course Creation
-	- [ ] Term Creation
+- [x] Courses
+	- [x] C
+	- [x] R
+	- [ ] U
+	- [ ] D
+	- [x] Term Creation
+- [ ] Meetings
+	- [x] C
+	- [x] R
+	- [ ] U
+	- [ ] D
+	- [ ] Edit meeting exclusions
 - [ ] To-do list
-	- [ ] Course
-	- [ ] Due date
+	- [ ] C
+	- [ ] R
+	- [ ] U
+	- [ ] D
+	- [x] Course
+	- [x] Due date
 	- [ ] Assignment link
 	- [ ] Notes
-	- [ ] Priority
+	- [x] Priority
 	- [ ] Time to complete
 	- [ ] Auto recognize various fields (due date, course, etc.)
 - [x] Calendar
 	- [x] Shows all courses and assignments
 	- [x] Sync to/from Google calendar
+	- [x] Meeting exclusions
 	- [ ] Show ICS link in settings
 - [ ] Study/work tools
 	- [ ] Pomodoro timer
@@ -24,3 +39,4 @@
 
 ## Fixes
 - [ ] Timezone option for calendar shenanegans
+- [ ] Make course/meeting editing actually work
