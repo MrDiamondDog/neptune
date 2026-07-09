@@ -12,6 +12,7 @@ import MeetingsInline from "@/components/meetings/MeetingsInline";
 import Button, { ButtonLooks } from "@/components/primitives/Button";
 import Divider from "@/components/primitives/Divider";
 import { Dropdown, DropdownContent, DropdownItem, DropdownTrigger } from "@/components/primitives/Dropdown";
+import Subtext from "@/components/primitives/Subtext";
 import Task from "@/components/tasks/Task";
 import { throwToast } from "@/lib/errors";
 import { getDayOfWeekAbbr, meetingToCalendar } from "@/lib/meetings";
@@ -83,6 +84,10 @@ export default function App() {
 			<DashboardCard>
 				<h2>Your Day</h2>
 
+				{!coursesToday.length && <>
+					<Divider />
+					<Subtext className="w-full text-center">Enjoy the day off!</Subtext>
+				</>}
 				{coursesToday.map(course => <div key={course.id}>
 					<Divider />
 					<CourseInline course={course} />
