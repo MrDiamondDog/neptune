@@ -13,7 +13,8 @@ export async function authenticate(): Promise<User | null> {
 	return session.user!;
 }
 
-export function actionError(errorUser: string, errorInternal?: any) {
-	errorInternal && console.error(errorInternal);
+export function actionError(errorUser: string, errorInternal?: unknown) {
+	if (errorInternal)
+		console.error(errorInternal);
 	return errorUser;
 }

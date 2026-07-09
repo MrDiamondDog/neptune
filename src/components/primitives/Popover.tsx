@@ -13,3 +13,7 @@ export function PopoverContent(props: RadixPopover.PopoverContentProps) {
 		</RadixPopover.Content>
 	</RadixPopover.Portal>;
 }
+
+export function PopoverArrow(props: RadixPopover.PopoverArrowProps) {
+	return <RadixPopover.PopoverArrow {...props} width={15} height={10} className="fill-bg-lightest" />;
+}

@@ -1,4 +1,6 @@
 # Core Features
+- [x] Course Creation
+	- [ ] Term Creation
 - [ ] To-do list
 	- [ ] Course
 	- [ ] Due date
@@ -11,7 +13,6 @@
 	- [x] Shows all courses and assignments
 	- [x] Sync to/from Google calendar
 	- [ ] Show ICS link in settings
-	- [ ]
 - [ ] Study/work tools
 	- [ ] Pomodoro timer
 	- [ ] Flashcards

@@ -2,11 +2,15 @@
 
 import { ActionDispatch, createContext, useContext, useEffect, useReducer } from "react";
 
+import { getCourses } from "@/app/actions/courses";
+import { getAllMeetings } from "@/app/actions/meetings";
+import { getTerms } from "@/app/actions/terms";
 import { Course, Meeting, Task, Term } from "@/db/types";
 import { exampleCourses, exampleMeetings, exampleTasks, exampleTerms } from "@/example-data";
 
 import { CoursesAction, coursesReducer } from "./courses";
 import { MeetingsAction, meetingsReducer } from "./meetings";
+import { TermsAction, termsReducer } from "./terms";
 
 export type NeptuneData = {
 	courses: Course[],
@@ -23,7 +27,7 @@ export const defaultNeptuneData: NeptuneData = {
 	tasks: exampleTasks,
 };
 
-export type ContextAction = CoursesAction | MeetingsAction;
+export type ContextAction = CoursesAction | MeetingsAction | TermsAction;
 
 export function reducer(data: NeptuneData, action: ContextAction): NeptuneData {
 	switch (action.context) {
@@ -32,6 +36,9 @@ export function reducer(data: NeptuneData, action: ContextAction): NeptuneData {
 		}
 		case "meetings": {
 			return { ...data, meetings: meetingsReducer(data.meetings, action) };
+		}
+		case "terms": {
+			return { ...data, terms: termsReducer(data.terms, action) };
 		}
 		default: {
 			console.error("Unknown context", action);
@@ -47,7 +54,9 @@ export function NeptuneProvider({ children }: React.PropsWithChildren) {
 	const [data, dispatch] = useReducer(reducer, defaultNeptuneData);
 
 	useEffect(() => {
-
+		getCourses().then(data => dispatch({ context: "courses", type: "set", data }));
+		getAllMeetings().then(data => dispatch({ context: "meetings", type: "set", data }));
+		getTerms().then(data => dispatch({ context: "terms", type: "set", data }));
 	}, []);
 
 	return (<NeptuneContext value={data}>
@@ -62,5 +71,8 @@ export function useApp(): NeptuneData {
 }
 
 export function useAppDispatch(): ActionDispatch<[ContextAction]> {
-	return useContext(NeptuneDispatchContext)!;
+	const dispatch = useContext(NeptuneDispatchContext);
+	if (!dispatch)
+		throw "No dispatch???";
+	return dispatch;
 }

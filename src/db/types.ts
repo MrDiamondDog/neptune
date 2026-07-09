@@ -6,5 +6,6 @@ export type Course = typeof coursesTable.$inferSelect;
 export type Meeting = typeof meetingsTable.$inferSelect;
 export type Task = typeof tasksTable.$inferSelect;
 
-export type CourseInsert = typeof coursesTable.$inferInsert;
-export type MeetingInsert = typeof meetingsTable.$inferInsert;
+export type TermInsert = Omit<typeof termsTable.$inferInsert, "userId">;
+export type CourseInsert = Omit<typeof coursesTable.$inferInsert, "userId">;
+export type MeetingInsert = Omit<typeof meetingsTable.$inferInsert, "userId">;

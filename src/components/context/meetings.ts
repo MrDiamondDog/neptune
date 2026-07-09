@@ -7,5 +7,15 @@ export type MeetingsAction =
 	{ context: "meetings", type: "set", data: Meeting[] };
 
 export function meetingsReducer(data: Meeting[], action: MeetingsAction): Meeting[] {
-	return data;
+	switch (action.type) {
+		case "create": {
+			return [...data, action.data];
+		}
+		case "set": {
+			return action.data;
+		}
+		default: {
+			return data;
+		}
+	}
 }

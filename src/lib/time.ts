@@ -123,5 +123,5 @@ export function timeToMinutes(time: string): number {
 export function minutesToTime(minutes: number): string {
 	const hours = Math.floor(minutes / 60);
 	minutes -= hours * 60;
-	return `${hours}:${minutes < 10 ? "0" : ""}${minutes}`;
+	return `${hours < 10 ? "0" : ""}${hours}:${minutes < 10 ? "0" : ""}${minutes}`;
 }
