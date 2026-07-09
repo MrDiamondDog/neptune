@@ -26,7 +26,7 @@ export const usersTable = sqliteTable("user", {
 
 export const termsTable = sqliteTable("term", {
 	...id,
-	userId: text("userId").references(() => usersTable.id).notNull(),
+	userId: text("userId").references(() => usersTable.id, { onDelete: "cascade" }).notNull(),
 
 	// Ex. fall, spring, summer
 	season: text("season").notNull(),
@@ -41,9 +41,9 @@ export const termsTable = sqliteTable("term", {
 // Represents a course. Each course is divided into sections.
 export const coursesTable = sqliteTable("course", {
 	...id,
-	userId: text("userId").references(() => usersTable.id).notNull(),
+	userId: text("userId").references(() => usersTable.id, { onDelete: "cascade" }).notNull(),
 	// The term that this course is a part of.
-	termId: text("termId").notNull(),
+	termId: text("termId").references(() => termsTable.id, { onDelete: "cascade" }).notNull(),
 
 	// This course's formal name, ex. "Data Structures"
 	name: text("name").notNull(),
@@ -61,8 +61,8 @@ export const coursesTable = sqliteTable("course", {
 // Represents meeting times of a course. Each meeting can have different times, instructors, meeting days/times, etc. Most courses have one.
 export const meetingsTable = sqliteTable("meeting", {
 	...id,
-	userId: text("userId").references(() => usersTable.id).notNull(),
-	courseId: text("courseId").references(() => coursesTable.id).notNull(),
+	userId: text("userId").references(() => usersTable.id, { onDelete: "cascade" }).notNull(),
+	courseId: text("courseId").references(() => coursesTable.id, { onDelete: "cascade" }).notNull(),
 
 	// Days of the week this section is for. Formatted as a string, each char representing a day.
 	// M = monday, T = tuesday, W = wednesday, R = thursday, F = friday, S = saturday, U = sunday
@@ -82,13 +82,13 @@ export const meetingsTable = sqliteTable("meeting", {
 
 export const tasksTable = sqliteTable("task", {
 	...id,
-	userId: text("userId").references(() => usersTable.id).notNull(),
+	userId: text("userId").references(() => usersTable.id, { onDelete: "cascade" }).notNull(),
 
 	title: text("title").notNull(),
 	complete: integer("complete", { mode: "boolean" }).notNull().default(false),
 	dueDate: integer("dueDate", { mode: "timestamp" }),
 	// Optionally attach a course to this task.
-	courseId: text("courseId").references(() => coursesTable.id),
+	courseId: text("courseId").references(() => coursesTable.id, { onDelete: "cascade" }),
 	link: text("link"),
 	note: text("note"),
 	priority: integer("priority"),
