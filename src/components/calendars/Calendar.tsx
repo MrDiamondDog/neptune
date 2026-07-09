@@ -9,7 +9,7 @@ import timeGridPlugin from "@fullcalendar/timegrid";
 import { useEffect, useState } from "react";
 
 import { Course } from "@/db/types";
-import { prettyTimeRange } from "@/lib/time";
+import { MINUTES, prettyTimeRange } from "@/lib/time";
 
 import { useApp } from "../context/NeptuneContext";
 import CourseInline from "../courses/CourseInline";
@@ -81,7 +81,15 @@ export default function Calendar({ events }: { events: (CalendarEvent | Recurrin
 					{selectedCourse && <MeetingsInline meetings={meetings.filter(m => m.courseId === selectedCourse.id)} />}
 				</> : <>
 					<p className="font-bold">{selectedEvent.event.title}</p>
-					<p>{prettyTimeRange(selectedEvent.event.start!, selectedEvent.event.end!)}</p>
+					{selectedEvent.event.start && selectedEvent.event.end &&
+						<p>
+							{/* I hate timezones */}
+							{prettyTimeRange(
+								new Date(selectedEvent.event.start.getTime() + MINUTES * selectedEvent.event.start.getTimezoneOffset()),
+								new Date(selectedEvent.event.end.getTime() + MINUTES * selectedEvent.event.end.getTimezoneOffset())
+							)}
+						</p>
+					}
 					<Subtext>From iCal</Subtext>
 				</>}
 			</div>

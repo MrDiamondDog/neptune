@@ -6,6 +6,7 @@ import ical, { VEvent } from "node-ical";
 import { CalendarEvent } from "@/components/calendars/Calendar";
 import { db, usersTable } from "@/db/schema";
 import { User } from "@/db/types";
+import { toUTCDate } from "@/lib/time";
 
 import { actionError, ActionRes, authenticate } from ".";
 
@@ -42,8 +43,8 @@ export async function getCalendarEvents(): ActionRes<CalendarEvent[]> {
 				id: `ical-${event.uid}`,
 				title: instance.summary.toString(),
 				allDay: instance.isFullDay,
-				start: instance.start,
-				end: instance.end,
+				start: toUTCDate(instance.start),
+				end: toUTCDate(instance.end),
 				color: "#2aa841"
 			}));
 
@@ -51,8 +52,8 @@ export async function getCalendarEvents(): ActionRes<CalendarEvent[]> {
 			id: `ical-${event.uid}`,
 			title: event.summary.toString(),
 			allDay: !!event.start.dateOnly,
-			start: event.start,
-			end: event.end ?? new Date(event.start.getTime() + 1000 * 60 * 60 * 24),
+			start: toUTCDate(event.start),
+			end: toUTCDate(event.end ?? new Date(event.start.getTime() + 1000 * 60 * 60 * 24)),
 			color: "#2aa841"
 		}];
 	}
