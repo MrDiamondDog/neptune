@@ -1,5 +1,5 @@
 # Core Features
-- [x] Courses
+- [ ] Courses
 	- [x] C
 	- [x] R
 	- [ ] U
@@ -10,7 +10,7 @@
 	- [x] R
 	- [ ] U
 	- [ ] D
-	- [ ] Edit meeting exclusions
+	- [x] Edit meeting exclusions
 - [ ] To-do list
 	- [ ] C
 	- [ ] R

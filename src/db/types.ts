@@ -9,3 +9,4 @@ export type Task = typeof tasksTable.$inferSelect;
 export type TermInsert = Omit<typeof termsTable.$inferInsert, "userId">;
 export type CourseInsert = Omit<typeof coursesTable.$inferInsert, "userId">;
 export type MeetingInsert = Omit<typeof meetingsTable.$inferInsert, "userId">;
+export type TaskInsert = Omit<typeof tasksTable.$inferInsert, "userId">;

@@ -13,6 +13,7 @@ import Button, { ButtonLooks } from "@/components/primitives/Button";
 import Divider from "@/components/primitives/Divider";
 import { Dropdown, DropdownContent, DropdownItem, DropdownTrigger } from "@/components/primitives/Dropdown";
 import Subtext from "@/components/primitives/Subtext";
+import EditTask from "@/components/tasks/EditTask";
 import Task from "@/components/tasks/Task";
 import { throwToast } from "@/lib/errors";
 import { getDayOfWeekAbbr, meetingToCalendar } from "@/lib/meetings";
@@ -33,6 +34,7 @@ export default function App() {
 
 	const [icalEvents, setIcalEvents] = useState<CalendarEvent[]>([]);
 
+	const [editingTask, setEditingTask] = useState<string>();
 	const [openModal, setOpenModal] = useState("");
 
 	// Fetches from listed iCal source.
@@ -98,8 +100,18 @@ export default function App() {
 				<h2>Tasks</h2>
 				<Divider />
 
+				{!editingTask && <button className="w-full flex justify-center bg-bg py-1 mb-1 cursor-pointer hover:bg-bg-lighter" onClick={() => setEditingTask("new")}>
+					<Plus size={16} />
+				</button>}
+				{editingTask === "new" && <EditTask onEditEnd={() => setEditingTask("")} />}
+
+				{/* Sort by due date */}
 				{tasks.sort((a, b) => (a.dueDate ?? new Date()).getTime() - (b.dueDate ?? new Date()).getTime())
-					.map(task => <Task task={task} key={task.id} />)}
+					.map(task =>
+						editingTask === task.id ?
+							<EditTask task={task} key={task.id} /> :
+							<Task task={task} key={task.id} />
+					)}
 			</DashboardCard>
 		</div>
 		<DashboardCard>

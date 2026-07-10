@@ -26,6 +26,19 @@ export const months = [
 export const MINUTES = 1000 * 60;
 export const HOURS = MINUTES * 60;
 export const DAYS = HOURS * 24;
+export const WEEKS = DAYS * 7;
+export const YEARS = WEEKS * 52;
+
+export const unitTime = {
+	"m": MINUTES,
+	"minute": MINUTES,
+	"h": HOURS,
+	"hour": HOURS,
+	"d": DAYS,
+	"day": DAYS,
+	"w": WEEKS,
+	"week": WEEKS,
+};
 
 export function prettyTimeRange(start: Date, end: Date, timeMode: "24" | "12" = "12") {
 	let startStr = "";
@@ -62,15 +75,15 @@ export function prettyTime(date: Date, mode: "24" | "12" = "12") {
 }
 
 export function prettyDate(date: Date, mode: "24" | "12" | "hide" = "12") {
-	return `${daysOfWeek[date.getDay()]}, ${months[date.getMonth()]} ${date.getDate()}${mode === "hide" ? "" : ", " + prettyTime(date, mode)}`;
+	const showYear = date.getFullYear() !== new Date().getFullYear();
+	return `${daysOfWeek[date.getDay()]}, ${months[date.getMonth()]} ${date.getDate()}${showYear ? `, ${date.getFullYear()}` : ""}${mode === "hide" ? "" : ", " + prettyTime(date, mode)}`;
 }
 
 export function relativeDate(date: Date) {
-
-
 	const now = new Date();
 
-	const relativeTime = Math.abs(date.getTime() - now.getTime());
+	// Add 1 second to prevent floating point precision errors
+	const relativeTime = Math.abs(date.getTime() - now.getTime()) + 1000;
 
 	let relativeString = "";
 	let isPast = false;
@@ -83,7 +96,6 @@ export function relativeDate(date: Date) {
 		return prettyDate(date);
 
 	const inDays = Math.floor(relativeTime / DAYS);
-
 	relativeString = `${inDays} days`;
 
 	if (inDays === 0) {
