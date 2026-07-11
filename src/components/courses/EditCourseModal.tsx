@@ -12,7 +12,7 @@ import { throwToast } from "@/lib/errors";
 import { useObjectState } from "@/lib/hooks";
 import { titleCase } from "@/lib/string";
 
-import { useApp, useAppDispatch } from "../context/NeptuneContext";
+import { useApp } from "../context/NeptuneContext";
 import MeetingEditor from "../meetings/MeetingEditor";
 import MeetingsInline from "../meetings/MeetingsInline";
 import Button, { ButtonLooks } from "../primitives/Button";
@@ -46,8 +46,7 @@ const defaultMeeting: typeof meetingsTable.$inferInsert = {
 export default function EditCourseModal({ course: defaultCourse, ...props }: { course?: CourseInsert } & ModalProps) {
 	const session = useSession();
 
-	const { terms, meetings: meetingsList } = useApp();
-	const dispatch = useAppDispatch();
+	const { terms, meetings: meetingsList, dispatch } = useApp();
 
 	const [course, setCourse] = useObjectState<CourseInsert>(defaultCourse ?? {
 		name: "",

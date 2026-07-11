@@ -5,13 +5,13 @@ import { Term, TermInsert } from "@/db/types";
 import { throwToast } from "@/lib/errors";
 import { useObjectState } from "@/lib/hooks";
 
-import { useAppDispatch } from "../context/NeptuneContext";
+import { useApp } from "../context/NeptuneContext";
 import Button from "../primitives/Button";
 import Input from "../primitives/Input";
 import { PopoverArrow,PopoverContent } from "../primitives/Popover";
 
 export default function EditTermPopover({ term: defaultTerm, onCreate }: { term?: Term, onCreate?: (term: Term) => void }) {
-	const dispatch = useAppDispatch();
+	const { dispatch } = useApp();
 
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState("");

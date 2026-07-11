@@ -6,14 +6,13 @@ import { useState } from "react";
 import { editMeeting } from "@/app/actions/meetings";
 import { CourseInsert } from "@/db/types";
 
-import { useApp, useAppDispatch } from "../context/NeptuneContext";
+import { useApp } from "../context/NeptuneContext";
 import { Dropdown, DropdownContent, DropdownItem, DropdownTrigger } from "../primitives/Dropdown";
 import Subtext from "../primitives/Subtext";
 import EditCourseModal from "./EditCourseModal";
 
 export default function CourseInline({ course, day, meetingId }: { course: CourseInsert, day?: Date | null, meetingId?: string | null }) {
-	const { meetings } = useApp();
-	const dispatch = useAppDispatch();
+	const { meetings, dispatch } = useApp();
 
 	const [openModal, setOpenModal] = useState("");
 

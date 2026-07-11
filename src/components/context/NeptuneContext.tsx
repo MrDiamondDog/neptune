@@ -11,12 +11,15 @@ import { exampleCourses, exampleMeetings, exampleTasks, exampleTerms } from "@/e
 import { CoursesAction, coursesReducer } from "./courses";
 import { MeetingsAction, meetingsReducer } from "./meetings";
 import { TermsAction, termsReducer } from "./terms";
+import { TasksAction, tasksReducer } from "./todos";
 
 export type NeptuneData = {
 	courses: Course[],
 	meetings: Meeting[],
 	terms: Term[],
 	tasks: Task[],
+
+	dispatch: ActionDispatch<[ContextAction]>,
 };
 
 // Currently uses default data from example-data.ts. This file is gitignored as it contains my schedule from my uni.
@@ -25,9 +28,11 @@ export const defaultNeptuneData: NeptuneData = {
 	meetings: exampleMeetings,
 	terms: exampleTerms,
 	tasks: exampleTasks,
+
+	dispatch: () => { throw "Dispatch called outside of NeptuneProvider."; },
 };
 
-export type ContextAction = CoursesAction | MeetingsAction | TermsAction;
+export type ContextAction = CoursesAction | MeetingsAction | TermsAction | TasksAction;
 
 export function reducer(data: NeptuneData, action: ContextAction): NeptuneData {
 	switch (action.context) {
@@ -40,6 +45,9 @@ export function reducer(data: NeptuneData, action: ContextAction): NeptuneData {
 		case "terms": {
 			return { ...data, terms: termsReducer(data.terms, action) };
 		}
+		case "tasks": {
+			return { ...data, tasks: tasksReducer(data.tasks, action) };
+		}
 		default: {
 			console.error("Unknown context", action);
 			return data;
@@ -48,7 +56,6 @@ export function reducer(data: NeptuneData, action: ContextAction): NeptuneData {
 }
 
 export const NeptuneContext = createContext<NeptuneData>(defaultNeptuneData);
-export const NeptuneDispatchContext = createContext<ActionDispatch<[ContextAction]> | null>(null);
 
 export function NeptuneProvider({ children }: React.PropsWithChildren) {
 	const [data, dispatch] = useReducer(reducer, defaultNeptuneData);
@@ -59,20 +66,11 @@ export function NeptuneProvider({ children }: React.PropsWithChildren) {
 		getTerms().then(data => dispatch({ context: "terms", type: "set", data }));
 	}, []);
 
-	return (<NeptuneContext value={data}>
-		<NeptuneDispatchContext value={dispatch}>
-			{children}
-		</NeptuneDispatchContext>
+	return (<NeptuneContext value={{ ...data, dispatch }}>
+		{children}
 	</NeptuneContext>);
 }
 
 export function useApp(): NeptuneData {
 	return useContext(NeptuneContext);
-}
-
-export function useAppDispatch(): ActionDispatch<[ContextAction]> {
-	const dispatch = useContext(NeptuneDispatchContext);
-	if (!dispatch)
-		throw "No dispatch???";
-	return dispatch;
 }

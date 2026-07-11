@@ -16,13 +16,14 @@
 	- [ ] R
 	- [ ] U
 	- [ ] D
-	- [x] Course
-	- [x] Due date
-	- [ ] Assignment link
+	- [x ] Course
+	- [x ] Due date
+	- [x ] Assignment link
 	- [ ] Notes
-	- [x] Priority
+	- [x ] Priority
 	- [ ] Time to complete
-	- [ ] Auto recognize various fields (due date, course, etc.)
+	- [x] Auto recognize various fields (due date, course, etc.)
+		- [ ] Time to complete?
 - [x] Calendar
 	- [x] Shows all courses and assignments
 	- [x] Sync to/from Google calendar
