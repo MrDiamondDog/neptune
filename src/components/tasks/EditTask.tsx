@@ -5,8 +5,8 @@ import { createTask } from "@/app/actions/tasks";
 import { Task, TaskInsert } from "@/db/types";
 import { throwToast } from "@/lib/errors";
 import { useObjectState } from "@/lib/hooks";
+import { findDate, findDateMatch } from "@/lib/tasks";
 import { relativeDate } from "@/lib/time";
-import { findDate, findDateMatch } from "@/lib/todo";
 
 import { useApp } from "../context/NeptuneContext";
 import Input from "../primitives/Input";

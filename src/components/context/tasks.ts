@@ -11,6 +11,9 @@ export function tasksReducer(data: Task[], action: TasksAction): Task[] {
 		case "create": {
 			return [...data, action.data];
 		}
+		case "edit": {
+			return [...data.filter(d => d.id !== action.data.id), action.data];
+		}
 		case "set": {
 			return action.data;
 		}
