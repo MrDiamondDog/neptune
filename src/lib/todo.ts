@@ -54,7 +54,7 @@ export const dateMatchers: DateMatcher[] = [
 	{
 		// (in)? (time) (time unit)s (ago)?
 		// in 5 days, 3 weeks ago, etc.
-		match: /(in )?(\d) ?(week|w|day|d|hour|h|minute|m)s?( ago)?/i,
+		match: /(in )?(\d) ?(week|w|day|d|hour|h|minute|m)s? (ago)?/i,
 		priority: 15,
 		date: match => {
 			const time = match[2];
@@ -160,6 +160,17 @@ export function findDate(str: string): Date | undefined {
 			continue;
 
 		return res;
+	}
+
+	return undefined;
+}
+
+export function findDateMatch(str: string): RegExpMatchArray | undefined {
+	for (const matcher of [...dateMatchers].sort((a, b) => b.priority - a.priority)) {
+		const match = matcher.match.exec(str);
+		if (!match)
+			continue;
+		return match;
 	}
 
 	return undefined;

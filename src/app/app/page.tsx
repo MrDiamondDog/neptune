@@ -109,7 +109,7 @@ export default function App() {
 				{tasks.sort((a, b) => (a.dueDate ?? new Date()).getTime() - (b.dueDate ?? new Date()).getTime())
 					.map(task =>
 						editingTask === task.id ?
-							<EditTask task={task} key={task.id} /> :
+							<EditTask task={task} key={task.id} onEditEnd={() => setEditingTask(undefined)} /> :
 							<Task task={task} key={task.id} />
 					)}
 			</DashboardCard>

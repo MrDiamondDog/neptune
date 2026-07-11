@@ -4,14 +4,15 @@ import { ActionDispatch, createContext, useContext, useEffect, useReducer } from
 
 import { getCourses } from "@/app/actions/courses";
 import { getAllMeetings } from "@/app/actions/meetings";
+import { getTasks } from "@/app/actions/tasks";
 import { getTerms } from "@/app/actions/terms";
 import { Course, Meeting, Task, Term } from "@/db/types";
 import { exampleCourses, exampleMeetings, exampleTasks, exampleTerms } from "@/example-data";
 
 import { CoursesAction, coursesReducer } from "./courses";
 import { MeetingsAction, meetingsReducer } from "./meetings";
+import { TasksAction, tasksReducer } from "./tasks";
 import { TermsAction, termsReducer } from "./terms";
-import { TasksAction, tasksReducer } from "./todos";
 
 export type NeptuneData = {
 	courses: Course[],
@@ -64,6 +65,7 @@ export function NeptuneProvider({ children }: React.PropsWithChildren) {
 		getCourses().then(data => dispatch({ context: "courses", type: "set", data }));
 		getAllMeetings().then(data => dispatch({ context: "meetings", type: "set", data }));
 		getTerms().then(data => dispatch({ context: "terms", type: "set", data }));
+		getTasks().then(data => dispatch({ context: "tasks", type: "set", data }));
 	}, []);
 
 	return (<NeptuneContext value={{ ...data, dispatch }}>
