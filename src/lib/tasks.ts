@@ -1,3 +1,5 @@
+import { Task } from "@/db/types";
+
 import { DAYS, unitTime } from "./time";
 
 export type DateMatcher = {
@@ -174,4 +176,14 @@ export function findDateMatch(str: string): RegExpMatchArray | undefined {
 	}
 
 	return undefined;
+}
+
+export function sortTasks(tasks: Task[]) {
+	return tasks
+		// Sort by name
+		.sort((a, b) => a.title.localeCompare(b.title))
+		// Then by due date
+		.sort((a, b) => (a.dueDate ?? new Date()).getTime() - (b.dueDate ?? new Date()).getTime())
+		// Then completed tasks to the bottom
+		.sort((a, b) => a.complete === b.complete ? 0 : a.complete ? 1 : -1);
 }

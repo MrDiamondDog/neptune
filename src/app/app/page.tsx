@@ -17,6 +17,7 @@ import EditTask from "@/components/tasks/EditTask";
 import Task from "@/components/tasks/Task";
 import { throwToast } from "@/lib/errors";
 import { getDayOfWeekAbbr, meetingToCalendar } from "@/lib/meetings";
+import { sortTasks } from "@/lib/tasks";
 
 import { getCalendarEvents } from "../actions/users";
 
@@ -106,12 +107,11 @@ export default function App() {
 				{editingTask === "new" && <EditTask onEditEnd={() => setEditingTask("")} />}
 
 				{/* Sort by due date */}
-				{tasks.sort((a, b) => (a.dueDate ?? new Date()).getTime() - (b.dueDate ?? new Date()).getTime())
-					.map(task =>
-						editingTask === task.id ?
-							<EditTask task={task} key={task.id} onEditEnd={() => setEditingTask(undefined)} /> :
-							<Task task={task} key={task.id} />
-					)}
+				{sortTasks(tasks).map(task =>
+					editingTask === task.id ?
+						<EditTask task={task} key={task.id} onEditEnd={() => setEditingTask(undefined)} /> :
+						<Task task={task} key={task.id} />
+				)}
 			</DashboardCard>
 		</div>
 		<DashboardCard>
