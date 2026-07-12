@@ -29,12 +29,16 @@ export default function EditTermPopover({ term: defaultTerm, onCreate }: { term?
 		if (!term.start || !term.end || !term.season || !term.year)
 			return void setError("Fill out all required values.");
 
-		if (term.start.getDay() !== 6 || term.end.getDay() !== 5)
+		// Ensure they begin/end at 12:00am
+		const termStart = new Date(term.start.getFullYear(), term.start.getMonth(), term.start.getDate(), 0, 0);
+		const termEnd = new Date(term.end.getFullYear(), term.end.getMonth(), term.end.getDate(), 0, 0);
+
+		if (termStart.getDay() !== 6 || termEnd.getDay() !== 5)
 			return void setError("Start must be a Sunday and end must be a Saturday.");
 
 		setLoading(true);
 
-		const res = await createTerm(term).catch(e => {
+		const res = await createTerm({ ...term, start: termStart, end: termEnd }).catch(e => {
 			setLoading(false);
 			throw throwToast("Could not create term", e);
 		});
