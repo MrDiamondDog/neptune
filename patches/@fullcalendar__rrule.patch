@@ -1,0 +1,15 @@
+diff --git a/index.js b/index.js
+index 395ab3a0de7182958748e62e56c9b3f3fe8f6f89..54371a94d1b416cba11a613ebc084395e9672923 100644
+--- a/index.js
++++ b/index.js
+@@ -56,7 +56,9 @@ function parseEventRRule(eventProps, dateEnv) {
+     let exdateInputs = [].concat(eventProps.exdate || []);
+     let exruleInputs = [].concat(eventProps.exrule || []);
+     for (let exdateInput of exdateInputs) {
+-        let res = parseMarker(exdateInput);
++		let res = parseMarker(exdateInput);
++		if (!res)
++			continue;
+         isTimeSpecified = isTimeSpecified || !res.isTimeUnspecified;
+         isTimeZoneSpecified = isTimeZoneSpecified || res.timeZoneOffset !== null;
+         rruleSet.exdate(new Date(res.marker.valueOf() - (res.timeZoneOffset || 0) * 60 * 1000));

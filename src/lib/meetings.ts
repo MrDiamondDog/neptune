@@ -83,8 +83,6 @@ export function meetingToCalendar(data: NeptuneData, meetingId: string): Recurri
 		(MINUTES * meeting.timeStart)
 	);
 
-	console.log(meeting.exclusions);
-
 	return {
 		id: meeting.id,
 		title: course.name,

@@ -10,6 +10,7 @@ import { CourseInsert, MeetingInsert } from "@/db/types";
 import { deleteFromArray, modifyArrayItem } from "@/lib/array";
 import { throwToast } from "@/lib/errors";
 import { useObjectState } from "@/lib/hooks";
+import { randomFrom } from "@/lib/random";
 import { titleCase } from "@/lib/string";
 
 import { useApp } from "../context/NeptuneContext";
@@ -23,6 +24,7 @@ import { Popover } from "../primitives/Popover";
 import RequiredStar from "../primitives/RequiredStar";
 import { Select } from "../primitives/Select";
 import EditTermPopover from "../terms/EditTermPopover";
+import CourseColorPicker, { courseColors } from "./CourseColorPicker";
 import CourseInline from "./CourseInline";
 
 export const courseTypes = {
@@ -54,6 +56,7 @@ export default function EditCourseModal({ course: defaultCourse, ...props }: { c
 		number: "",
 		type: "lecture",
 		termId: "",
+		color: randomFrom(courseColors)
 	});
 	const [meetings, setMeetings] = useState<MeetingInsert[]>(defaultCourse?.id ? meetingsList.filter(m => m.courseId === defaultCourse.id) : []);
 
@@ -130,6 +133,9 @@ export default function EditCourseModal({ course: defaultCourse, ...props }: { c
 			{(!Object.keys(courseTypes).includes(course.type ?? "lecture")) &&
 				<Input placeholder="Other Course Type" className="mt-1 w-full" />
 			}
+
+			<p>Color</p>
+			<CourseColorPicker value={course.color} onChange={c => setCourse({ color: c })} />
 		</>}
 
 		{step === 1 && <>

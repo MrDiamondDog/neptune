@@ -3,6 +3,7 @@ import { toast } from "sonner";
 
 import { createTask, editTask } from "@/app/actions/tasks";
 import { Task, TaskInsert } from "@/db/types";
+import { hexToRgb } from "@/lib/colors";
 import { throwToast } from "@/lib/errors";
 import { useObjectState } from "@/lib/hooks";
 import { findDate, findDateMatch } from "@/lib/tasks";
@@ -23,20 +24,23 @@ export default function EditTask({ task: defaultTask, onEditEnd }: { task?: Task
 	});
 
 	const { courses, dispatch } = useApp();
+	const course = courses.find(c => c.id === task.courseId);
 
 	// Uses a bunch of regex expressions to find due date, priority, course, or URL fields, then updates the task with those fields.
 	function updateTaskFields(title: string) {
 		const dueDate = findDate(title);
 
 		const priorityMatch = title.match(priorityRegex);
-		const priority = priorityMatch ? parseInt(priorityMatch[1]) : undefined;
+		const priority = priorityMatch ? parseInt(priorityMatch[1]) : null;
 
 		const courseMatch = title.match(courseRegex);
-		const course = courseMatch && courses.find(c => c.subject.toLowerCase() === courseMatch[1]?.toLowerCase() && c.number === courseMatch[2]);
+		const course = courseMatch ?
+			courses.find(c => c.subject.toLowerCase() === courseMatch[1]?.toLowerCase() && c.number === courseMatch[2])
+			: null;
 
 		const url = title.match(urlRegex);
 
-		const newTask: TaskInsert = { ...task, title, dueDate, priority, link: url?.[0], courseId: course?.id };
+		const newTask: TaskInsert = { ...task, title, dueDate, priority, link: url?.[0] ?? null, courseId: course?.id ?? null };
 		setTask(newTask);
 		return newTask;
 	}
@@ -95,7 +99,11 @@ export default function EditTask({ task: defaultTask, onEditEnd }: { task?: Task
 				{task?.dueDate && <Subtext>{relativeDate(task.dueDate)}</Subtext>}
 				<div className="flex gap-1">
 					{task?.priority && <div className="text-xs bg-danger-secondary px-1 border border-danger w-fit">{"!".repeat(task.priority)}</div>}
-					{task?.courseId && <div className="text-xs bg-primary px-1 border border-secondary w-fit">{courses.find(c => c.id === task.courseId)?.name}</div>}
+					{course && <div className="text-xs px-1 border w-fit"
+						style={{ backgroundColor: `rgba(${Object.values(hexToRgb(course.color)!).join(", ")}, 0.5)`, borderColor: course.color }}
+					>
+						{course.name}
+					</div>}
 				</div>
 			</div>
 

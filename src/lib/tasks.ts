@@ -153,7 +153,7 @@ export const dateMatchers: DateMatcher[] = [
 	}
 ];
 
-export function findDate(str: string): Date | undefined {
+export function findDate(str: string): Date | null {
 	for (const matcher of [...dateMatchers].sort((a, b) => b.priority - a.priority)) {
 		const match = matcher.match.exec(str);
 		if (!match)
@@ -166,10 +166,10 @@ export function findDate(str: string): Date | undefined {
 		return res;
 	}
 
-	return undefined;
+	return null;
 }
 
-export function findDateMatch(str: string): RegExpMatchArray | undefined {
+export function findDateMatch(str: string): RegExpMatchArray | null {
 	for (const matcher of [...dateMatchers].sort((a, b) => b.priority - a.priority)) {
 		const match = matcher.match.exec(str);
 		if (!match)
@@ -177,7 +177,7 @@ export function findDateMatch(str: string): RegExpMatchArray | undefined {
 		return match;
 	}
 
-	return undefined;
+	return null;
 }
 
 export function sortTasks(tasks: Task[]) {

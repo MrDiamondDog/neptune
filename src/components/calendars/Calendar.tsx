@@ -31,6 +31,7 @@ export type RecurringEvent = {
 	title: string;
 	allDay?: boolean;
 	duration: DurationInput;
+	color?: string;
 	// I don't know what type FullCalendar is expecting here
 	rrule: object;
 	exdate?: DateInput[]

@@ -5,6 +5,7 @@ import Confetti from "react-confetti";
 
 import { editTask } from "@/app/actions/tasks";
 import { Task as TaskType } from "@/db/types";
+import { hexToRgb } from "@/lib/colors";
 import { relativeDate } from "@/lib/time";
 
 import { useApp } from "../context/NeptuneContext";
@@ -14,6 +15,7 @@ import TaskPopover from "./TaskPopover";
 
 export default function Task({ task }: { task: TaskType }) {
 	const { courses, dispatch } = useApp();
+	const course = courses.find(c => c.id === task.courseId);
 
 	const checkRef = useRef<HTMLDivElement | null>(null);
 	const [confettiPos, setConfettiPos] = useState({ x: 0, y: 0, w: 10, h: 10 });
@@ -21,7 +23,7 @@ export default function Task({ task }: { task: TaskType }) {
 
 	return <Popover>
 		<PopoverTrigger asChild>
-			<div className="flex gap-2 hover:bg-bg-lighter cursor-pointer">
+			<div className="flex gap-2 hover:bg-bg-lighter cursor-pointer pb-1">
 				<div className="h-full">
 					<div className={`min-w-5 min-h-5 border border-bg-lighter ${task.complete ? "bg-primary" : "bg-bg"} ml-1 mt-1 cursor-pointer flex items-center justify-center`}
 						onClick={e => {
@@ -53,7 +55,11 @@ export default function Task({ task }: { task: TaskType }) {
 					{task.dueDate && <Subtext>{relativeDate(task.dueDate)}</Subtext>}
 					<div className="flex gap-1">
 						{task.priority && <div className="text-xs bg-danger-secondary px-1 border border-danger w-fit">{"!".repeat(task.priority)}</div>}
-						{task.courseId && <div className="text-xs bg-primary px-1 border border-secondary w-fit">{courses.find(c => c.id === task.courseId)?.name}</div>}
+						{course && <div className="text-xs px-1 border w-fit"
+							style={{ backgroundColor: `rgba(${Object.values(hexToRgb(course.color)!).join(", ")}, 0.5)`, borderColor: course.color }}
+						>
+							{course.name}
+						</div>}
 					</div>
 				</div>
 			</div>

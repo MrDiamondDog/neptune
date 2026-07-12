@@ -3,6 +3,7 @@ import { useState } from "react";
 
 import { deleteTask, editTask } from "@/app/actions/tasks";
 import { Task } from "@/db/types";
+import { hexToRgb } from "@/lib/colors";
 import { prettyDate, relativeDate } from "@/lib/time";
 
 import { useApp } from "../context/NeptuneContext";
@@ -16,6 +17,7 @@ import EditTask from "./EditTask";
 
 export default function TaskPopover({ task }: { task: Task }) {
 	const { courses, dispatch } = useApp();
+	const course = courses.find(c => c.id === task.courseId);
 
 	const [editing, setEditing] = useState(false);
 	const [editingUrl, setEditingUrl] = useState(task.link ?? "");
@@ -43,7 +45,11 @@ export default function TaskPopover({ task }: { task: Task }) {
 				{task.dueDate && <Subtext>Due {relativeDate(task.dueDate)} ({prettyDate(task.dueDate)})</Subtext>}
 				<div className="flex gap-1">
 					{task.priority && <div className="text-xs bg-danger-secondary px-1 border border-danger w-fit">{"!".repeat(task.priority)}</div>}
-					{task.courseId && <div className="text-xs bg-primary px-1 border border-secondary w-fit">{courses.find(c => c.id === task.courseId)?.name}</div>}
+					{course && <div className="text-xs px-1 border w-fit"
+						style={{ backgroundColor: `rgba(${Object.values(hexToRgb(course.color)!).join(", ")}, 0.5)`, borderColor: course.color }}
+					>
+						{course.name}
+					</div>}
 				</div>
 				{task.link && <Link external href={task.link} className="link" target="_blank">{task.link}</Link>}
 				{task.note && <p className="whitespace-pre-wrap">{task.note}</p>}
