@@ -86,7 +86,7 @@ export default function SettingsPage() {
 				<PopoverAnchor asChild>
 					<Button look={ButtonLooks.SECONDARY2} className="py-1" onClick={() => setTermPopover("new")}><Plus size={16} /></Button>
 				</PopoverAnchor>
-				<EditTermPopover onCreate={() => setTermPopover("")} />
+				<EditTermPopover onCreate={() => setTermPopover("")} side="bottom" />
 			</Popover>
 
 			{terms.sort((a, b) => a.start.getTime() - b.start.getTime())

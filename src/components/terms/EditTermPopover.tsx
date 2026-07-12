@@ -4,13 +4,14 @@ import { createTerm, editTerm } from "@/app/actions/terms";
 import { Term, TermInsert } from "@/db/types";
 import { throwToast } from "@/lib/errors";
 import { useObjectState } from "@/lib/hooks";
+import { MINUTES } from "@/lib/time";
 
 import { useApp } from "../context/NeptuneContext";
 import Button from "../primitives/Button";
 import Input from "../primitives/Input";
 import { PopoverArrow,PopoverContent } from "../primitives/Popover";
 
-export default function EditTermPopover({ term: defaultTerm, onCreate }: { term?: Term, onCreate?: (term: Term) => void }) {
+export default function EditTermPopover({ term: defaultTerm, onCreate, side }: { term?: Term, onCreate?: (term: Term) => void, side?: "right" | "top" | "bottom" | "left" }) {
 	const { dispatch } = useApp();
 
 	const [loading, setLoading] = useState(false);
@@ -29,15 +30,21 @@ export default function EditTermPopover({ term: defaultTerm, onCreate }: { term?
 		if (!term.start || !term.end || !term.season || !term.year)
 			return void setError("Fill out all required values.");
 
-		if (term.start.getDay() !== 6 || term.end.getDay() !== 5)
-			return void setError("Start must be a Sunday and end must be a Saturday.");
+		let termStart = term.start;
+		let termEnd = term.end;
+
+		// Timezones are weird with date inputs
+		// If they aren't the correct dates/times, try to correct with timezone, if still invalid, throw
+		if (termStart.getDay() !== 0 || termEnd.getDay() !== 6 || termStart.getHours() !== 0 || termEnd.getHours() !== 0) {
+			termStart = new Date(term.start.getTime() + term.start.getTimezoneOffset() * MINUTES);
+			termEnd = new Date(term.end.getTime() + term.end.getTimezoneOffset() * MINUTES);
+
+			if (termStart.getDay() !== 0 || termEnd.getDay() !== 6)
+				return void setError("Start must be a Sunday and end must be a Saturday.");
+		}
 
 		if (term.year !== term.start.getFullYear())
 			return void setError("Term start year must match term year.");
-
-		// Ensure it begins/ends at 12:00am
-		const termStart = new Date(term.start.getFullYear(), term.start.getMonth(), term.start.getDate() + 1, 0, 0);
-		const termEnd = new Date(term.end.getFullYear(), term.end.getMonth(), term.end.getDate() + 1, 0, 0);
 
 		setLoading(true);
 
@@ -60,7 +67,7 @@ export default function EditTermPopover({ term: defaultTerm, onCreate }: { term?
 		setLoading(false);
 	}
 
-	return <PopoverContent className="z-300 border-2 border-bg-lightest" side="right">
+	return <PopoverContent className="z-300 border-2 border-bg-lightest" side={side}>
 		<PopoverArrow />
 		<p className="font-bold">{!defaultTerm ? "Create" : "Edit"} Term</p>
 		<div className="flex w-full *:w-full items-center gap-2">

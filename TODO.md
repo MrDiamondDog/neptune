@@ -10,7 +10,7 @@
 	- [ ] U
 	- [ ] D
 	- [x] Term Creation
-	- [ ] Colors
+	- [x] Colors
 - [ ] Meetings
 	- [x] C
 	- [x] R
@@ -34,7 +34,7 @@
 	- [x] Shows all courses and assignments
 	- [x] Sync to/from Google calendar
 	- [x] Meeting exclusions
-	- [ ] Show ICS link in settings
+	- [x] Show ICS link in settings
 - [ ] Study/work tools
 	- [ ] Pomodoro timer
 	- [ ] Flashcards

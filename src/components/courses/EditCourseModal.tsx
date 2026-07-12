@@ -117,7 +117,7 @@ export default function EditCourseModal({ course: defaultCourse, ...props }: { c
 				<EditTermPopover onCreate={term => {
 					setTermPopover(false);
 					setCourse({ termId: term.id });
-				}} />
+				}} side="right" />
 			</Popover>
 
 			<Input placeholder="4" label="Credit Hours" className="w-full" type="number" value={course.creditHours + ""} onChange={v => setCourse({ creditHours: parseInt(v) })} />
