@@ -12,10 +12,13 @@ export function tasksReducer(data: Task[], action: TasksAction): Task[] {
 			return [...data, action.data];
 		}
 		case "edit": {
-			return [...data.filter(d => d.id !== action.data.id), action.data];
+			return [...data.filter(t => t.id !== action.data.id), action.data];
 		}
 		case "set": {
 			return action.data;
+		}
+		case "delete": {
+			return data.filter(t => t.id !== action.id);
 		}
 		default: {
 			return data;

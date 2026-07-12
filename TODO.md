@@ -5,6 +5,7 @@
 	- [ ] U
 	- [ ] D
 	- [x] Term Creation
+	- [ ] Colors
 - [ ] Meetings
 	- [x] C
 	- [x] R
@@ -12,10 +13,10 @@
 	- [ ] D
 	- [x] Edit meeting exclusions
 - [ ] To-do list
-	- [ ] C
-	- [ ] R
-	- [ ] U
-	- [ ] D
+	- [x] C
+	- [x] R
+	- [x] U
+	- [x] D
 	- [x ] Course
 	- [x ] Due date
 	- [x ] Assignment link
@@ -24,6 +25,8 @@
 	- [ ] Time to complete
 	- [x] Auto recognize various fields (due date, course, etc.)
 		- [ ] Time to complete?
+		- [ ] Due date: allow day-of-week: "on saturday" "sunday"
+		- [ ] Due date: allow month name "Aug 12" "September 15"
 - [x] Calendar
 	- [x] Shows all courses and assignments
 	- [x] Sync to/from Google calendar

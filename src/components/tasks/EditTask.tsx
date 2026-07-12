@@ -1,7 +1,7 @@
 import { Check, Save, X } from "lucide-react";
 import { toast } from "sonner";
 
-import { createTask } from "@/app/actions/tasks";
+import { createTask, editTask } from "@/app/actions/tasks";
 import { Task, TaskInsert } from "@/db/types";
 import { throwToast } from "@/lib/errors";
 import { useObjectState } from "@/lib/hooks";
@@ -18,7 +18,8 @@ const urlRegex = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]
 
 export default function EditTask({ task: defaultTask, onEditEnd }: { task?: Task, onEditEnd?: () => void }) {
 	const [task, setTask] = useObjectState<TaskInsert>(defaultTask ?? {
-		title: ""
+		title: "",
+		originalTitle: "",
 	});
 
 	const { courses, dispatch } = useApp();
@@ -36,7 +37,7 @@ export default function EditTask({ task: defaultTask, onEditEnd }: { task?: Task
 		const url = title.match(urlRegex);
 
 		const newTask: TaskInsert = { ...task, title, dueDate, priority, link: url?.[0], courseId: course?.id };
-		setTask({ title, dueDate, priority, link: url?.[0], courseId: course?.id });
+		setTask(newTask);
 		return newTask;
 	}
 
@@ -44,6 +45,7 @@ export default function EditTask({ task: defaultTask, onEditEnd }: { task?: Task
 		const newTask = updateTaskFields(task.title);
 
 		let { title } = newTask;
+		const originalTitle = title;
 
 		title = title.replaceAll(new RegExp(priorityRegex, "gi"), "");
 		title = title.replaceAll(new RegExp(urlRegex, "gi"), "");
@@ -65,18 +67,26 @@ export default function EditTask({ task: defaultTask, onEditEnd }: { task?: Task
 			return;
 		}
 
-		const res = await createTask({ ...newTask, title }).catch(e => {
-			throw throwToast("Could not create task", e);
-		});
-		dispatch?.({ context: "tasks", type: "create", data: res });
+		if (!defaultTask) {
+			const res = await createTask({ ...newTask, title, originalTitle }).catch(e => {
+				throw throwToast("Could not create task", e);
+			});
+			dispatch?.({ context: "tasks", type: "create", data: res });
+		} else {
+			const res = await editTask({ ...newTask, id: defaultTask.id, title, originalTitle }).catch(e => {
+				throw throwToast("Could not edit task", e);
+			});
+			dispatch?.({ context: "tasks", type: "edit", data: res });
+		}
+
 		onEditEnd?.();
 	}
 
 	return <>
 		<div className="flex gap-2 w-full">
 			<div className="h-full">
-				<div className={`min-w-5 min-h-5 border border-bg-lighter ${task?.complete ? "bg-primary" : "bg-bg"} ml-1 mt-1 cursor-pointer`}>
-					{task?.complete && <Check />}
+				<div className={`min-w-5 min-h-5 border border-bg-lighter ${task.complete ? "bg-primary" : "bg-bg"} ml-1 mt-1 cursor-pointer`}>
+					{task.complete && <Check />}
 				</div>
 			</div>
 			<div className="flex flex-col gap-1 w-full">
@@ -88,6 +98,7 @@ export default function EditTask({ task: defaultTask, onEditEnd }: { task?: Task
 					{task?.courseId && <div className="text-xs bg-primary px-1 border border-secondary w-fit">{courses.find(c => c.id === task.courseId)?.name}</div>}
 				</div>
 			</div>
+
 			<Save className="text-gray-400 p-1 box-content hover:bg-bg-lighter cursor-pointer" onClick={onCreate} />
 			<X className="text-gray-400 p-1 box-content hover:bg-bg-lighter cursor-pointer" onClick={onEditEnd} />
 		</div>

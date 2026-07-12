@@ -17,7 +17,7 @@ export default function Task({ task }: { task: TaskType }) {
 
 	const checkRef = useRef<HTMLDivElement | null>(null);
 	const [confettiPos, setConfettiPos] = useState({ x: 0, y: 0, w: 10, h: 10 });
-	const [confettiComplete, setConfettiComplete] = useState(false);
+	const [confettiComplete, setConfettiComplete] = useState(task.complete);
 
 	return <Popover>
 		<PopoverTrigger asChild>

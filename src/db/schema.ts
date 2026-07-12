@@ -85,6 +85,8 @@ export const tasksTable = sqliteTable("task", {
 	userId: text("userId").references(() => usersTable.id, { onDelete: "cascade" }).notNull(),
 
 	title: text("title").notNull(),
+	// The title before any auto-fill options were removed
+	originalTitle: text("originalTitle").notNull(),
 	complete: integer("complete", { mode: "boolean" }).notNull().default(false),
 	dueDate: integer("dueDate", { mode: "timestamp" }),
 	// Optionally attach a course to this task.

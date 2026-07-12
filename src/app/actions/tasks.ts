@@ -40,13 +40,13 @@ export async function editTask(data: Partial<Task> & { id: string }): ActionRes<
 	if (!user)
 		throw actionError("Not authenticated.");
 
-	const meeting = (
+	const task = (
 		await db.select().from(tasksTable)
 		.where(and(eq(tasksTable.userId, user.id!), eq(tasksTable.id, data.id)))
-			.catch(e => { throw actionError("Could not edit task", e); })
+			.catch(e => { throw actionError("Could not find task", e); })
 	)[0];
 
-	if (!meeting)
+	if (!task)
 		throw actionError("Could not find task", `could not find task id: ${data.id}`);
 
 	const res = (
@@ -57,4 +57,22 @@ export async function editTask(data: Partial<Task> & { id: string }): ActionRes<
 	)[0];
 
 	return res;
+}
+
+export async function deleteTask(id: string): ActionRes<void> {
+	const user = await authenticate();
+
+	if (!user)
+		throw actionError("Not authenticated.");
+
+	const task = (
+		await db.select().from(tasksTable)
+		.where(and(eq(tasksTable.userId, user.id!), eq(tasksTable.id, id)))
+			.catch(e => { throw actionError("Could not find task", e); })
+	)[0];
+
+	if (!task)
+		throw actionError("Could not find task", `could not find task id: ${id}`);
+
+	await db.delete(tasksTable).where(eq(tasksTable.id, id));
 }
