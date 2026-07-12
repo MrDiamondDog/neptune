@@ -1,4 +1,9 @@
 # Core Features
+- [x] Terms
+	- [x] C
+	- [x] R
+	- [x] U
+	- [x] D
 - [ ] Courses
 	- [x] C
 	- [x] R
@@ -17,14 +22,12 @@
 	- [x] R
 	- [x] U
 	- [x] D
-	- [x ] Course
-	- [x ] Due date
-	- [x ] Assignment link
-	- [ ] Notes
-	- [x ] Priority
-	- [ ] Time to complete
+	- [x] Course
+	- [x] Due date
+	- [x] Assignment link
+	- [x] Notes
+	- [x] Priority
 	- [x] Auto recognize various fields (due date, course, etc.)
-		- [ ] Time to complete?
 		- [ ] Due date: allow day-of-week: "on saturday" "sunday"
 		- [ ] Due date: allow month name "Aug 12" "September 15"
 - [x] Calendar

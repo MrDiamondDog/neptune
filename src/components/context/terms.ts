@@ -11,8 +11,14 @@ export function termsReducer(data: Term[], action: TermsAction): Term[] {
 		case "create": {
 			return [...data, action.data];
 		}
+		case "edit": {
+			return [...data.filter(t => t.id !== action.data.id), action.data];
+		}
 		case "set": {
 			return action.data;
+		}
+		case "delete": {
+			return data.filter(t => t.id !== action.id);
 		}
 		default: {
 			return data;

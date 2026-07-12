@@ -83,11 +83,14 @@ export function meetingToCalendar(data: NeptuneData, meetingId: string): Recurri
 		(MINUTES * meeting.timeStart)
 	);
 
+	console.log(meeting.exclusions);
+
 	return {
 		id: meeting.id,
 		title: course.name,
 		duration: { minutes: meeting.timeEnd - meeting.timeStart },
-		exdate: meeting.exclusions ?? [],
+		exdate: meeting.exclusions ?? undefined,
+		color: course.color,
 		rrule: {
 			freq: RRule.WEEKLY,
 			interval: 1,

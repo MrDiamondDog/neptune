@@ -56,6 +56,8 @@ export const coursesTable = sqliteTable("course", {
 	type: text("type"),
 	// Optional input for number of credit hours for this course.
 	creditHours: integer("creditHours"),
+	// What color this course is displayed in
+	color: text("color").notNull(),
 });
 
 // Represents meeting times of a course. Each meeting can have different times, instructors, meeting days/times, etc. Most courses have one.
@@ -94,6 +96,4 @@ export const tasksTable = sqliteTable("task", {
 	link: text("link"),
 	note: text("note"),
 	priority: integer("priority"),
-	// In minutes
-	timeToComplete: integer("timeToComplete"),
 });

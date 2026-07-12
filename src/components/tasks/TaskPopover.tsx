@@ -1,13 +1,14 @@
 import { Check } from "lucide-react";
 import { useState } from "react";
 
-import { deleteTask } from "@/app/actions/tasks";
+import { deleteTask, editTask } from "@/app/actions/tasks";
 import { Task } from "@/db/types";
 import { prettyDate, relativeDate } from "@/lib/time";
 
 import { useApp } from "../context/NeptuneContext";
 import Button, { ButtonLooks } from "../primitives/Button";
 import Divider from "../primitives/Divider";
+import Input from "../primitives/Input";
 import Link from "../primitives/Link";
 import { PopoverContent } from "../primitives/Popover";
 import Subtext from "../primitives/Subtext";
@@ -17,10 +18,17 @@ export default function TaskPopover({ task }: { task: Task }) {
 	const { courses, dispatch } = useApp();
 
 	const [editing, setEditing] = useState(false);
+	const [editingUrl, setEditingUrl] = useState(task.link ?? "");
+	const [editingNote, setEditingNote] = useState(task.note ?? "");
 
 	function onDelete() {
 		deleteTask(task.id);
 		dispatch({ context: "tasks", type: "delete", id: task.id });
+	}
+
+	function updateOptionalFields() {
+		editTask({ id: task.id, link: editingUrl, note: editingNote });
+		dispatch({ context: "tasks", type: "edit", data: { ...task, link: editingUrl, note: editingNote } });
 	}
 
 	return <PopoverContent side="right" className="border-2 border-bg-lighter">
@@ -38,10 +46,21 @@ export default function TaskPopover({ task }: { task: Task }) {
 					{task.courseId && <div className="text-xs bg-primary px-1 border border-secondary w-fit">{courses.find(c => c.id === task.courseId)?.name}</div>}
 				</div>
 				{task.link && <Link external href={task.link} className="link" target="_blank">{task.link}</Link>}
-				{task.note && <p>{task.note}</p>}
+				{task.note && <p className="whitespace-pre-wrap">{task.note}</p>}
 			</div>
 		</div>}
-		{editing && <EditTask task={{ ...task, title: task.originalTitle }} onEditEnd={() => setEditing(false)} />}
+		{editing && <>
+			<EditTask task={{ ...task, title: task.originalTitle }} onEditEnd={cancelled => {
+				setEditing(false);
+				if (!cancelled)
+					updateOptionalFields();
+			}} />
+
+			<div className="flex flex-col gap-1 mt-2 ml-8 *:w-full">
+				<Input placeholder="URL" value={editingUrl} onChange={setEditingUrl} className="w-full" />
+				<Input placeholder="Note" value={editingNote} onChange={setEditingNote} className="w-full" multiline />
+			</div>
+		</>}
 
 		{!editing && <>
 			<Divider />

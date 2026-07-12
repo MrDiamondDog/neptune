@@ -16,7 +16,7 @@ const priorityRegex = /!(\d{1,2})/i;
 const courseRegex = /([a-zA-Z]+)-?(\d{1,4})/i;
 const urlRegex = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/i;
 
-export default function EditTask({ task: defaultTask, onEditEnd }: { task?: Task, onEditEnd?: () => void }) {
+export default function EditTask({ task: defaultTask, onEditEnd }: { task?: Task, onEditEnd?: (cancelled: boolean) => void }) {
 	const [task, setTask] = useObjectState<TaskInsert>(defaultTask ?? {
 		title: "",
 		originalTitle: "",
@@ -79,7 +79,7 @@ export default function EditTask({ task: defaultTask, onEditEnd }: { task?: Task
 			dispatch?.({ context: "tasks", type: "edit", data: res });
 		}
 
-		onEditEnd?.();
+		onEditEnd?.(false);
 	}
 
 	return <>
@@ -100,7 +100,7 @@ export default function EditTask({ task: defaultTask, onEditEnd }: { task?: Task
 			</div>
 
 			<Save className="text-gray-400 p-1 box-content hover:bg-bg-lighter cursor-pointer" onClick={onCreate} />
-			<X className="text-gray-400 p-1 box-content hover:bg-bg-lighter cursor-pointer" onClick={onEditEnd} />
+			<X className="text-gray-400 p-1 box-content hover:bg-bg-lighter cursor-pointer" onClick={() => onEditEnd?.(true)} />
 		</div>
 	</>;
 }
