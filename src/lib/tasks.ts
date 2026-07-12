@@ -56,6 +56,7 @@ export const dateMatchers: DateMatcher[] = [
 	{
 		// (in)? (time) (time unit)s (ago)?
 		// in 5 days, 3 weeks ago, etc.
+		// Time defaults to 11:59pm
 		match: /(in )?(\d) ?(week|w|day|d|hour|h|minute|m)s?( |$)(ago)?/i,
 		priority: 15,
 		date: match => {
@@ -72,7 +73,8 @@ export const dateMatchers: DateMatcher[] = [
 				return;
 
 			const totalDeltaTime = timeNum * timeOfUnit;
-			return new Date(new Date().getTime() + (isPast ? -totalDeltaTime : totalDeltaTime));
+			const date = new Date(new Date().getTime() + (isPast ? -totalDeltaTime : totalDeltaTime));
+			return new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59);
 		}
 	},
 	{
