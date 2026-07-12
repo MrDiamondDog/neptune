@@ -80,6 +80,7 @@ export default function EditTask({ task: defaultTask, onEditEnd }: { task?: Task
 			const res = await editTask({ ...newTask, id: defaultTask.id, title, originalTitle }).catch(e => {
 				throw throwToast("Could not edit task", e);
 			});
+			console.log(res);
 			dispatch?.({ context: "tasks", type: "edit", data: res });
 		}
 

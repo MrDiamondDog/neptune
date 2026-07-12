@@ -2,7 +2,7 @@ import { Task } from "@/db/types";
 
 export type TasksAction =
 	{ context: "tasks", type: "create", data: Task } |
-	{ context: "tasks", type: "edit", data: Task } |
+	{ context: "tasks", type: "edit", data: Partial<Task> & { id: string } } |
 	{ context: "tasks", type: "delete", id: string } |
 	{ context: "tasks", type: "set", data: Task[] };
 
@@ -12,7 +12,7 @@ export function tasksReducer(data: Task[], action: TasksAction): Task[] {
 			return [...data, action.data];
 		}
 		case "edit": {
-			return [...data.filter(t => t.id !== action.data.id), action.data];
+			return [...data.filter(t => t.id !== action.data.id), { ...data.find(t => t.id === action.data.id), ...action.data } as Task];
 		}
 		case "set": {
 			return action.data;

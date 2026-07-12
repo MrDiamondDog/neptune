@@ -30,7 +30,7 @@ export default function TaskPopover({ task }: { task: Task }) {
 
 	function updateOptionalFields() {
 		editTask({ id: task.id, link: editingUrl, note: editingNote });
-		dispatch({ context: "tasks", type: "edit", data: { ...task, link: editingUrl, note: editingNote } });
+		dispatch({ context: "tasks", type: "edit", data: { id: task.id, link: editingUrl, note: editingNote } });
 	}
 
 	return <PopoverContent side="right" className="border-2 border-bg-lighter">

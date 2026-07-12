@@ -26,7 +26,7 @@ export default function CourseInline({ course, day, meetingId }: { course: Cours
 
 		const exclusions = [...(meeting.exclusions ?? []), day.toISOString()];
 
-		dispatch({ context: "meetings", type: "edit", data: { ...meeting, exclusions } });
+		dispatch({ context: "meetings", type: "edit", data: { id: meeting.id, exclusions } });
 		await editMeeting({
 			id: meetingId,
 			exclusions
