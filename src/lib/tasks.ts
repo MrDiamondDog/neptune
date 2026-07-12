@@ -56,12 +56,12 @@ export const dateMatchers: DateMatcher[] = [
 	{
 		// (in)? (time) (time unit)s (ago)?
 		// in 5 days, 3 weeks ago, etc.
-		match: /(in )?(\d) ?(week|w|day|d|hour|h|minute|m)s? (ago)?/i,
+		match: /(in )?(\d) ?(week|w|day|d|hour|h|minute|m)s?( |$)(ago)?/i,
 		priority: 15,
 		date: match => {
 			const time = match[2];
 			const unit = match[3];
-			const isPast = match[4];
+			const isPast = match[5];
 
 			const timeNum = parseInt(time);
 			if (Number.isNaN(timeNum))
