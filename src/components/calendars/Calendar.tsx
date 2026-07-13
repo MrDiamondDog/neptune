@@ -73,7 +73,7 @@ export default function Calendar({ events }: { events: (CalendarEvent | Recurrin
 			timeZone="America/Denver"
 		/>
 
-		{(selectedEvent) && <Portal>
+		{selectedEvent && <Portal>
 			<div className="absolute inset-0 z-10" onClick={() => setSelectedEvent(undefined)} />
 			<div className="absolute z-20 bg-bg-lighter p-2 drop-shadow-lg border-2 border-bg-lightest" style={{
 				left: `${selectedEvent.el.getBoundingClientRect().x + selectedEvent.el.clientWidth}px`,

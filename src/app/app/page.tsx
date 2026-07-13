@@ -23,9 +23,9 @@ import { getCurrentTerm } from "@/lib/terms";
 
 import { getCalendarEvents } from "../actions/users";
 
-function DashboardCard({ children }: React.PropsWithChildren) {
-	return <div className="w-full border-2 border-bg-lighter bg-bg-light p-2 max-h-[750px] overflow-x-hidden overflow-y-scroll">
-		{children}
+function DashboardCard(props: React.HTMLProps<HTMLDivElement>) {
+	return <div className={`w-full border-2 border-bg-lighter bg-bg-light p-2 overflow-x-hidden overflow-y-scroll ${props.className ?? ""}`}>
+		{props.children}
 	</div>;
 }
 
@@ -62,17 +62,17 @@ export default function App() {
 
 			return courseMeetingsToday.length >= 1;
 		}).sort((a, b) => {
-			const dayToday = getDayOfWeekAbbr();
+			const day = getDayOfWeekAbbr(courseViewMode === "tomorrow" ? 1 : 0);
 			const aMeetingsToday = meetings.filter(m => m.courseId === a.id)
-				.filter(m => m.days.includes(dayToday));
+				.filter(m => courseViewMode !== "all" ? m.days.includes(day) : true);
 			const bMeetingsToday = meetings.filter(m => m.courseId === b.id)
-				.filter(m => m.days.includes(dayToday));
+				.filter(m => courseViewMode !== "all" ? m.days.includes(day) : true);
 
 			// There really should only be one meeting a day, if there is more than one, this still uses the first
 			return aMeetingsToday[0].timeStart - bMeetingsToday[0].timeStart;
 	});
 
-	return <main className="mx-auto w-fit min-w-200">
+	return <main className="mx-auto w-200">
 		<div className="flex w-full justify-between items-center mt-2">
 			<h1>Good morning, {session.data.user.name}</h1>
 			<div className="flex gap-2 items-center">
@@ -91,11 +91,11 @@ export default function App() {
 		</div>
 		<Divider />
 
-		<div className="flex gap-2 mb-2">
+		<div className="flex gap-2 mb-2 max-h-150">
 			<DashboardCard>
 				<div className="flex justify-between items-end">
 					<h2>
-						{courseViewMode === "today" && "Your Day"}
+						{courseViewMode === "today" && "Today"}
 						{courseViewMode === "tomorrow" && "Tomorrow"}
 						{courseViewMode === "all" && (currentTerm ? `${titleCase(currentTerm.season)} ${currentTerm.year}` : "All Courses")}
 					</h2>
@@ -145,7 +145,6 @@ export default function App() {
 
 			<Calendar events={[...meetings.map(m => meetingToCalendar(data, m.id)).filter(e => !!e), ...icalEvents]} />
 		</DashboardCard>
-		<Divider />
 
 		{openModal === "new-course" && <EditCourseModal onClose={() => setOpenModal("")} />}
 	</main>;

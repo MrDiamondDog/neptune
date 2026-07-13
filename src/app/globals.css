@@ -337,6 +337,10 @@ li {
 		font-size: 12px;
 	}
 
+	& .fc-button-group * {
+		border-radius: 0px !important;
+	}
+
 	& .fc-event-title {
 		font-size: 10px;
 	}
