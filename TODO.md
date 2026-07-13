@@ -46,4 +46,3 @@
 
 ## Fixes
 - [ ] Timezone option for calendar shenanegans
-- [ ] Make course/meeting editing actually work

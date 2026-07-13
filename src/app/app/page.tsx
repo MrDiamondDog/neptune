@@ -17,7 +17,9 @@ import EditTask from "@/components/tasks/EditTask";
 import Task from "@/components/tasks/Task";
 import { throwToast } from "@/lib/errors";
 import { getDayOfWeekAbbr, meetingToCalendar } from "@/lib/meetings";
+import { titleCase } from "@/lib/string";
 import { sortTasks } from "@/lib/tasks";
+import { getCurrentTerm } from "@/lib/terms";
 
 import { getCalendarEvents } from "../actions/users";
 
@@ -31,7 +33,10 @@ export default function App() {
 	const session = useSession();
 
 	const data = useApp();
-	const { courses, meetings, tasks } = data;
+	const { courses, meetings, tasks, terms } = data;
+	const currentTerm = getCurrentTerm(terms);
+
+	const [courseViewMode, setCourseViewMode] = useState<"today" | "tomorrow" | "all">("today");
 
 	const [icalEvents, setIcalEvents] = useState<CalendarEvent[]>([]);
 
@@ -46,22 +51,25 @@ export default function App() {
 	if (!session || !session.data?.user)
 		return null;
 
-	// Gets all the courses that have a meeting today, in the order that they happen.
-	const coursesToday = courses.filter(course => {
-		const dayToday = getDayOfWeekAbbr();
-		const courseMeetingsToday = meetings.filter(m => m.courseId === course.id)
-			.filter(m => m.days.includes(dayToday));
+	// Gets all the courses that have a meeting based on the selected view mode, in the order that they happen.
+	// Also gets the courses that are in the current term
+	const coursesDisplay = courses
+		.filter(course => course.termId === currentTerm?.id)
+		.filter(course => {
+			const day = getDayOfWeekAbbr(courseViewMode === "tomorrow" ? 1 : 0);
+			const courseMeetingsToday = meetings.filter(m => m.courseId === course.id)
+				.filter(m => courseViewMode !== "all" ? m.days.includes(day) : true);
 
-		return courseMeetingsToday.length >= 1;
-	}).sort((a, b) => {
-		const dayToday = getDayOfWeekAbbr();
-		const aMeetingsToday = meetings.filter(m => m.courseId === a.id)
-			.filter(m => m.days.includes(dayToday));
-		const bMeetingsToday = meetings.filter(m => m.courseId === b.id)
-			.filter(m => m.days.includes(dayToday));
+			return courseMeetingsToday.length >= 1;
+		}).sort((a, b) => {
+			const dayToday = getDayOfWeekAbbr();
+			const aMeetingsToday = meetings.filter(m => m.courseId === a.id)
+				.filter(m => m.days.includes(dayToday));
+			const bMeetingsToday = meetings.filter(m => m.courseId === b.id)
+				.filter(m => m.days.includes(dayToday));
 
-		// There really should only be one meeting a day, if there is more than one, this still uses the first
-		return aMeetingsToday[0].timeStart - bMeetingsToday[0].timeStart;
+			// There really should only be one meeting a day, if there is more than one, this still uses the first
+			return aMeetingsToday[0].timeStart - bMeetingsToday[0].timeStart;
 	});
 
 	return <main className="mx-auto w-fit min-w-200">
@@ -85,13 +93,30 @@ export default function App() {
 
 		<div className="flex gap-2 mb-2">
 			<DashboardCard>
-				<h2>Your Day</h2>
+				<div className="flex justify-between items-end">
+					<h2>
+						{courseViewMode === "today" && "Your Day"}
+						{courseViewMode === "tomorrow" && "Tomorrow"}
+						{courseViewMode === "all" && (currentTerm ? `${titleCase(currentTerm.season)} ${currentTerm.year}` : "All Courses")}
+					</h2>
+					<div className="flex *:py-1 text-sm">
+						<Button look={ButtonLooks.SECONDARY2} onClick={() => setCourseViewMode("today")} className={courseViewMode === "today" ? "bg-bg-lightest" : ""}>
+							today
+						</Button>
+						<Button look={ButtonLooks.SECONDARY2} onClick={() => setCourseViewMode("tomorrow")} className={courseViewMode === "tomorrow" ? "bg-bg-lightest" : ""}>
+							tomorrow
+						</Button>
+						<Button look={ButtonLooks.SECONDARY2} onClick={() => setCourseViewMode("all")} className={courseViewMode === "all" ? "bg-bg-lightest" : ""}>
+							all
+						</Button>
+					</div>
+				</div>
 
-				{!coursesToday.length && <>
+				{!coursesDisplay.length && <>
 					<Divider />
 					<Subtext className="w-full text-center">Enjoy the day off!</Subtext>
 				</>}
-				{coursesToday.map(course => <div key={course.id}>
+				{coursesDisplay.map(course => <div key={course.id}>
 					<Divider />
 					<CourseInline course={course} />
 					<MeetingsInline meetings={meetings.filter(m => m.courseId === course.id)} />

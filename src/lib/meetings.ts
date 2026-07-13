@@ -60,8 +60,8 @@ export function minutesToTime(mins: number, mode: "24" | "12" = "12"): string {
 /**
  * Gets the current day of the week as a single letter abbriviation.
  */
-export function getDayOfWeekAbbr(): string {
-	return dayOrder[new Date().getDay()];
+export function getDayOfWeekAbbr(offset?: number): string {
+	return dayOrder[new Date().getDay() + (offset ?? 0)];
 }
 
 export function meetingToCalendar(data: NeptuneData, meetingId: string): RecurringEvent | null {

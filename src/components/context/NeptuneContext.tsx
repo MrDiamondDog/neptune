@@ -7,7 +7,6 @@ import { getAllMeetings } from "@/app/actions/meetings";
 import { getTasks } from "@/app/actions/tasks";
 import { getTerms } from "@/app/actions/terms";
 import { Course, Meeting, Task, Term } from "@/db/types";
-import { exampleCourses, exampleMeetings, exampleTasks, exampleTerms } from "@/example-data";
 
 import { CoursesAction, coursesReducer } from "./courses";
 import { MeetingsAction, meetingsReducer } from "./meetings";
@@ -25,10 +24,10 @@ export type NeptuneData = {
 
 // Currently uses default data from example-data.ts. This file is gitignored as it contains my schedule from my uni.
 export const defaultNeptuneData: NeptuneData = {
-	courses: exampleCourses,
-	meetings: exampleMeetings,
-	terms: exampleTerms,
-	tasks: exampleTasks,
+	courses: [],
+	meetings: [],
+	terms: [],
+	tasks: [],
 
 	dispatch: () => { throw "Dispatch called outside of NeptuneProvider."; },
 };
