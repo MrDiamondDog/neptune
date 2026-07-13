@@ -7,7 +7,7 @@ import Portal from "./Portal";
 import Subtext from "./Subtext";
 
 export type ModalProps = {
-	open: boolean,
+	open?: boolean,
 	onClose: () => void
 };
 
@@ -19,7 +19,7 @@ type Props = {
 
 export default function Modal({ children, title, open, onClose, danger }: Props) {
 	return (<Portal>
-		{open && <div
+		{(open === undefined ? true : open) && <div
 			key="bg"
 			className="fixed inset-0 bg-black opacity-50 z-100"
 			onClick={e => {
@@ -28,7 +28,7 @@ export default function Modal({ children, title, open, onClose, danger }: Props)
 			}}
 		/>}
 
-		{open && <div
+		{(open === undefined ? true : open) && <div
 			key="content"
 			className={`fixed top-1/2 left-1/2 -translate-1/2 bg-bg-light min-h-25 max-h-[95vh] md:w-fit w-[98vw]
                 overflow-scroll border-2 ${danger ? "border-danger" : "border-bg-lighter"} px-4 py-3 z-110`}

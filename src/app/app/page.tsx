@@ -147,6 +147,6 @@ export default function App() {
 		</DashboardCard>
 		<Divider />
 
-		<EditCourseModal open={openModal === "new-course"} onClose={() => setOpenModal("")} />
+		{openModal === "new-course" && <EditCourseModal onClose={() => setOpenModal("")} />}
 	</main>;
 }
