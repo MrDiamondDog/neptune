@@ -1,7 +1,8 @@
-import ical, { ICalEventRepeatingFreq, ICalWeekday } from "ical-generator";
+import { eq } from "drizzle-orm";
+import ical, { ICalEventBusyStatus, ICalEventRepeatingFreq, ICalEventTransparency, ICalWeekday } from "ical-generator";
 import { NextRequest, NextResponse } from "next/server";
 
-import { exampleCourses, exampleMeetings, exampleTerms } from "@/example-data";
+import { coursesTable, db, meetingsTable,termsTable } from "@/db/schema";
 import { sortDaysOfWeek } from "@/lib/meetings";
 
 const daysOfWeek = [..."UMTWRFS"];
@@ -21,12 +22,9 @@ const icalDaysOfWeek = {
 export async function GET(req: NextRequest, ctx: RouteContext<"/api/ical/[userId]">) {
 	const { userId } = await ctx.params;
 
-	// const terms = await db.select().from(termsTable).where(eq(termsTable.userId, userId));
-	// const courses = await db.select().from(coursesTable).where(eq(coursesTable.userId, userId));
-	// const meetings = await db.select().from(meetingsTable).where(eq(meetingsTable.userId, userId));
-	const terms = exampleTerms;
-	const courses = exampleCourses;
-	const meetings = exampleMeetings;
+	const terms = await db.select().from(termsTable).where(eq(termsTable.userId, userId));
+	const courses = await db.select().from(coursesTable).where(eq(coursesTable.userId, userId));
+	const meetings = await db.select().from(meetingsTable).where(eq(meetingsTable.userId, userId));
 
 	const calendar = ical();
 
@@ -53,7 +51,9 @@ export async function GET(req: NextRequest, ctx: RouteContext<"/api/ical/[userId
 				startOfWeek: ICalWeekday.SU,
 				until: term.end,
 				byDay: recurByDay as ICalWeekday[],
-			}
+			},
+			busystatus: ICalEventBusyStatus.BUSY,
+			transparency: ICalEventTransparency.OPAQUE,
 		});
 	});
 
