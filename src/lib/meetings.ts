@@ -77,11 +77,14 @@ export function meetingToCalendar(data: NeptuneData, meetingId: string): Recurri
 	if (!term)
 		return null;
 
-	const firstMeeting = new Date(
+	let firstMeeting = new Date(
 		term.start.getTime() +
 		(DAYS * dayOrder.indexOf(sortDaysOfWeek(meeting.days)[0])) +
 		(MINUTES * meeting.timeStart)
 	);
+
+	// I hate timezones (again)
+	firstMeeting = new Date(firstMeeting.getTime() - firstMeeting.getTimezoneOffset() * MINUTES);
 
 	return {
 		id: meeting.id,
