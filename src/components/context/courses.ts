@@ -11,8 +11,14 @@ export function coursesReducer(data: Course[], action: CoursesAction): Course[] 
 		case "create": {
 			return [...data, action.data];
 		}
+		case "edit": {
+			return [...data.filter(t => t.id !== action.data.id), { ...data.find(t => t.id === action.data.id), ...action.data } as Task];
+		}
 		case "set": {
 			return action.data;
+		}
+		case "delete": {
+			return data.filter(t => t.id !== action.id);
 		}
 		default: {
 			return data;

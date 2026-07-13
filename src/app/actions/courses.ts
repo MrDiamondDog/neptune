@@ -1,6 +1,6 @@
 "use server";
 
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 
 import { coursesTable, db } from "@/db/schema";
 import { Course, CourseInsert } from "@/db/types";
@@ -32,4 +32,29 @@ export async function createCourse(data: CourseInsert): ActionRes<Course> {
 	}).returning().catch(e => { throw actionError("Could not create course", e); });
 
 	return res[0];
+}
+
+export async function editCourse(data: Partial<Course> & { id: string }): ActionRes<Course> {
+	const user = await authenticate();
+
+	if (!user)
+		throw actionError("Not authenticated.");
+
+	const course = (
+		await db.select().from(coursesTable)
+		.where(and(eq(coursesTable.userId, user.id!), eq(coursesTable.id, data.id)))
+			.catch(e => { throw actionError("Could not find course", e); })
+	)[0];
+
+	if (!course)
+		throw actionError("Could not find course", `could not find course id: ${data.id}`);
+
+	const res = (
+		await db.update(coursesTable).set(data)
+			.where(and(eq(coursesTable.userId, user.id!), eq(coursesTable.id, data.id)))
+			.returning()
+			.catch(e => { throw actionError("Could not edit course", e); })
+	)[0];
+
+	return res;
 }

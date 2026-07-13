@@ -7,15 +7,15 @@
 - [ ] Courses
 	- [x] C
 	- [x] R
-	- [ ] U
+	- [x] U
 	- [ ] D
 	- [x] Term Creation
 	- [x] Colors
-- [ ] Meetings
+- [x] Meetings
 	- [x] C
 	- [x] R
-	- [ ] U
-	- [ ] D
+	- [x] U
+	- [x] D
 	- [x] Edit meeting exclusions
 - [ ] To-do list
 	- [x] C

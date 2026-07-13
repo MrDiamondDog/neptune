@@ -4,14 +4,14 @@ import { EllipsisVertical } from "lucide-react";
 import { useState } from "react";
 
 import { editMeeting } from "@/app/actions/meetings";
-import { CourseInsert } from "@/db/types";
+import { Course, CourseInsert } from "@/db/types";
 
 import { useApp } from "../context/NeptuneContext";
 import { Dropdown, DropdownContent, DropdownItem, DropdownTrigger } from "../primitives/Dropdown";
 import Subtext from "../primitives/Subtext";
 import EditCourseModal from "./EditCourseModal";
 
-export default function CourseInline({ course, day, meetingId }: { course: CourseInsert, day?: Date | null, meetingId?: string | null }) {
+export default function CourseInline({ course, day, meetingId, readOnly }: { course: CourseInsert, day?: Date | null, meetingId?: string | null, readOnly?: boolean }) {
 	const { meetings, dispatch } = useApp();
 
 	const [openModal, setOpenModal] = useState("");
@@ -36,7 +36,7 @@ export default function CourseInline({ course, day, meetingId }: { course: Cours
 	return <div className="w-full">
 		<div className="w-full flex justify-between">
 			<p className="font-bold">{course.name}</p>
-			<Dropdown>
+			{!readOnly && <Dropdown>
 				<DropdownTrigger asChild>
 					<EllipsisVertical size={20} className="p-1 box-content cursor-pointer text-gray-400 hover:bg-bg-lighter" />
 				</DropdownTrigger>
@@ -45,10 +45,10 @@ export default function CourseInline({ course, day, meetingId }: { course: Cours
 					{(day && meetingId) && <DropdownItem onClick={removeMeeting}>Remove This Meeting</DropdownItem>}
 					<DropdownItem className="text-danger">Delete Course</DropdownItem>
 				</DropdownContent>
-			</Dropdown>
+			</Dropdown>}
 		</div>
 		<Subtext className="text-xs">{course.subject} {course.number}</Subtext>
 
-		<EditCourseModal open={openModal === "edit"} onClose={() => setOpenModal("")} course={course} />
+		{(openModal === "edit" && course.id) && <EditCourseModal onClose={() => setOpenModal("")} course={course as Course} />}
 	</div>;
 }

@@ -67,3 +67,21 @@ export async function editMeeting(data: Partial<Meeting> & { id: string }): Acti
 
 	return res;
 }
+
+export async function deleteMeeting(id: string): ActionRes<void> {
+	const user = await authenticate();
+
+	if (!user)
+		throw actionError("Not authenticated.");
+
+	const task = (
+		await db.select().from(meetingsTable)
+		.where(and(eq(meetingsTable.userId, user.id!), eq(meetingsTable.id, id)))
+			.catch(e => { throw actionError("Could not find meeting", e); })
+	)[0];
+
+	if (!task)
+		throw actionError("Could not find meeting", `could not find meeting id: ${id}`);
+
+	await db.delete(meetingsTable).where(eq(meetingsTable.id, id));
+}

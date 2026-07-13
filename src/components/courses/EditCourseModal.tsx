@@ -3,10 +3,9 @@ import { ArrowLeft, ArrowRight, Plus } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useState } from "react";
 
-import { createCourse } from "@/app/actions/courses";
-import { createMeeting } from "@/app/actions/meetings";
-import { meetingsTable } from "@/db/schema";
-import { CourseInsert, MeetingInsert } from "@/db/types";
+import { createCourse, editCourse } from "@/app/actions/courses";
+import { createMeeting, deleteMeeting, editMeeting } from "@/app/actions/meetings";
+import { Course, CourseInsert, Meeting, MeetingInsert } from "@/db/types";
 import { deleteFromArray, modifyArrayItem } from "@/lib/array";
 import { throwToast } from "@/lib/errors";
 import { useObjectState } from "@/lib/hooks";
@@ -37,18 +36,19 @@ export const courseTypes = {
 	"online": "Online",
 };
 
-const defaultMeeting: typeof meetingsTable.$inferInsert = {
+const defaultMeeting: MeetingInsert = {
 	courseId: "",
 	days: "",
 	timeStart: 0,
 	timeEnd: 0,
-	userId: "",
 };
 
-export default function EditCourseModal({ course: defaultCourse, ...props }: { course?: CourseInsert } & ModalProps) {
+export default function EditCourseModal({ course: defaultCourse, ...props }: { course?: Course } & ModalProps) {
 	const session = useSession();
 
 	const { terms, meetings: meetingsList, dispatch } = useApp();
+
+	const prevMeetings = defaultCourse?.id ? meetingsList.filter(m => m.courseId === defaultCourse.id) : [];
 
 	const [course, setCourse] = useObjectState<CourseInsert>(defaultCourse ?? {
 		name: "",
@@ -58,7 +58,7 @@ export default function EditCourseModal({ course: defaultCourse, ...props }: { c
 		termId: "",
 		color: randomFrom(courseColors)
 	});
-	const [meetings, setMeetings] = useState<MeetingInsert[]>(defaultCourse?.id ? meetingsList.filter(m => m.courseId === defaultCourse.id) : []);
+	const [meetings, setMeetings] = useState<(MeetingInsert | Meeting)[]>(prevMeetings);
 
 	const [step, setStep] = useState(0);
 	const [termPopover, setTermPopover] = useState(false);
@@ -76,14 +76,56 @@ export default function EditCourseModal({ course: defaultCourse, ...props }: { c
 
 		setLoading(true);
 
-		const newCourse = await createCourse(course).catch(e => { throw throwToast("Could not create course.", e); });
-		const newMeetings = await Promise.all(
-			meetings.map(m => createMeeting({ ...m, courseId: newCourse.id }))
-		).catch(e => { throw throwToast("Could not create meeting(s)", e); });
+		if (defaultCourse) {
+			const newCourse = await editCourse({ ...course, id: defaultCourse.id }).catch(e => { throw throwToast("Could not edit course.", e); });
+
+			// Edit the meetings that were present before (if in list, they are in the db)
+			const editedMeetings = await Promise.all(
+				meetings
+					.filter(m => prevMeetings.find(p => p.id === m.id))
+					.map(m => editMeeting({ ...m, id: (m as Meeting).id, courseId: newCourse.id }))
+			).catch(e => {
+				setLoading(false);
+				throw throwToast("Could not edit meeting(s)", e);
+			});
+
+			// Create the meetings that weren't present before (not in list, no db record)
+			const newMeetings = await Promise.all(
+				meetings
+					.filter(m => !prevMeetings.find(p => p.id === m.id))
+					.map(m => createMeeting({ ...m, courseId: newCourse.id }))
+			).catch(e => {
+				setLoading(false);
+				throw throwToast("Could not create meeting(s)", e);
+			});
+
+			// Delete meetings in prev list but not new list
+			await Promise.all(
+				prevMeetings
+					.filter(m => !meetings.find(p => p.id === m.id))
+					.map(m => {
+						deleteMeeting(m.id);
+						dispatch({ context: "meetings", type: "delete", id: m.id });
+					})
+			).catch(e => {
+				setLoading(false);
+				throw throwToast("Could not create meeting(s)", e);
+			});
+
+			dispatch({ context: "courses", type: "edit", data: newCourse });
+			newMeetings.forEach(meeting => dispatch({ context: "meetings", type: "create", data: meeting }));
+			editedMeetings.forEach(meeting => dispatch({ context: "meetings", type: "edit", data: meeting }));
+		} else {
+			const newCourse = await createCourse(course).catch(e => { throw throwToast("Could not create course.", e); });
+			const newMeetings = await Promise.all(
+				meetings.map(m => createMeeting({ ...m, courseId: newCourse.id }))
+			).catch(e => { throw throwToast("Could not create meeting(s)", e); });
+
+			dispatch({ context: "courses", type: "create", data: newCourse });
+			newMeetings.forEach(meeting => dispatch({ context: "meetings", type: "create", data: meeting }));
+		}
 
 		setLoading(false);
-		dispatch({ context: "courses", type: "create", data: newCourse });
-		newMeetings.forEach(meeting => dispatch({ context: "meetings", type: "create", data: meeting }));
 		props.onClose?.();
 	}
 
@@ -156,14 +198,14 @@ export default function EditCourseModal({ course: defaultCourse, ...props }: { c
 		</>}
 
 		{step === 2 && <>
-			<CourseInline course={course} />
+			<CourseInline course={course} readOnly />
 			<MeetingsInline meetings={meetings} />
 		</>}
 
 		<ModalFooter error={error}>
 			{step !== 0 && <Button onClick={() => setStep(s => s - 1)} look={ButtonLooks.SECONDARY}><ArrowLeft size={16} /> Back</Button>}
 			{step !== 2 && <Button onClick={() => setStep(s => s + 1)}>Next <ArrowRight size={16} /></Button>}
-			{step === 2 && <Button onClick={create} loading={loading}>Create</Button>}
+			{step === 2 && <Button onClick={create} loading={loading}>{defaultCourse ? "Edit" : "Create"}</Button>}
 		</ModalFooter>
 	</Modal>;
 }
