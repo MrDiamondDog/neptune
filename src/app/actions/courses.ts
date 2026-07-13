@@ -58,3 +58,21 @@ export async function editCourse(data: Partial<Course> & { id: string }): Action
 
 	return res;
 }
+
+export async function deleteCourse(id: string): ActionRes<void> {
+	const user = await authenticate();
+
+	if (!user)
+		throw actionError("Not authenticated.");
+
+	const task = (
+		await db.select().from(coursesTable)
+		.where(and(eq(coursesTable.userId, user.id!), eq(coursesTable.id, id)))
+			.catch(e => { throw actionError("Could not find course", e); })
+	)[0];
+
+	if (!task)
+		throw actionError("Could not find course", `could not find course id: ${id}`);
+
+	await db.delete(coursesTable).where(eq(coursesTable.id, id));
+}

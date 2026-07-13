@@ -8,7 +8,7 @@ export function Popover(props: RadixPopover.PopoverProps) {
 
 export function PopoverContent(props: RadixPopover.PopoverContentProps) {
 	return <RadixPopover.Portal>
-		<RadixPopover.Content {...props} className={`${props.className ?? ""} bg-bg-light drop-shadow-lg p-2 z-10 outline-none`}>
+		<RadixPopover.Content {...props} className={`${props.className ?? ""} bg-bg-light drop-shadow-lg p-2 z-20 outline-none`}>
 			{props.children}
 		</RadixPopover.Content>
 	</RadixPopover.Portal>;

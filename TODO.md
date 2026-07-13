@@ -4,11 +4,11 @@
 	- [x] R
 	- [x] U
 	- [x] D
-- [ ] Courses
+- [x] Courses
 	- [x] C
 	- [x] R
 	- [x] U
-	- [ ] D
+	- [x] D
 	- [x] Term Creation
 	- [x] Colors
 - [x] Meetings
@@ -17,7 +17,7 @@
 	- [x] U
 	- [x] D
 	- [x] Edit meeting exclusions
-- [ ] To-do list
+- [x] To-do list
 	- [x] C
 	- [x] R
 	- [x] U
