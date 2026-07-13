@@ -40,11 +40,15 @@ export const unitTime = {
 	"week": WEEKS,
 };
 
+export function dayOfYear(date: Date) {
+    return (Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) - Date.UTC(date.getFullYear(), 0, 0)) / 24 / 60 / 60 / 1000;
+}
+
 export function prettyTimeRange(start: Date, end: Date, timeMode: "24" | "12" = "12") {
 	let startStr = "";
 	let endStr = "";
 
-	if (start.getDate() !== end.getDate()) {
+	if (dayOfYear(start) !== dayOfYear(end)) {
 		// If start/end times are 12:00am, hide them (all day event)
 		startStr = prettyDate(start, (start.getHours() === 0 && start.getMinutes() === 0) ? "hide" : timeMode);
 		// If it lasts exactly one day, no need to use endStr

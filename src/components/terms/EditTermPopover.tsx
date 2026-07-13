@@ -4,7 +4,6 @@ import { createTerm, editTerm } from "@/app/actions/terms";
 import { Term, TermInsert } from "@/db/types";
 import { throwToast } from "@/lib/errors";
 import { useObjectState } from "@/lib/hooks";
-import { MINUTES } from "@/lib/time";
 
 import { useApp } from "../context/NeptuneContext";
 import Button from "../primitives/Button";
@@ -34,14 +33,13 @@ export default function EditTermPopover({ term: defaultTerm, onCreate, side }: {
 		let termEnd = term.end;
 
 		// Timezones are weird with date inputs
-		// If they aren't the correct dates/times, try to correct with timezone, if still invalid, throw
-		if (termStart.getDay() !== 0 || termEnd.getDay() !== 6 || termStart.getHours() !== 0 || termEnd.getHours() !== 0) {
-			termStart = new Date(term.start.getTime() + term.start.getTimezoneOffset() * MINUTES);
-			termEnd = new Date(term.end.getTime() + term.end.getTimezoneOffset() * MINUTES);
+		termStart = new Date(term.start.getUTCFullYear(), term.start.getUTCMonth(), term.start.getUTCDate(), 0, 0);
+		termEnd = new Date(term.end.getUTCFullYear(), term.end.getUTCMonth(), term.end.getUTCDate(), 0, 0);
 
-			if (termStart.getDay() !== 0 || termEnd.getDay() !== 6)
-				return void setError("Start must be a Sunday and end must be a Saturday.");
-		}
+		console.log(termStart, termEnd);
+
+		if (termStart.getDay() !== 0 || termEnd.getDay() !== 6)
+			return void setError("Start must be a Sunday and end must be a Saturday.");
 
 		if (term.year !== term.start.getFullYear())
 			return void setError("Term start year must match term year.");
