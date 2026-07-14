@@ -2,6 +2,7 @@
 
 import { Popover, PopoverAnchor, PopoverTrigger } from "@radix-ui/react-popover";
 import { ArrowLeft, Pencil, Plus, Trash2 } from "lucide-react";
+import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 
@@ -61,7 +62,7 @@ export default function SettingsPage() {
 	return <main className="mx-auto w-fit min-w-200">
 		<div className="flex w-full justify-between items-center">
 			<h1>Settings</h1>
-			<a href="/app/" className="flex items-center link"><ArrowLeft size={20} /> Back</a>
+			<Link href="/app/" className="flex items-center link"><ArrowLeft size={20} /> Back</Link>
 		</div>
 		<Divider />
 

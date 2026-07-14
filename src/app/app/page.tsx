@@ -1,6 +1,7 @@
 "use client";
 
 import { Plus, Settings } from "lucide-react";
+import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 
@@ -84,9 +85,9 @@ export default function App() {
 						<DropdownItem onClick={() => setOpenModal("new-course")}>New Course...</DropdownItem>
 					</DropdownContent>
 				</Dropdown>
-				<a href="/app/settings">
+				<Link href="/app/settings">
 					<Button look={ButtonLooks.SECONDARY}><Settings /></Button>
-				</a>
+				</Link>
 			</div>
 		</div>
 		<Divider />
