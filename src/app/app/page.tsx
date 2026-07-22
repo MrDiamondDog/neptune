@@ -77,6 +77,7 @@ export default function App() {
 
 	return <main className="mx-auto w-200 overflow-x-hidden">
 		<div className="flex w-full justify-between items-center mt-2">
+			<img src="/neptune.png" width={32} />
 			<h1>Good {time < 12 ? "Morning" : (time < 6 ? "Afternoon" : "Evening")}, {session.data.user.name}</h1>
 			<div className="flex gap-2 items-center">
 				<Dropdown>

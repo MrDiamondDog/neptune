@@ -15,6 +15,21 @@ const lexend = Lexend({
 
 export const metadata: Metadata = {
 	title: "Neptune",
+	description: "Self-hostable college life organizer.",
+	icons: [
+		{
+			url: "/neptune.png",
+			type: "image/png",
+		},
+		{
+			url: "/neptune.ico",
+			rel: "shortcut icon",
+		},
+	],
+	applicationName: "Neptune",
+	appleWebApp: {
+		capable: false,
+	},
 };
 
 export default function RootLayout({
