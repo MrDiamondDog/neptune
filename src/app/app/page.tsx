@@ -73,9 +73,11 @@ export default function App() {
 			return aMeetingsToday[0].timeStart - bMeetingsToday[0].timeStart;
 	});
 
+	const time = new Date().getHours();
+
 	return <main className="mx-auto w-200 overflow-x-hidden">
 		<div className="flex w-full justify-between items-center mt-2">
-			<h1>Good morning, {session.data.user.name}</h1>
+			<h1>Good {time < 12 ? "Morning" : (time < 6 ? "Afternoon" : "Evening")}, {session.data.user.name}</h1>
 			<div className="flex gap-2 items-center">
 				<Dropdown>
 					<DropdownTrigger asChild>
