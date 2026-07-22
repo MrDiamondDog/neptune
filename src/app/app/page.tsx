@@ -73,7 +73,7 @@ export default function App() {
 			return aMeetingsToday[0].timeStart - bMeetingsToday[0].timeStart;
 	});
 
-	return <main className="mx-auto w-200">
+	return <main className="mx-auto w-200 overflow-x-hidden">
 		<div className="flex w-full justify-between items-center mt-2">
 			<h1>Good morning, {session.data.user.name}</h1>
 			<div className="flex gap-2 items-center">

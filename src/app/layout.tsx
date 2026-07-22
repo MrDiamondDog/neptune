@@ -34,7 +34,7 @@ export default function RootLayout({
 					strategy="beforeInteractive"
 				/>*/}
 			</head>
-			<body className="min-h-full">
+			<body className="min-h-full overflow-x-hidden">
 				<SessionProvider>
 					{children}
 				</SessionProvider>

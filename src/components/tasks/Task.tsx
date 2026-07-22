@@ -50,8 +50,8 @@ export default function Task({ task }: { task: TaskType }) {
 						/>}
 					</div>
 				</div>
-				<div className="flex flex-col gap-1">
-					<p className="w-full">{task.title}</p>
+				<div className="flex flex-col gap-1 w-full overflow-hidden">
+					<p className="w-full overflow-hidden text-ellipsis text-nowrap">{task.title}</p>
 					{task.dueDate && <Subtext>{relativeDate(task.dueDate)}</Subtext>}
 					<div className="flex gap-1">
 						{task.priority && <div className="text-xs bg-danger-secondary px-1 border border-danger w-fit">{"!".repeat(task.priority)}</div>}
