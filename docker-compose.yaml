@@ -1,0 +1,16 @@
+name: Neptune
+services:
+    neptune:
+        container_name: neptune
+        build: .
+        ports:
+            - 3000:3000
+        environment:
+            - AUTH_SECRET=${AUTH_SECRET}
+            - AUTH_URL=${AUTH_URL}
+            - ALLOW_SIGNUPS=${ALLOW_SIGNUPS}
+        volumes:
+            - db:/app/data/
+        env_file: ".env"
+volumes:
+    db:
