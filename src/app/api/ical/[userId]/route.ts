@@ -22,11 +22,15 @@ const icalDaysOfWeek = {
 export async function GET(req: NextRequest, ctx: RouteContext<"/api/ical/[userId]">) {
 	const { userId } = await ctx.params;
 
+	console.log(req);
+
 	const terms = await db.select().from(termsTable).where(eq(termsTable.userId, userId));
 	const courses = await db.select().from(coursesTable).where(eq(coursesTable.userId, userId));
 	const meetings = await db.select().from(meetingsTable).where(eq(meetingsTable.userId, userId));
 
-	const calendar = ical();
+	const calendar = ical({
+		name: "Neptune",
+	});
 
 	meetings.forEach(meeting => {
 		const course = courses.find(c => c.id === meeting.courseId)!;
