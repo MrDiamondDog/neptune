@@ -12,7 +12,7 @@ export function meetingsReducer(data: Meeting[], action: MeetingsAction): Meetin
 			return [...data, action.data];
 		}
 		case "edit": {
-			return [...data.filter(t => t.id !== action.data.id), { ...data.find(t => t.id === action.data.id), ...action.data } as Task];
+			return [...data.filter(t => t.id !== action.data.id), { ...data.find(t => t.id === action.data.id), ...action.data } as Meeting];
 		}
 		case "set": {
 			return action.data;

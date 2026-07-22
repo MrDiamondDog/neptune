@@ -40,7 +40,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 					return {
 						id: user.id as string,
 						email: user.email as string,
-						name: user.name as string
+						name: user.name as string,
+						icalUrl: user.icalUrl,
 					};
 				} catch (error) {
 					console.error("Error during authentication:", error);

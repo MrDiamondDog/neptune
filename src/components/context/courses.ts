@@ -12,7 +12,7 @@ export function coursesReducer(data: Course[], action: CoursesAction): Course[] 
 			return [...data, action.data];
 		}
 		case "edit": {
-			return [...data.filter(t => t.id !== action.data.id), { ...data.find(t => t.id === action.data.id), ...action.data } as Task];
+			return [...data.filter(t => t.id !== action.data.id), { ...data.find(t => t.id === action.data.id), ...action.data } as Course];
 		}
 		case "set": {
 			return action.data;
