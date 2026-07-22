@@ -20,9 +20,8 @@ const icalDaysOfWeek = {
  * This API route responds with a valid iCal file to use within other calendar apps.
  */
 export async function GET(req: NextRequest, ctx: RouteContext<"/api/ical/[userId]">) {
-	const { userId } = await ctx.params;
-
-	console.log(req);
+	const params = await ctx.params;
+	const userId = params.userId.replace(".ics", "");
 
 	const terms = await db.select().from(termsTable).where(eq(termsTable.userId, userId));
 	const courses = await db.select().from(coursesTable).where(eq(coursesTable.userId, userId));
