@@ -3,7 +3,7 @@ import ical, { ICalEventBusyStatus, ICalEventRepeatingFreq, ICalEventTransparenc
 import { NextRequest, NextResponse } from "next/server";
 
 import { coursesTable, db, meetingsTable,termsTable } from "@/db/schema";
-import { sortDaysOfWeek } from "@/lib/meetings";
+import { getUniqueInstructors, getUniqueLocations, minutesToTime, prettyDaysOfWeek, sortDaysOfWeek } from "@/lib/meetings";
 
 const daysOfWeek = [..."UMTWRFS"];
 const icalDaysOfWeek = {
@@ -29,10 +29,12 @@ export async function GET(req: NextRequest, ctx: RouteContext<"/api/ical/[userId
 
 	const calendar = ical({
 		name: "Neptune",
+		timezone: "America/Denver",
 	});
 
 	meetings.forEach(meeting => {
 		const course = courses.find(c => c.id === meeting.courseId)!;
+		const allCourseMeetings = meetings.filter(m => m.courseId === course.id);
 		const term = terms.find(t => t.id === course.termId)!;
 
 		const meetingDays = sortDaysOfWeek(meeting.days);
@@ -42,6 +44,22 @@ export async function GET(req: NextRequest, ctx: RouteContext<"/api/ical/[userId
 
 		// Converts meeting days to ical format
 		const recurByDay = [...meetingDays].map(d => icalDaysOfWeek[d as keyof typeof icalDaysOfWeek]);
+
+		let description = `${course.subject}${course.number}\n`;
+
+		const uniqueInstructors = getUniqueInstructors(allCourseMeetings);
+		const uniqueLocations = getUniqueLocations(allCourseMeetings);
+
+		if (uniqueInstructors.length === 1)
+			description += `${uniqueInstructors[0]}\n`;
+		if (uniqueLocations.length === 1)
+			description += `${uniqueLocations[0]}\n`;
+
+		allCourseMeetings.forEach(m => description +=
+			`${prettyDaysOfWeek(m.days)} | ${minutesToTime(m.timeStart)} - ${minutesToTime(m.timeEnd)} ` +
+			(uniqueLocations.length > 1 ? `| ${m.location} ` : "") +
+			(uniqueInstructors.length > 1 ? `| ${m.instructor} ` : "") + "\n"
+		);
 
 		calendar.createEvent({
 			summary: course.name,
@@ -57,6 +75,8 @@ export async function GET(req: NextRequest, ctx: RouteContext<"/api/ical/[userId
 			},
 			busystatus: ICalEventBusyStatus.BUSY,
 			transparency: ICalEventTransparency.OPAQUE,
+			location: meeting.location ?? undefined,
+			description: description.trim()
 		});
 	});
 

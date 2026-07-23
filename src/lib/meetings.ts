@@ -2,6 +2,7 @@ import { RRule } from "rrule";
 
 import { RecurringEvent } from "@/components/calendars/Calendar";
 import { NeptuneData } from "@/components/context/NeptuneContext";
+import { Meeting, MeetingInsert } from "@/db/types";
 
 import { hexToRgb } from "./colors";
 import { DAYS, MINUTES } from "./time";
@@ -103,4 +104,17 @@ export function meetingToCalendar(data: NeptuneData, meetingId: string): Recurri
 			wkst: RRule.SU,
 		}
 	};
+}
+
+// Gets a list of all the unique instructors among the meetings to change how it is displayed if there is one.
+// Also reverses the name to "Last, First"
+export function getUniqueInstructors(meetings: (Meeting | MeetingInsert)[]) {
+	return meetings.map(m => m.instructor).filter(p => p !== null && p !== undefined)
+		.reduce((prev, curr) => (!prev.includes(curr) ? [...prev, curr] : prev), [] as string[])
+		.map(i => i.split(" ").reverse().join(", "));
+}
+
+export function getUniqueLocations(meetings: (Meeting | MeetingInsert)[]) {
+	return meetings.map(m => m.location).filter(l => l !== null && l !== undefined)
+		.reduce((prev, curr) => (!prev.includes(curr) ? [...prev, curr] : prev), [] as string[]);
 }
