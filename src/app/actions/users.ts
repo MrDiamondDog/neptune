@@ -39,16 +39,14 @@ export async function getCalendarEvents(): ActionRes<CalendarEvent[]> {
 			return ical.expandRecurringEvent(event, {
 				from: new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 365 * 10),
 				to: new Date(new Date().getTime() + 1000 * 60 * 60 * 24 * 365 * 10),
-			}).map((instance, i) => {
-				return ({
-					id: `ical-${event.uid}-${i}`,
-					title: instance.summary.toString(),
-					allDay: !!event.start.dateOnly,
-					start: toUTCDate(new Date(instance.start.getTime() + dbUser.timezoneOffset * MINUTES)),
-					end: toUTCDate(new Date(instance.end.getTime() + dbUser.timezoneOffset * MINUTES)),
-					color: "#2aa841"
-				});
-			});
+			}).map((instance, i) => ({
+				id: `ical-${event.uid}-${i}`,
+				title: instance.summary.toString(),
+				allDay: !!event.start.dateOnly,
+				start: toUTCDate(new Date(instance.start.getTime() + dbUser.timezoneOffset * MINUTES)),
+				end: toUTCDate(new Date(instance.end.getTime() + dbUser.timezoneOffset * MINUTES)),
+				color: "#2aa841"
+			}));
 
 		return [{
 			id: `ical-${event.uid}`,
@@ -64,7 +62,6 @@ export async function getCalendarEvents(): ActionRes<CalendarEvent[]> {
 	const events = await ical.async.fromURL(dbUser.icalUrl).then(res => Object.values(res))
 		.then(res => res.filter(r => !!r))
 		.then(vals => vals.filter(v => v.type === "VEVENT"));
-	console.log(events.map(convertIcalEvent).flat());
 	return events.map(convertIcalEvent).flat();
 }
 
