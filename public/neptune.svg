@@ -2,45 +2,18 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   width="210mm"
-   height="297mm"
-   viewBox="0 0 210 297"
+   width="105.36247mm"
+   height="112.81915mm"
+   viewBox="0 0 105.36247 112.81915"
    version="1.1"
    id="svg1"
-   inkscape:version="1.4.4 (dcaf3e7, 2026-05-05)"
-   sodipodi:docname="neptune.svg"
-   inkscape:export-filename="neptune.png"
-   inkscape:export-xdpi="120.53628"
-   inkscape:export-ydpi="120.53628"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns="http://www.w3.org/2000/svg"
    xmlns:svg="http://www.w3.org/2000/svg">
-  <sodipodi:namedview
-     id="namedview1"
-     pagecolor="#505050"
-     bordercolor="#eeeeee"
-     borderopacity="1"
-     inkscape:showpageshadow="0"
-     inkscape:pageopacity="0"
-     inkscape:pagecheckerboard="0"
-     inkscape:deskcolor="#505050"
-     inkscape:document-units="mm"
-     inkscape:zoom="1.0396254"
-     inkscape:cx="214.50033"
-     inkscape:cy="523.74633"
-     inkscape:window-width="2560"
-     inkscape:window-height="1369"
-     inkscape:window-x="1912"
-     inkscape:window-y="-8"
-     inkscape:window-maximized="1"
-     inkscape:current-layer="svg1" />
   <defs
      id="defs1">
     <linearGradient
-       id="linearGradient17"
-       inkscape:collect="always">
+       id="linearGradient17">
       <stop
          style="stop-color:#204798;stop-opacity:1;"
          offset="0"
@@ -51,23 +24,14 @@
          id="stop18" />
     </linearGradient>
     <linearGradient
-       id="swatch13"
-       inkscape:swatch="solid">
+       id="swatch13">
       <stop
          style="stop-color:#9fb7e9;stop-opacity:1;"
          offset="0"
          id="stop13" />
     </linearGradient>
     <linearGradient
-       id="swatch8">
-      <stop
-         style="stop-color:#000000;stop-opacity:1;"
-         offset="0"
-         id="stop8" />
-    </linearGradient>
-    <linearGradient
-       id="linearGradient1"
-       inkscape:collect="always">
+       id="linearGradient1">
       <stop
          style="stop-color:#3263ce;stop-opacity:1;"
          offset="0"
@@ -78,7 +42,6 @@
          id="stop2" />
     </linearGradient>
     <linearGradient
-       inkscape:collect="always"
        xlink:href="#linearGradient1"
        id="linearGradient2"
        x1="129.40916"
@@ -96,7 +59,6 @@
          id="use15" />
     </clipPath>
     <filter
-       inkscape:collect="always"
        style="color-interpolation-filters:sRGB"
        id="filter17"
        x="-0.07312256"
@@ -104,12 +66,10 @@
        width="1.1462451"
        height="1.1767348">
       <feGaussianBlur
-         inkscape:collect="always"
          stdDeviation="0.26946938"
          id="feGaussianBlur17" />
     </filter>
     <linearGradient
-       inkscape:collect="always"
        xlink:href="#linearGradient17"
        id="linearGradient18"
        x1="62.934517"
@@ -119,30 +79,23 @@
        gradientUnits="userSpaceOnUse" />
   </defs>
   <g
-     inkscape:label="Layer 1"
-     inkscape:groupmode="layer"
      id="layer1"
-     inkscape:export-filename="neptune.png"
-     inkscape:export-xdpi="120.53628"
-     inkscape:export-ydpi="120.53628">
+     transform="translate(-51.408738,-80.873722)">
     <path
        style="fill:none;fill-opacity:1;stroke:#8fade7;stroke-width:11.4;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:3;stroke-dasharray:none;stroke-opacity:1;paint-order:normal"
        d="M 58.624599,100.56848 C 59.160284,74.614847 80.612543,92.593111 80.612543,92.593111"
-       id="path14"
-       sodipodi:nodetypes="cc" />
+       id="path14" />
     <path
        style="fill:none;fill-opacity:1;stroke:#8fade7;stroke-width:11.4;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:3;stroke-dasharray:none;stroke-opacity:1;paint-order:normal"
        d="m 148.81399,175.24544 c 0.3351,23.1236 -26.37498,7.69259 -26.37498,7.69259"
-       id="path14-8"
-       sodipodi:nodetypes="cc" />
+       id="path14-8" />
     <g
        id="g15"
        clip-path="url(#clipPath15)">
       <g
-         inkscape:label="Clip"
          id="g14">
         <circle
-           style="fill:url(#linearGradient2);fill-opacity:1;stroke:url(#linearGradient18);stroke-opacity:1;stroke-width:3.60000019;stroke-dasharray:none;paint-order:normal"
+           style="fill:url(#linearGradient2);fill-opacity:1;stroke:url(#linearGradient18);stroke-width:12.5;stroke-dasharray:none;stroke-opacity:1;paint-order:normal"
            id="path1"
            cx="104.08997"
            cy="137.1748"
@@ -150,14 +103,12 @@
         <path
            style="mix-blend-mode:normal;fill:none;fill-opacity:1;stroke:#081428;stroke-width:11.4;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:3;stroke-dasharray:none;stroke-opacity:0.200617;paint-order:normal;filter:url(#filter17)"
            d="m 55.194155,101.86212 c 1.652336,35.0946 76.833685,49.16501 86.795735,71.82205"
-           id="path13-1"
-           sodipodi:nodetypes="cc" />
+           id="path13-1" />
       </g>
     </g>
     <path
        style="fill:none;fill-opacity:1;stroke:#8fade7;stroke-width:11.4;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:3;stroke-dasharray:none;stroke-opacity:1;paint-order:normal"
        d="m 58.636065,100.32282 c -1.552282,27.96334 89.778125,49.8535 90.182745,75.04648"
-       id="path13"
-       sodipodi:nodetypes="cc" />
+       id="path13" />
   </g>
 </svg>
