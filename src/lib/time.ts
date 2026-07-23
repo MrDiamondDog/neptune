@@ -132,15 +132,18 @@ export function relativeDate(date: Date) {
  */
 export function timeToMinutes(time: string): number {
 	const [hours, minutes] = time.split(":").map(v => parseInt(v));
-	return hours * 60 + minutes;
+	return hours * 60 + minutes - new Date().getTimezoneOffset();
 }
 
 /**
  * Converts minutes into a 24-hour time string. (1050 minutes = "17:30")
  */
 export function minutesToTime(minutes: number): string {
+	minutes += new Date().getTimezoneOffset();
+
 	const hours = Math.floor(minutes / 60);
 	minutes -= hours * 60;
+
 	return `${hours < 10 ? "0" : ""}${hours}:${minutes < 10 ? "0" : ""}${minutes}`;
 }
 

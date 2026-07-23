@@ -21,6 +21,10 @@ export const usersTable = sqliteTable("user", {
 	password: text("password").notNull(),
 	name: text("name").notNull(),
 
+	// Timezone offset, in minutes
+	// (result of Date.getTimezoneOffset())
+	timezoneOffset: integer("timezoneOffset").notNull(),
+
 	icalUrl: text("icalUrl"),
 });
 

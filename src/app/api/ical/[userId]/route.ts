@@ -2,9 +2,9 @@ import { eq } from "drizzle-orm";
 import ical, { ICalEventBusyStatus, ICalEventRepeatingFreq, ICalEventTransparency, ICalWeekday } from "ical-generator";
 import { NextRequest, NextResponse } from "next/server";
 
-import { coursesTable, db, meetingsTable,termsTable } from "@/db/schema";
+import { coursesTable, db, meetingsTable,termsTable, usersTable } from "@/db/schema";
 import { getUniqueInstructors, getUniqueLocations, minutesToTime, prettyDaysOfWeek, sortDaysOfWeek } from "@/lib/meetings";
-import { toUTCDate } from "@/lib/time";
+import { DAYS, MINUTES, toUTCDate } from "@/lib/time";
 
 const daysOfWeek = [..."UMTWRFS"];
 const icalDaysOfWeek = {
@@ -24,6 +24,11 @@ export async function GET(req: NextRequest, ctx: RouteContext<"/api/ical/[userId
 	const params = await ctx.params;
 	const userId = params.userId.replace(".ics", "");
 
+	const user = (await db.select().from(usersTable).where(eq(usersTable.id, userId)))[0];
+
+	if (!user)
+		return new NextResponse("User not found", { status: 404 });
+
 	const terms = await db.select().from(termsTable).where(eq(termsTable.userId, userId));
 	const courses = await db.select().from(coursesTable).where(eq(coursesTable.userId, userId));
 	const meetings = await db.select().from(meetingsTable).where(eq(meetingsTable.userId, userId));
@@ -40,7 +45,12 @@ export async function GET(req: NextRequest, ctx: RouteContext<"/api/ical/[userId
 		const meetingDays = sortDaysOfWeek(meeting.days);
 
 		// Term start time + the day of week to position the first event correctly + start time.
-		const recurStartTime = new Date(term.start.getTime() + (1000 * 60 * 60 * 24 * daysOfWeek.indexOf(meetingDays[0])) + (meeting.timeStart * 1000 * 60));
+		const recurStartTime = new Date(
+			term.start.getTime() +
+			(DAYS * daysOfWeek.indexOf(meetingDays[0])) +
+			(meeting.timeStart * MINUTES) +
+			(user.timezoneOffset * MINUTES)
+		);
 
 		// Converts meeting days to ical format
 		const recurByDay = [...meetingDays].map(d => icalDaysOfWeek[d as keyof typeof icalDaysOfWeek]);

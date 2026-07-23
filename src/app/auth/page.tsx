@@ -60,7 +60,7 @@ export default function HomePage() {
 
 		setLoading(true);
 
-		await signUp(email, name, password).catch(e => {
+		await signUp(email, name, password, new Date().getTimezoneOffset()).catch(e => {
 			setLoading(false);
 			throwToast("Could not sign up", e);
 		});
