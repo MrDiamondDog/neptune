@@ -43,8 +43,8 @@ export async function getCalendarEvents(): ActionRes<CalendarEvent[]> {
 				id: `ical-${event.uid}-${i}`,
 				title: instance.summary.toString(),
 				allDay: !!event.start.dateOnly,
-				start: toUTCDate(new Date(instance.start.getTime() + dbUser.timezoneOffset * MINUTES)),
-				end: toUTCDate(new Date(instance.end.getTime() + dbUser.timezoneOffset * MINUTES)),
+				start: new Date(toUTCDate(instance.start).getTime() + dbUser.timezoneOffset * MINUTES),
+				end: new Date(toUTCDate(instance.end).getTime() + dbUser.timezoneOffset * MINUTES),
 				color: "#2aa841"
 			}));
 
@@ -52,8 +52,8 @@ export async function getCalendarEvents(): ActionRes<CalendarEvent[]> {
 			id: `ical-${event.uid}`,
 			title: event.summary.toString(),
 			allDay: !!event.start.dateOnly,
-			start: toUTCDate(new Date(event.start.getTime() + dbUser.timezoneOffset * MINUTES)),
-			end: toUTCDate(event.end ?? new Date(event.start.getTime() + 1 * DAYS + dbUser.timezoneOffset * MINUTES)),
+			start: new Date(toUTCDate(event.start).getTime() + dbUser.timezoneOffset * MINUTES),
+			end: event.end ?? new Date(toUTCDate(new Date(event.start)).getTime() + 1 * DAYS + dbUser.timezoneOffset * MINUTES),
 			color: "#2aa841"
 		}];
 	}

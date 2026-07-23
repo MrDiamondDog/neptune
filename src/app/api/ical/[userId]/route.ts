@@ -45,12 +45,12 @@ export async function GET(req: NextRequest, ctx: RouteContext<"/api/ical/[userId
 		const meetingDays = sortDaysOfWeek(meeting.days);
 
 		// Term start time + the day of week to position the first event correctly + start time.
-		const recurStartTime = new Date(
+		const recurStartTime = toUTCDate(new Date(
 			term.start.getTime() +
 			(DAYS * daysOfWeek.indexOf(meetingDays[0])) +
 			(meeting.timeStart * MINUTES) +
 			(user.timezoneOffset * MINUTES)
-		);
+		));
 
 		// Converts meeting days to ical format
 		const recurByDay = [...meetingDays].map(d => icalDaysOfWeek[d as keyof typeof icalDaysOfWeek]);
@@ -73,9 +73,9 @@ export async function GET(req: NextRequest, ctx: RouteContext<"/api/ical/[userId
 
 		calendar.createEvent({
 			summary: course.name,
-			start: toUTCDate(recurStartTime),
+			start: recurStartTime,
 			// Start time + duration in minutes
-			end: toUTCDate(new Date(recurStartTime.getTime() + 1000 * 60 * (meeting.timeEnd - meeting.timeStart))),
+			end: new Date(recurStartTime.getTime() + MINUTES * (meeting.timeEnd - meeting.timeStart)),
 			repeating: {
 				freq: ICalEventRepeatingFreq.WEEKLY,
 				startOfWeek: ICalWeekday.SU,
