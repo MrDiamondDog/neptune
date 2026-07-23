@@ -6,7 +6,7 @@ import ical, { VEvent } from "node-ical";
 import { CalendarEvent } from "@/components/calendars/Calendar";
 import { db, usersTable } from "@/db/schema";
 import { User } from "@/db/types";
-import { toUTCDate } from "@/lib/time";
+import { DAYS, MINUTES, toUTCDate } from "@/lib/time";
 
 import { actionError, ActionRes, authenticate } from ".";
 
@@ -39,21 +39,23 @@ export async function getCalendarEvents(): ActionRes<CalendarEvent[]> {
 			return ical.expandRecurringEvent(event, {
 				from: new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 365 * 10),
 				to: new Date(new Date().getTime() + 1000 * 60 * 60 * 24 * 365 * 10),
-			}).map(instance => ({
-				id: `ical-${event.uid}`,
-				title: instance.summary.toString(),
-				allDay: instance.isFullDay,
-				start: toUTCDate(instance.start),
-				end: toUTCDate(instance.end),
-				color: "#2aa841"
-			}));
+			}).map((instance, i) => {
+				return ({
+					id: `ical-${event.uid}-${i}`,
+					title: instance.summary.toString(),
+					allDay: !!event.start.dateOnly,
+					start: toUTCDate(new Date(instance.start.getTime() + dbUser.timezoneOffset * MINUTES)),
+					end: toUTCDate(new Date(instance.end.getTime() + dbUser.timezoneOffset * MINUTES)),
+					color: "#2aa841"
+				});
+			});
 
 		return [{
 			id: `ical-${event.uid}`,
 			title: event.summary.toString(),
 			allDay: !!event.start.dateOnly,
-			start: toUTCDate(event.start),
-			end: toUTCDate(event.end ?? new Date(event.start.getTime() + 1000 * 60 * 60 * 24)),
+			start: toUTCDate(new Date(event.start.getTime() + dbUser.timezoneOffset * MINUTES)),
+			end: toUTCDate(event.end ?? new Date(event.start.getTime() + 1 * DAYS + dbUser.timezoneOffset * MINUTES)),
 			color: "#2aa841"
 		}];
 	}
@@ -62,6 +64,7 @@ export async function getCalendarEvents(): ActionRes<CalendarEvent[]> {
 	const events = await ical.async.fromURL(dbUser.icalUrl).then(res => Object.values(res))
 		.then(res => res.filter(r => !!r))
 		.then(vals => vals.filter(v => v.type === "VEVENT"));
+	console.log(events.map(convertIcalEvent).flat());
 	return events.map(convertIcalEvent).flat();
 }
 

@@ -70,7 +70,6 @@ export default function Calendar({ events }: { events: (CalendarEvent | Recurrin
 				right: "prev,next,dayGridMonth,timeGridWeek",
 			}}
 			eventClick={e => setSelectedEvent(e)}
-			timeZone="America/Denver"
 		/>
 
 		{selectedEvent && <Portal>
