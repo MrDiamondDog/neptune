@@ -84,8 +84,7 @@ export function meetingToCalendar(data: NeptuneData, meetingId: string): Recurri
 	const firstMeeting = new Date(
 		term.start.getTime() +
 		(DAYS * dayOrder.indexOf(sortDaysOfWeek(meeting.days)[0])) +
-		(MINUTES * meeting.timeStart) +
-		(MINUTES * new Date().getTimezoneOffset())
+		(MINUTES * meeting.timeStart)
 	);
 
 	return {
