@@ -6,7 +6,7 @@ import ical, { VEvent } from "node-ical";
 import { CalendarEvent } from "@/components/calendars/Calendar";
 import { db, usersTable } from "@/db/schema";
 import { User } from "@/db/types";
-import { DAYS, MINUTES, toUTCDate } from "@/lib/time";
+import { DAYS } from "@/lib/time";
 
 import { actionError, ActionRes, authenticate } from ".";
 
@@ -43,8 +43,8 @@ export async function getCalendarEvents(): ActionRes<CalendarEvent[]> {
 				id: `ical-${event.uid}-${i}`,
 				title: instance.summary.toString(),
 				allDay: !!event.start.dateOnly,
-				start: new Date(toUTCDate(instance.start).getTime() + dbUser.timezoneOffset * MINUTES),
-				end: new Date(toUTCDate(instance.end).getTime() + dbUser.timezoneOffset * MINUTES),
+				start: instance.start,
+				end: instance.end,
 				color: "#2aa841"
 			}));
 
@@ -52,8 +52,8 @@ export async function getCalendarEvents(): ActionRes<CalendarEvent[]> {
 			id: `ical-${event.uid}`,
 			title: event.summary.toString(),
 			allDay: !!event.start.dateOnly,
-			start: new Date(toUTCDate(event.start).getTime() + dbUser.timezoneOffset * MINUTES),
-			end: event.end ?? new Date(toUTCDate(new Date(event.start)).getTime() + 1 * DAYS + dbUser.timezoneOffset * MINUTES),
+			start: event.start,
+			end: event.end ?? new Date(event.start.getTime() + 1 * DAYS),
 			color: "#2aa841"
 		}];
 	}
