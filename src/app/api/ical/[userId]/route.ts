@@ -21,6 +21,9 @@ const icalDaysOfWeek = {
  * This API route responds with a valid iCal file to use within other calendar apps.
  */
 export async function GET(req: NextRequest, ctx: RouteContext<"/api/ical/[userId]">) {
+	// Javascript dates are the stupidest thing ever, this is what you have to do to make it consistent across timezones
+	process.env.TZ = "Etc/UTC";
+
 	const params = await ctx.params;
 	const userId = params.userId.replace(".ics", "");
 
