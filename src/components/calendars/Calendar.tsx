@@ -9,7 +9,7 @@ import timeGridPlugin from "@fullcalendar/timegrid";
 import { useEffect, useState } from "react";
 
 import { Course } from "@/db/types";
-import { MINUTES, prettyTimeRange } from "@/lib/time";
+import { prettyTimeRange } from "@/lib/time";
 
 import { useApp } from "../context/NeptuneContext";
 import CourseInline from "../courses/CourseInline";
@@ -87,8 +87,8 @@ export default function Calendar({ events }: { events: (CalendarEvent | Recurrin
 						<p>
 							{/* I hate timezones */}
 							{prettyTimeRange(
-								new Date(selectedEvent.event.start.getTime() + MINUTES * selectedEvent.event.start.getTimezoneOffset()),
-								new Date(selectedEvent.event.end.getTime() + MINUTES * selectedEvent.event.end.getTimezoneOffset())
+								new Date(selectedEvent.event.start.getTime()),
+								new Date(selectedEvent.event.end.getTime())
 							)}
 						</p>
 					}
