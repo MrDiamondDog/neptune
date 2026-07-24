@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { coursesTable, db, meetingsTable,termsTable, usersTable } from "@/db/schema";
 import { getUniqueInstructors, getUniqueLocations, minutesToTime, prettyDaysOfWeek, sortDaysOfWeek } from "@/lib/meetings";
-import { DAYS, MINUTES } from "@/lib/time";
+import { DAYS, MINUTES, toUTCDate } from "@/lib/time";
 
 const daysOfWeek = [..."UMTWRFS"];
 const icalDaysOfWeek = {
@@ -35,7 +35,6 @@ export async function GET(req: NextRequest, ctx: RouteContext<"/api/ical/[userId
 
 	const calendar = ical({
 		name: "Neptune",
-		timezone: "Etc/UTC"
 	});
 
 	meetings.forEach(meeting => {
@@ -74,9 +73,9 @@ export async function GET(req: NextRequest, ctx: RouteContext<"/api/ical/[userId
 
 		calendar.createEvent({
 			summary: course.name,
-			start: recurStartTime,
+			start: toUTCDate(recurStartTime),
 			// Start time + duration in minutes
-			end: new Date(recurStartTime.getTime() + MINUTES * (meeting.timeEnd - meeting.timeStart)),
+			end: toUTCDate(new Date(recurStartTime.getTime() + MINUTES * (meeting.timeEnd - meeting.timeStart))),
 			repeating: {
 				freq: ICalEventRepeatingFreq.WEEKLY,
 				startOfWeek: ICalWeekday.SU,
