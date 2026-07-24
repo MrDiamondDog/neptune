@@ -47,8 +47,8 @@ export function prettyDaysOfWeek(days: string): string {
 /**
  * Converts minute of day into time of day.
  */
-export function minutesToTime(mins: number, mode: "24" | "12" = "12"): string {
-	mins += new Date().getTimezoneOffset();
+export function minutesToTime(mins: number, mode: "24" | "12" = "12", tzOffset?: number): string {
+	mins += tzOffset ?? new Date().getTimezoneOffset();
 
 	let hours = Math.floor(mins / 60);
 	const minutes = mins - hours * 60;

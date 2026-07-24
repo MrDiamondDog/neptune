@@ -69,7 +69,7 @@ export async function GET(req: NextRequest, ctx: RouteContext<"/api/ical/[userId
 			description += `${uniqueLocations[0]}\n`;
 
 		allCourseMeetings.forEach(m => description +=
-			`${prettyDaysOfWeek(m.days)} | ${minutesToTime(m.timeStart)} - ${minutesToTime(m.timeEnd)} ` +
+			`${prettyDaysOfWeek(m.days)} | ${minutesToTime(m.timeStart, "12", user.timezoneOffset)} - ${minutesToTime(m.timeEnd, "12", user.timezoneOffset)} ` +
 			(uniqueLocations.length > 1 ? `| ${m.location} ` : "") +
 			(uniqueInstructors.length > 1 ? `| ${m.instructor} ` : "") + "\n"
 		);
