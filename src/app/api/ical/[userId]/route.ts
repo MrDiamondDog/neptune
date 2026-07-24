@@ -35,6 +35,7 @@ export async function GET(req: NextRequest, ctx: RouteContext<"/api/ical/[userId
 
 	const calendar = ical({
 		name: "Neptune",
+		timezone: "Etc/UTC"
 	});
 
 	meetings.forEach(meeting => {
@@ -48,7 +49,8 @@ export async function GET(req: NextRequest, ctx: RouteContext<"/api/ical/[userId
 		const recurStartTime = new Date(
 			term.start.getTime() +
 			(DAYS * daysOfWeek.indexOf(meetingDays[0])) +
-			(meeting.timeStart * MINUTES)
+			(meeting.timeStart * MINUTES) +
+			(user.timezoneOffset * MINUTES)
 		);
 
 		// Converts meeting days to ical format
