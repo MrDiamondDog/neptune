@@ -5,6 +5,7 @@ import { ArrowLeft, Pencil, Plus, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 import { deleteTerm } from "@/app/actions/terms";
 import { editUser, getUser } from "@/app/actions/users";
@@ -71,13 +72,28 @@ export default function SettingsPage() {
 
 		<p>iCalendar URL</p>
 		<Input className="w-full" type="password" value={icalUrl} onChange={setIcalUrl} />
-		<Subtext>Connect other calendars to Neptune to display them in the app.</Subtext>
+		<Subtext>Subscribe to another calendar to show them in Neptune. Must be a valid ICS URL.</Subtext>
 		<Subtext>Make sure to use the private URL or make the calendar public so Neptune can access it.</Subtext>
 
-		<p>Neptune Course iCalendar URL</p>
-		<Input className="w-full text-gray-400" disabled defaultValue={`${getPublicEnv().AUTH_URL}/api/ical/${session.data.user!.id}`} />
-		<Subtext>Subscribe to this iCalendar in the calendar app of your choice to add all of your Neptune courses.</Subtext>
+		<Button loading={loading} onClick={save} className="py-1">Save</Button>
+
+		<Divider />
+
+		<p>Neptune Course ICS URL</p>
+		<div className="flex gap-1">
+			<Input className="w-full text-gray-400" type="password" disabled defaultValue={`${getPublicEnv().AUTH_URL}/api/ics/${session.data.user!.id}.ics`} />
+			<Button
+				className="py-1 w-fit!"
+				look={ButtonLooks.SECONDARY}
+				onClick={() => {
+					navigator.clipboard.writeText(`${getPublicEnv().AUTH_URL}/api/ics/${session.data.user!.id}.ics`);
+					toast.info("Copied!");
+				}}
+			>Copy</Button>
+		</div>
+		<Subtext>Subscribe to this ICS calendar in the calendar app of your choice to add all of your Neptune courses and tasks.</Subtext>
 		<Subtext>Don't share this!</Subtext>
+
 
 		<Divider />
 
@@ -116,11 +132,6 @@ export default function SettingsPage() {
 						</Popover>
 					</div>
 				</div>)}
-		</div>
-
-		<Divider />
-		<div className="w-full flex justify-end">
-			<Button className="w-fit!" loading={loading} onClick={save}>Save</Button>
 		</div>
 	</main>;
 }
