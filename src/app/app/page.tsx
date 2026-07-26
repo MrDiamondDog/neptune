@@ -63,7 +63,7 @@ export default function App() {
 			// Gets all of the courses for the given view mode, then returns only the courses that have meetings within the view
 			const courseMeetings = meetings.filter(m => m.courseId === course.id);
 			const day = getDayOfWeekAbbr(courseViewMode === "tomorrow" ? 1 : 0);
-			const courseMeetingsToday = courseViewMode === "all" ? courseMeetings : getMeetingsOnDay(courseMeetings, day);
+			const courseMeetingsToday = courseViewMode === "all" ? courseMeetings : getMeetingsOnDay(courseMeetings, courses, getCurrentTerm(data.terms), day);
 
 			return courseMeetingsToday.length >= 1;
 		}).sort((a, b) => {
@@ -72,8 +72,8 @@ export default function App() {
 			const bCourseMeetings = meetings.filter(m => m.courseId === b.id);
 
 			const day = getDayOfWeekAbbr(courseViewMode === "tomorrow" ? 1 : 0);
-			const aMeetingsToday = courseViewMode === "all" ? aCourseMeetings : getMeetingsOnDay(aCourseMeetings, day);
-			const bMeetingsToday = courseViewMode === "all" ? bCourseMeetings : getMeetingsOnDay(bCourseMeetings, day);
+			const aMeetingsToday = courseViewMode === "all" ? aCourseMeetings : getMeetingsOnDay(aCourseMeetings, courses, getCurrentTerm(data.terms), day);
+			const bMeetingsToday = courseViewMode === "all" ? bCourseMeetings : getMeetingsOnDay(bCourseMeetings, courses, getCurrentTerm(data.terms), day);
 
 			// There really should only be one meeting a day, if there is more than one, this still uses the first
 			return aMeetingsToday[0].timeStart - bMeetingsToday[0].timeStart;

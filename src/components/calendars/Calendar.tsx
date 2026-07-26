@@ -44,7 +44,7 @@ function getEventText(props: EventContentArg) {
 		return `<div class="text-xs!">${props.event.title}</div>`;
 
 	const duration = (props.event.end.getTime() - props.event.start.getTime()) / MINUTES;
-	const monthViewDot = props.view.type === "dayGridMonth" ? `<div class="w-1.5 h-1.5 rounded-full mr-0.5" style="background-color: ${props.event.borderColor}"></div>` : "";
+	const monthViewDot = props.view.type === "dayGridMonth" ? `<div class="min-w-1.5 min-h-1.5 rounded-full mr-0.5" style="background-color: ${props.event.borderColor}"></div>` : "";
 
 	if (duration <= 30 || props.view.type === "dayGridMonth")
 		return `${monthViewDot}${prettyTime(props.event.start).replace(":00", "")} <b class="text-[10px]! overflow-hidden">${props.event.title}</b>`;

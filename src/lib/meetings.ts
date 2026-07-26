@@ -2,7 +2,7 @@ import { RRule, Weekday } from "rrule";
 
 import { RecurringEvent } from "@/components/calendars/Calendar";
 import { NeptuneData } from "@/components/context/NeptuneContext";
-import { Meeting, MeetingInsert } from "@/db/types";
+import { Course, Meeting, MeetingInsert, Term } from "@/db/types";
 
 import { hexToRgb } from "./colors";
 import { DAYS, MINUTES } from "./time";
@@ -127,9 +127,9 @@ export function getUniqueLocations(meetings: (Meeting | MeetingInsert)[]) {
 		.reduce((prev, curr) => (!prev.includes(curr) ? [...prev, curr] : prev), [] as string[]);
 }
 
-export function getMeetingsOnDay(meetings: Meeting[], day?: string) {
+export function getMeetingsOnDay(meetings: Meeting[], courses: Course[], currentTerm?: Term, day?: string) {
 	if (!day)
 		day = getDayOfWeekAbbr();
 
-	return meetings.filter(m => m.days.includes(day));
+	return meetings.filter(m => m.days.includes(day) && courses.find(c => c.id === m.courseId)?.termId === currentTerm?.id);
 }
