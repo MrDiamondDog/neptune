@@ -83,6 +83,10 @@ export function prettyDate(date: Date, mode: "24" | "12" | "hide" = "12") {
 	return `${daysOfWeek[date.getDay()]}, ${months[date.getMonth()]} ${date.getDate()}${showYear ? `, ${date.getFullYear()}` : ""}${mode === "hide" ? "" : ", " + prettyTime(date, mode)}`;
 }
 
+/**
+ * Converts a date to a relative date string.
+ * @param date
+ */
 export function relativeDate(date: Date) {
 	const now = new Date();
 

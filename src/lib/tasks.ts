@@ -153,6 +153,11 @@ export const dateMatchers: DateMatcher[] = [
 	}
 ];
 
+/**
+ * Uses many relative date matchers to find a date in an arbirtrary string.
+ * @param str The string to search.
+ * @returns A date if found, null otherwise.
+ */
 export function findDate(str: string): Date | null {
 	for (const matcher of [...dateMatchers].sort((a, b) => b.priority - a.priority)) {
 		const match = matcher.match.exec(str);
@@ -169,6 +174,11 @@ export function findDate(str: string): Date | null {
 	return null;
 }
 
+/**
+ * Same as `findDate`, but returns the match instead of the date.
+ * @param str The string to search.
+ * @returns A RegExpMatchArray if found, null otherwise.
+ */
 export function findDateMatch(str: string): RegExpMatchArray | null {
 	for (const matcher of [...dateMatchers].sort((a, b) => b.priority - a.priority)) {
 		const match = matcher.match.exec(str);
@@ -180,6 +190,11 @@ export function findDateMatch(str: string): RegExpMatchArray | null {
 	return null;
 }
 
+/**
+ * Sorts tasks by name, due date, and completion.
+ * @param tasks The tasks to sort.
+ * @returns Sorted list of tasks.
+ */
 export function sortTasks(tasks: Task[]) {
 	return tasks
 		// Sort by name

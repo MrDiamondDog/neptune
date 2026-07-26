@@ -32,6 +32,7 @@ const rruleDaysOfWeek = {
  * Sorts a days-of-the-week string by order of days of the week.
  * Ex. "WM" (Wednesday Monday) => "MW" (Monday Wednesday)
  * Defaults to UMTWRFS order.
+ * @param days
  */
 export function sortDaysOfWeek(days: string): string {
 	return [...days].sort((a, b) => dayOrder.indexOf(a) - dayOrder.indexOf(b)).join("");
@@ -39,6 +40,7 @@ export function sortDaysOfWeek(days: string): string {
 
 /**
  * Sorts and converts abbriviated days of week to 3-letter versions
+ * @param days
  */
 export function prettyDaysOfWeek(days: string): string {
 	return [...sortDaysOfWeek(days)].map(d => daysOfWeek[d as keyof typeof daysOfWeek]).join(", ");
@@ -46,6 +48,9 @@ export function prettyDaysOfWeek(days: string): string {
 
 /**
  * Converts minute of day into time of day.
+ * @param mins The minute of day.
+ * @param mode 24/12 hour mode for the output time.
+ * @param tzOffset Timezone offset in minutes. Defaults to `new Date().getTimezoneOffset()`
  */
 export function minutesToTime(mins: number, mode: "24" | "12" = "12", tzOffset?: number): string {
 	mins += tzOffset ?? new Date().getTimezoneOffset();
@@ -63,11 +68,18 @@ export function minutesToTime(mins: number, mode: "24" | "12" = "12", tzOffset?:
 
 /**
  * Gets the current day of the week as a single letter abbriviation.
+ * @param offset Number of days to offset by. Defaults to 0.
  */
 export function getDayOfWeekAbbr(offset?: number) {
 	return dayOrder[new Date().getDay() + (offset ?? 0)];
 }
 
+/**
+ * Converts a meeting object to a FullCalendar event.
+ * @param data from `useApp`
+ * @param meetingId The meetingId to convert
+ * @returns A recurring event of the meeting.
+ */
 export function meetingToCalendar(data: NeptuneData, meetingId: string): RecurringEvent | null {
 	const meeting = data.meetings.find(m => m.id === meetingId);
 	if (!meeting)
@@ -114,20 +126,37 @@ export function meetingToCalendar(data: NeptuneData, meetingId: string): Recurri
 	};
 }
 
-// Gets a list of all the unique instructors among the meetings to change how it is displayed if there is one.
-// Also reverses the name to "Last, First"
-export function getUniqueInstructors(meetings: (Meeting | MeetingInsert)[]) {
+/**
+ * Gets a list of all the unique instructors among the meetings to change how it is displayed if there is one.
+ * Also reverses the name to "Last, First"
+ * @param meetings The meetings to get the instructors for
+ * @returns A set of unique instructors, not including undefined or null fields.
+ */
+export function getUniqueInstructors(meetings: (Meeting | MeetingInsert)[]): string[] {
 	return meetings.map(m => m.instructor).filter(p => p !== null && p !== undefined)
 		.reduce((prev, curr) => (!prev.includes(curr) ? [...prev, curr] : prev), [] as string[])
 		.map(i => i.split(" ").reverse().join(", "));
 }
 
-export function getUniqueLocations(meetings: (Meeting | MeetingInsert)[]) {
+/**
+ * Gets a list of all the unique instructors among the meetings to change how it is displayed if there is one.
+ * @param meetings The meetings to get the locations for
+ * @returns A set of unique locations, not including undefined or null fields.
+ */
+export function getUniqueLocations(meetings: (Meeting | MeetingInsert)[]): string[] {
 	return meetings.map(m => m.location).filter(l => l !== null && l !== undefined)
 		.reduce((prev, curr) => (!prev.includes(curr) ? [...prev, curr] : prev), [] as string[]);
 }
 
-export function getMeetingsOnDay(meetings: Meeting[], courses: Course[], currentTerm?: Term, day?: string) {
+/**
+ * Gets all of the meetings that occur on a specific day of week in the given term.
+ * @param meetings The meetings to filter.
+ * @param courses All courses. (from `useApp`)
+ * @param currentTerm The current term
+ * @param day The day of week (abbr.) to use. Uses the current day of week if not specified.
+ * @returns All of the meetings that take place on the given day of week in the given term.
+ */
+export function getMeetingsOnDay(meetings: Meeting[], courses: Course[], currentTerm?: Term, day?: string): Meeting[] {
 	if (!day)
 		day = getDayOfWeekAbbr();
 

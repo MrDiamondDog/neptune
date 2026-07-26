@@ -2,6 +2,12 @@
 
 import { useCallback, useEffect, useState } from "react";
 
+/**
+ * Like `useState`, but the setter patches instead of replaces. Useful for large objects.
+ * Equivelant to `setState({ ...object, newData })`
+ * @param initial Initial object.
+ * @returns `useState` return values
+ */
 export function useObjectState<T extends object>(initial: T) {
     const [state, setState] = useState(initial);
 
@@ -16,6 +22,10 @@ export function useObjectState<T extends object>(initial: T) {
     return [state, update, reset] as const;
 }
 
+/**
+ * A hook for checking the current device by screen width.
+ * @returns [isMobile, width]
+ */
 export function useDevice() {
     const [width, setWidth] = useState(0);
 
