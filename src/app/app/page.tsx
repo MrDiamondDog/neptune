@@ -100,7 +100,7 @@ export default function App() {
 
 		<DashboardCard className="w-full mb-2">
 			<Greeting />
-			<SmartOverview />
+			{currentTerm ? <SmartOverview /> : <p>Enjoy your break!</p>}
 		</DashboardCard>
 
 		<div className="flex gap-2 mb-2 max-h-150">
