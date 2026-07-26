@@ -35,6 +35,8 @@
 	- [x] Sync to/from Google calendar
 	- [x] Meeting exclusions
 	- [x] Show ICS link in settings
+- [ ] Landing page
+- [ ] Logout button
 - [ ] Study/work tools
 	- [ ] Pomodoro timer
 	- [ ] Flashcards

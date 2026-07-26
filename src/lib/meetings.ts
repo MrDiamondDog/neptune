@@ -1,4 +1,4 @@
-import { RRule } from "rrule";
+import { RRule, Weekday } from "rrule";
 
 import { RecurringEvent } from "@/components/calendars/Calendar";
 import { NeptuneData } from "@/components/context/NeptuneContext";
@@ -7,6 +7,16 @@ import { Meeting, MeetingInsert } from "@/db/types";
 import { hexToRgb } from "./colors";
 import { DAYS, MINUTES } from "./time";
 
+
+const daysOfWeek = {
+	"U": "Sun",
+	"M": "Mon",
+	"T": "Tue",
+	"W": "Wed",
+	"R": "Thu",
+	"F": "Fri",
+	"S": "Sat"
+};
 const dayOrder = [..."UMTWRFS"];
 const rruleDaysOfWeek = {
 	U: RRule.SU,
@@ -31,17 +41,7 @@ export function sortDaysOfWeek(days: string): string {
  * Sorts and converts abbriviated days of week to 3-letter versions
  */
 export function prettyDaysOfWeek(days: string): string {
-	const abbr = {
-		"U": "Sun",
-		"M": "Mon",
-		"T": "Tue",
-		"W": "Wed",
-		"R": "Thu",
-		"F": "Fri",
-		"S": "Sat"
-	};
-
-	return [...sortDaysOfWeek(days)].map(d => abbr[d as keyof typeof abbr]).join(", ");
+	return [...sortDaysOfWeek(days)].map(d => daysOfWeek[d as keyof typeof daysOfWeek]).join(", ");
 }
 
 /**
@@ -64,7 +64,7 @@ export function minutesToTime(mins: number, mode: "24" | "12" = "12", tzOffset?:
 /**
  * Gets the current day of the week as a single letter abbriviation.
  */
-export function getDayOfWeekAbbr(offset?: number): string {
+export function getDayOfWeekAbbr(offset?: number) {
 	return dayOrder[new Date().getDay() + (offset ?? 0)];
 }
 
@@ -88,6 +88,14 @@ export function meetingToCalendar(data: NeptuneData, meetingId: string): Recurri
 		(MINUTES * new Date().getTimezoneOffset())
 	);
 
+	let byweekday: Weekday[] = [];
+	// Fix for a FullCalendar bug where if the time of an event + UTC offset would be on another day, it would fuck up the recurrence.
+	// This simply changes the days it repeats so it doesn't do that
+	if (firstMeeting.getHours() + (new Date().getTimezoneOffset() / 60) >= 24)
+		byweekday = [...sortDaysOfWeek(meeting.days)].map(d => Object.values(rruleDaysOfWeek)[Object.keys(rruleDaysOfWeek).indexOf(d) + 1]);
+	else
+		byweekday = [...sortDaysOfWeek(meeting.days)].map(d => rruleDaysOfWeek[d as keyof typeof rruleDaysOfWeek]);
+
 	return {
 		id: meeting.id,
 		title: course.name,
@@ -98,8 +106,8 @@ export function meetingToCalendar(data: NeptuneData, meetingId: string): Recurri
 		rrule: {
 			freq: RRule.WEEKLY,
 			interval: 1,
-			byweekday: [...meeting.days].map(d => rruleDaysOfWeek[d as keyof typeof rruleDaysOfWeek]),
-			dtstart: firstMeeting,
+			byweekday,
+			dtstart: firstMeeting.toISOString(),
 			until: term.end.toISOString(),
 			wkst: RRule.SU,
 		}
@@ -117,4 +125,11 @@ export function getUniqueInstructors(meetings: (Meeting | MeetingInsert)[]) {
 export function getUniqueLocations(meetings: (Meeting | MeetingInsert)[]) {
 	return meetings.map(m => m.location).filter(l => l !== null && l !== undefined)
 		.reduce((prev, curr) => (!prev.includes(curr) ? [...prev, curr] : prev), [] as string[]);
+}
+
+export function getMeetingsOnDay(meetings: Meeting[], day?: string) {
+	if (!day)
+		day = getDayOfWeekAbbr();
+
+	return meetings.filter(m => m.days.includes(day));
 }

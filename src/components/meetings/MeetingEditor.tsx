@@ -1,6 +1,7 @@
 import { Plus, Trash2, X } from "lucide-react";
 
 import { MeetingInsert } from "@/db/types";
+import { sortDaysOfWeek } from "@/lib/meetings";
 import { minutesToTime, timeToMinutes } from "@/lib/time";
 
 import Button, { ButtonLooks } from "../primitives/Button";
@@ -27,9 +28,9 @@ export default function MeetingEditor({ meeting, onChange, onDelete }: {
 			{Object.entries(daysOfWeek).map(e => <Button
 				onClick={() => onChange({
 					...meeting,
-					days: meeting.days.includes(e[0]) ?
+					days: sortDaysOfWeek(meeting.days.includes(e[0]) ?
 						[...meeting.days].filter(d => d !== e[0]).join("") :
-						[...meeting.days, e[0]].join("")
+						[...meeting.days, e[0]].join(""))
 				})}
 				look={meeting.days.includes(e[0]) ? ButtonLooks.PRIMARY : ButtonLooks.SECONDARY}
 				className="w-full"
