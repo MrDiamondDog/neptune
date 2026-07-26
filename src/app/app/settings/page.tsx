@@ -81,17 +81,17 @@ export default function SettingsPage() {
 
 		<p>Neptune Course ICS URL</p>
 		<div className="flex gap-1">
-			<Input className="w-full text-gray-400" type="password" disabled defaultValue={`${getPublicEnv().AUTH_URL}/api/ics/${session.data.user!.id}.ics`} />
+			<Input className="w-full text-gray-400" type="password" disabled defaultValue={`${getPublicEnv().AUTH_URL}/api/ical/${session.data.user!.id}.ics`} />
 			<Button
 				className="py-1 w-fit!"
 				look={ButtonLooks.SECONDARY}
 				onClick={() => {
-					navigator.clipboard.writeText(`${getPublicEnv().AUTH_URL}/api/ics/${session.data.user!.id}.ics`);
+					navigator.clipboard.writeText(`${getPublicEnv().AUTH_URL}/api/ical/${session.data.user!.id}.ics`);
 					toast.info("Copied!");
 				}}
 			>Copy</Button>
 		</div>
-		<Subtext>Subscribe to this ICS calendar in the calendar app of your choice to add all of your Neptune courses and tasks.</Subtext>
+		<Subtext>Subscribe to this calendar in the calendar app of your choice to add all of your Neptune courses and tasks.</Subtext>
 		<Subtext>Don't share this!</Subtext>
 
 
