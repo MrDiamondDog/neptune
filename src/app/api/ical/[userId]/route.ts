@@ -74,6 +74,11 @@ export async function GET(req: NextRequest, ctx: RouteContext<"/api/ical/[userId
 			(uniqueInstructors.length > 1 ? `| ${m.instructor} ` : "") + "\n"
 		);
 
+		const exclusions = (meeting.exclusions ?? [])
+			.map(e => new Date(e.toString()))
+			// Filter out invalid dates (old db bug that I fixed)
+			.filter(d => !Number.isNaN(d.getTime()));
+
 		calendar.createEvent({
 			summary: course.name,
 			start: toUTCDate(recurStartTime),
@@ -84,7 +89,7 @@ export async function GET(req: NextRequest, ctx: RouteContext<"/api/ical/[userId
 				startOfWeek: ICalWeekday.SU,
 				until: term.end,
 				byDay: recurByDay as ICalWeekday[],
-				exclude: (meeting.exclusions ?? []).map(e => new Date(e.toString())),
+				exclude: exclusions.length ? exclusions : undefined,
 			},
 			busystatus: ICalEventBusyStatus.BUSY,
 			transparency: ICalEventTransparency.OPAQUE,
