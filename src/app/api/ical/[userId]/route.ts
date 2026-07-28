@@ -84,6 +84,7 @@ export async function GET(req: NextRequest, ctx: RouteContext<"/api/ical/[userId
 				startOfWeek: ICalWeekday.SU,
 				until: term.end,
 				byDay: recurByDay as ICalWeekday[],
+				exclude: (meeting.exclusions ?? []).map(e => new Date(e.toString())),
 			},
 			busystatus: ICalEventBusyStatus.BUSY,
 			transparency: ICalEventTransparency.OPAQUE,
