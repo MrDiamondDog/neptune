@@ -83,7 +83,7 @@ export const meetingsTable = sqliteTable("meeting", {
 	// Meeting location for this section
 	location: text("location"),
 	// A list of excluded dates this meeting will not happen on.
-	exclusions: text("exclusions", { mode: "json" }).default("[]")
+	exclusions: text("exclusions", { mode: "json" }).default([])
 		.$type<DateInput[]>()
 });
 

@@ -74,7 +74,8 @@ export async function GET(req: NextRequest, ctx: RouteContext<"/api/ical/[userId
 			(uniqueInstructors.length > 1 ? `| ${m.instructor} ` : "") + "\n"
 		);
 
-		const exclusions = (meeting.exclusions ?? [])
+		// Make sure it's an array, (fixed) db bug that put in "[]" instead of [] as the default
+		const exclusions = (Array.isArray(meeting.exclusions) ? meeting.exclusions : [])
 			.map(e => new Date(e.toString()))
 			// Filter out invalid dates (old db bug that I fixed)
 			.filter(d => !Number.isNaN(d.getTime()));
