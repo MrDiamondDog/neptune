@@ -1,6 +1,8 @@
+import { Optional } from "@/lib/types";
+
 import { coursesTable, meetingsTable, tasksTable, termsTable, usersTable } from "./schema";
 
-export type User = typeof usersTable.$inferSelect;
+export type User = Optional<typeof usersTable.$inferSelect, "password">;
 export type Term = typeof termsTable.$inferSelect;
 export type Course = typeof coursesTable.$inferSelect;
 export type Meeting = typeof meetingsTable.$inferSelect;

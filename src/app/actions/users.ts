@@ -16,7 +16,10 @@ export async function getUser(): ActionRes<User> {
 	if (!user)
 		throw actionError("Not authenticated.");
 
-	return (await db.select().from(usersTable).where(eq(usersTable.id, user.id!)))[0];
+	const res = (await db.select().from(usersTable).where(eq(usersTable.id, user.id!)))[0] as User;
+	delete res.password;
+
+	return res;
 }
 
 export async function getCalendarEvents(): ActionRes<CalendarEvent[]> {
@@ -80,7 +83,9 @@ export async function editUser(newUser: Partial<User>): ActionRes<User> {
 			console.log(e);
 			throw e;
 			// throw actionError("Failed to edit user", e);
-		}))[0];
+		}))[0] as User;
+
+	delete edited.password;
 
 	return edited;
 }
