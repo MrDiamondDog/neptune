@@ -45,7 +45,7 @@ export async function getCalendarEvents(): ActionRes<CalendarEvent[]> {
 				allDay: !!event.start.dateOnly,
 				start: instance.start,
 				end: instance.end,
-				color: "#2aa841"
+				color: dbUser.icalColor
 			}));
 
 		return [{
@@ -54,7 +54,7 @@ export async function getCalendarEvents(): ActionRes<CalendarEvent[]> {
 			allDay: !!event.start.dateOnly,
 			start: event.start,
 			end: event.end ?? new Date(event.start.getTime() + 1 * DAYS),
-			color: "#2aa841"
+			color: dbUser.icalColor
 		}];
 	}
 

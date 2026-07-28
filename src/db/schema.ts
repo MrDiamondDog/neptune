@@ -26,6 +26,7 @@ export const usersTable = sqliteTable("user", {
 	timezoneOffset: integer("timezoneOffset").notNull(),
 
 	icalUrl: text("icalUrl"),
+	icalColor: text("icalColor").default("#38c773").notNull()
 });
 
 export const termsTable = sqliteTable("term", {

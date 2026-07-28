@@ -11,6 +11,7 @@ import { deleteTerm } from "@/app/actions/terms";
 import { editUser, getUser } from "@/app/actions/users";
 import { useApp } from "@/components/context/NeptuneContext";
 import Button, { ButtonLooks } from "@/components/primitives/Button";
+import PopoverColorPicker from "@/components/primitives/ColorPicker";
 import DeletePopover from "@/components/primitives/DeletePopover";
 import Divider from "@/components/primitives/Divider";
 import Input from "@/components/primitives/Input";
@@ -30,6 +31,7 @@ export default function SettingsPage() {
 
 	const [name, setName] = useState("");
 	const [icalUrl, setIcalUrl] = useState("");
+	const [icalColor, setIcalColor] = useState("#38c773");
 
 	const [termPopover, setTermPopover] = useState("");
 
@@ -37,6 +39,7 @@ export default function SettingsPage() {
 		getUser().then(user => {
 			setName(user.name);
 			setIcalUrl(user.icalUrl ?? "");
+			setIcalColor(user.icalColor);
 		});
 	}, []);
 
@@ -48,11 +51,15 @@ export default function SettingsPage() {
 
 		editUser({
 			name,
-			icalUrl
+			icalUrl,
+			icalColor,
 		}).catch(async e => {
 			setLoading(false);
 			throwToast("Could not save.", e);
-		}).then(() => setLoading(false));
+		}).then(() => {
+			setLoading(false);
+			toast.info("Settings saved!");
+		});
 	}
 
 	async function onDeleteTerm(term: string) {
@@ -74,6 +81,11 @@ export default function SettingsPage() {
 		<Input className="w-full" type="password" value={icalUrl} onChange={setIcalUrl} />
 		<Subtext>Subscribe to another calendar to show them in Neptune. Must be a valid ICS URL.</Subtext>
 		<Subtext>Make sure to use the private URL or make the calendar public so Neptune can access it.</Subtext>
+
+		<p>iCalendar Event Color</p>
+		<PopoverColorPicker color={icalColor} onChange={setIcalColor} />
+
+		<Divider />
 
 		<Button loading={loading} onClick={save} className="py-1">Save</Button>
 
