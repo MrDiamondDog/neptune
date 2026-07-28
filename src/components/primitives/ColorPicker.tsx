@@ -46,7 +46,7 @@ export default function PopoverColorPicker({ color, onChange }: { color: string,
     return (
         <div className="flex flex-col items-center justify-center gap-2">
 			<div
-				className="p-2 w-full h-10 cursor-pointer transition-all border-2 text-center"
+				className="p-2 w-full h-10 cursor-pointer border-2 text-center"
 				style={{ backgroundColor: `rgba(${Object.values(hexToRgb(color)!).join(", ")}, 0.5)`, borderColor: color }}
 				onClick={() => toggle(true)}
 			>{!isOpen && "click here for color picker"}</div>
