@@ -4,7 +4,7 @@ import { RecurringEvent } from "@/components/calendars/Calendar";
 import { NeptuneData } from "@/components/context/NeptuneContext";
 import { Course, Meeting, MeetingInsert, Term } from "@/db/types";
 
-import { hexToRgb } from "./colors";
+import { getDimmedColor } from "./colors";
 import { DAYS, MINUTES } from "./time";
 
 
@@ -113,7 +113,7 @@ export function meetingToCalendar(data: NeptuneData, meetingId: string): Recurri
 		title: course.name,
 		duration: { minutes: meeting.timeEnd - meeting.timeStart },
 		exdate: meeting.exclusions ?? undefined,
-		color: `rgba(${Object.values(hexToRgb(course.color)!).join(", ")}, 0.5)`,
+		color: getDimmedColor(course.color),
 		borderColor: course.color,
 		rrule: {
 			freq: RRule.WEEKLY,

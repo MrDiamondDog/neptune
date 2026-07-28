@@ -15,3 +15,7 @@ export function hexToRgb(hex: string) {
         b: parseInt(result[3], 16),
     } : null;
 }
+
+export function getDimmedColor(hex: string) {
+	return `rgba(${Object.values(hexToRgb(hex)!).join(", ")}, 0.5)`;
+}

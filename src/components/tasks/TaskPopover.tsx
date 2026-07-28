@@ -3,7 +3,6 @@ import { useState } from "react";
 
 import { deleteTask, editTask } from "@/app/actions/tasks";
 import { Task } from "@/db/types";
-import { hexToRgb } from "@/lib/colors";
 import { prettyDate, relativeDate } from "@/lib/time";
 
 import { useApp } from "../context/NeptuneContext";
@@ -46,7 +45,7 @@ export default function TaskPopover({ task }: { task: Task }) {
 				<div className="flex gap-1">
 					{task.priority && <div className="text-xs bg-danger-secondary px-1 border border-danger w-fit">{"!".repeat(task.priority)}</div>}
 					{course && <div className="text-xs px-1 border w-fit"
-						style={{ backgroundColor: `rgba(${Object.values(hexToRgb(course.color)!).join(", ")}, 0.5)`, borderColor: course.color }}
+						style={{ backgroundColor: getDimmedColor(course.color), borderColor: course.color }}
 					>
 						{course.name}
 					</div>}
