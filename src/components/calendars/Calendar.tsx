@@ -44,7 +44,6 @@ function getEventText(props: EventContentArg) {
 		return `<div class="text-xs!">${props.event.title}</div>`;
 
 	const duration = (props.event.end.getTime() - props.event.start.getTime()) / MINUTES;
-	console.log(new Date().getTimezoneOffset());
 	const start = new Date(props.event.start.getTime() + props.event.start.getTimezoneOffset() * MINUTES);
 	const end = new Date(props.event.end.getTime() + props.event.end.getTimezoneOffset() * MINUTES);
 	const monthViewDot = props.view.type === "dayGridMonth" ? `<div class="min-w-1.5 min-h-1.5 rounded-full mr-0.5" style="background-color: ${props.event.borderColor}"></div>` : "";

@@ -6,7 +6,7 @@ import ical, { VEvent } from "node-ical";
 import { CalendarEvent } from "@/components/calendars/Calendar";
 import { db, usersTable } from "@/db/schema";
 import { User } from "@/db/types";
-import { DAYS } from "@/lib/time";
+import { DAYS, MINUTES, YEARS } from "@/lib/time";
 
 import { actionError, ActionRes, authenticate } from ".";
 
@@ -40,14 +40,14 @@ export async function getCalendarEvents(): ActionRes<CalendarEvent[]> {
 			// Expand recurring events +/- 10 years
 			// This doesn't expand them to recur for 10 years, it's just the boundaries
 			return ical.expandRecurringEvent(event, {
-				from: new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 365 * 10),
-				to: new Date(new Date().getTime() + 1000 * 60 * 60 * 24 * 365 * 10),
+				from: new Date(new Date().getTime() - YEARS * 10),
+				to: new Date(new Date().getTime() + YEARS * 10),
 			}).map((instance, i) => ({
 				id: `ical-${event.uid}-${i}`,
 				title: instance.summary.toString(),
 				allDay: !!event.start.dateOnly,
-				start: instance.start,
-				end: instance.end,
+				start: new Date(instance.start.getTime() - MINUTES * dbUser.timezoneOffset),
+				end: new Date(instance.end.getTime() - MINUTES * dbUser.timezoneOffset),
 				color: dbUser.icalColor
 			}));
 
@@ -55,8 +55,8 @@ export async function getCalendarEvents(): ActionRes<CalendarEvent[]> {
 			id: `ical-${event.uid}`,
 			title: event.summary.toString(),
 			allDay: !!event.start.dateOnly,
-			start: event.start,
-			end: event.end ?? new Date(event.start.getTime() + 1 * DAYS),
+			start: new Date(event.start.getTime() - MINUTES * dbUser.timezoneOffset),
+			end: new Date((event.end ?? new Date(event.start.getTime() + 1 * DAYS)).getTime() - MINUTES * dbUser.timezoneOffset),
 			color: dbUser.icalColor
 		}];
 	}

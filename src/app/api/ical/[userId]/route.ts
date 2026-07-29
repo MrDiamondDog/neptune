@@ -62,8 +62,7 @@ export async function GET(req: NextRequest, ctx: RouteContext<"/api/ical/[userId
 		const recurStartTime = new Date(
 			term.start.getTime() +
 			(DAYS * daysOfWeek.indexOf(meetingDays[0])) +
-			(meeting.timeStart * MINUTES) +
-			(user.timezoneOffset * MINUTES)
+			(meeting.timeStart * MINUTES)
 		);
 
 		// Converts meeting days to ical format
@@ -93,6 +92,7 @@ export async function GET(req: NextRequest, ctx: RouteContext<"/api/ical/[userId
 
 		calendar.createEvent({
 			summary: course.name,
+			// TODO: use user timezone here
 			timezone: "-06",
 			start: toUTCDate(recurStartTime),
 			// Start time + duration in minutes
