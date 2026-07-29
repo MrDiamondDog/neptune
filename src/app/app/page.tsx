@@ -56,7 +56,7 @@ export default function App() {
 		getUser().then(setUser).catch(e => throwToast("Could not fetch user", e));
 	}, []);
 
-	if (!session || !session.data?.user)
+	if (!session || !session.data?.user || !user)
 		return null;
 
 	// Gets all the courses that have a meeting based on the selected view mode, in the order that they happen.

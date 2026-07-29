@@ -2,7 +2,7 @@ import { eq } from "drizzle-orm";
 import ical, { ICalEventBusyStatus, ICalEventRepeatingFreq, ICalEventTransparency, ICalWeekday } from "ical-generator";
 import { NextRequest, NextResponse } from "next/server";
 
-import { coursesTable, db, meetingsTable,termsTable, usersTable } from "@/db/schema";
+import { coursesTable, db, meetingsTable,tasksTable,termsTable, usersTable } from "@/db/schema";
 import { getUniqueInstructors, getUniqueLocations, minutesToTime, prettyDaysOfWeek, sortDaysOfWeek } from "@/lib/meetings";
 import { DAYS, MINUTES, toUTCDate } from "@/lib/time";
 
@@ -35,6 +35,7 @@ export async function GET(req: NextRequest, ctx: RouteContext<"/api/ical/[userId
 	const terms = await db.select().from(termsTable).where(eq(termsTable.userId, userId));
 	const courses = await db.select().from(coursesTable).where(eq(coursesTable.userId, userId));
 	const meetings = await db.select().from(meetingsTable).where(eq(meetingsTable.userId, userId));
+	const tasks = await db.select().from(tasksTable).where(eq(tasksTable.userId, userId));
 
 	const calendar = ical({
 		name: "Neptune",
@@ -99,5 +100,22 @@ export async function GET(req: NextRequest, ctx: RouteContext<"/api/ical/[userId
 		});
 	});
 
-	return new NextResponse(calendar.toString());
+	// ical-generator doesn't have support for anything other than VEVENT, so this is how we're implementing VTODO!
+	let calendarStr = calendar.toString().replace("END:VCALENDAR", "");
+
+	tasks.filter(t => t.dueDate).forEach(task => {
+		calendarStr += [
+			"BEGIN:VTODO",
+			`UID:task-${task.id}`,
+			`DTSTAMP:${new Date().toISOString().replaceAll(/\.|:|-/g, "")}`,
+			`DUE:${task.dueDate!.toISOString().replaceAll(/\.|:|-/g, "")}`,
+			`SUMMARY:${task.title}`,
+			...(task.complete ? [`COMPLETED:${task.dueDate!.toISOString().replaceAll(/\.|:|-/g, "")}`] : []),
+			"END:VTODO"
+		].join("\n");
+	});
+
+	calendarStr += "\nEND:VCALENDAR";
+
+	return new NextResponse(calendarStr);
 }
