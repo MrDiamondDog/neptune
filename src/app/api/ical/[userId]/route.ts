@@ -113,9 +113,10 @@ export async function GET(req: NextRequest, ctx: RouteContext<"/api/ical/[userId
 			...(task.complete ? [`COMPLETED:${task.dueDate!.toISOString().replaceAll(/\.|:|-/g, "")}`] : []),
 			"END:VTODO"
 		].join("\n");
+		calendarStr += "\n";
 	});
 
-	calendarStr += "\nEND:VCALENDAR";
+	calendarStr += "END:VCALENDAR";
 
 	return new NextResponse(calendarStr);
 }
