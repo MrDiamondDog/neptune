@@ -5,7 +5,7 @@ import { NeptuneData } from "@/components/context/NeptuneContext";
 import { Course, Meeting, MeetingInsert, Term } from "@/db/types";
 
 import { getDimmedColor } from "./colors";
-import { DAYS, MINUTES } from "./time";
+import { DAYS, MINUTES, toUTCDate } from "./time";
 
 
 const daysOfWeek = {
@@ -103,9 +103,9 @@ export function meetingToCalendar(data: NeptuneData, meetingId: string): Recurri
 	let byweekday: Weekday[] = [];
 	// Fix for a FullCalendar bug where if the time of an event + UTC offset would be on another day, it would fuck up the recurrence.
 	// This simply changes the days it repeats so it doesn't do that
-	if (firstMeeting.getHours() + (new Date().getTimezoneOffset() / 60) >= 24)
-		byweekday = [...sortDaysOfWeek(meeting.days)].map(d => Object.values(rruleDaysOfWeek)[Object.keys(rruleDaysOfWeek).indexOf(d) + 1]);
-	else
+	// if (firstMeeting.getHours() + (new Date().getTimezoneOffset() / 60) >= 24)
+	// 	byweekday = [...sortDaysOfWeek(meeting.days)].map(d => Object.values(rruleDaysOfWeek)[Object.keys(rruleDaysOfWeek).indexOf(d) + 1]);
+	// else
 		byweekday = [...sortDaysOfWeek(meeting.days)].map(d => rruleDaysOfWeek[d as keyof typeof rruleDaysOfWeek]);
 
 	return {
@@ -115,14 +115,19 @@ export function meetingToCalendar(data: NeptuneData, meetingId: string): Recurri
 		exdate: meeting.exclusions ?? undefined,
 		color: getDimmedColor(course.color),
 		borderColor: course.color,
-		rrule: {
+		// startTime: firstMeeting.toTimeString(),
+		// startRecur: firstMeeting.toTimeString(),
+		// // endRecur is exclusive, add a day to make sure it's included
+		// endRecur: new Date(term.end.getTime() + 1 * DAYS).toISOString(),
+		// daysOfWeek: [...sortDaysOfWeek(meeting.days)].map(d => Object.keys(daysOfWeek).indexOf(d)),
+		rrule: new RRule({
 			freq: RRule.WEEKLY,
 			interval: 1,
 			byweekday,
-			dtstart: firstMeeting.toISOString(),
-			until: term.end.toISOString(),
+			dtstart: toUTCDate(firstMeeting),
+			until: toUTCDate(term.end),
 			wkst: RRule.SU,
-		}
+		}).toString()
 	};
 }
 

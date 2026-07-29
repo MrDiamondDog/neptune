@@ -35,8 +35,7 @@ export type RecurringEvent = {
 	duration: DurationInput;
 	color?: string;
 	borderColor?: string;
-	// I don't know what type FullCalendar is expecting here
-	rrule: object;
+	rrule: string;
 	exdate?: DateInput[]
 };
 
@@ -45,12 +44,15 @@ function getEventText(props: EventContentArg) {
 		return `<div class="text-xs!">${props.event.title}</div>`;
 
 	const duration = (props.event.end.getTime() - props.event.start.getTime()) / MINUTES;
+	console.log(new Date().getTimezoneOffset());
+	const start = new Date(props.event.start.getTime() + props.event.start.getTimezoneOffset() * MINUTES);
+	const end = new Date(props.event.end.getTime() + props.event.end.getTimezoneOffset() * MINUTES);
 	const monthViewDot = props.view.type === "dayGridMonth" ? `<div class="min-w-1.5 min-h-1.5 rounded-full mr-0.5" style="background-color: ${props.event.borderColor}"></div>` : "";
 
 	if (duration <= 30 || props.view.type === "dayGridMonth")
-		return `${monthViewDot}${prettyTime(props.event.start).replace(":00", "")} <b class="text-[10px]! overflow-hidden">${props.event.title}</b>`;
+		return `${monthViewDot}${prettyTime(start).replace(":00", "")} <b class="text-[10px]! overflow-hidden">${props.event.title}</b>`;
 	else
-		return `<p class="text-[10px]! overflow-hidden">${monthViewDot}${prettyTimeRange(props.event.start, props.event.end).replaceAll(":00", "")}\n<b class="text-[10px]! overflow-hidden">${props.event.title}</b></p>`;
+		return `<p class="text-[10px]! overflow-hidden">${monthViewDot}${prettyTimeRange(start, end).replaceAll(":00", "")}\n<b class="text-[10px]! overflow-hidden">${props.event.title}</b></p>`;
 }
 
 export default function Calendar({ events }: { events: (CalendarEvent | RecurringEvent)[] }) {
@@ -91,6 +93,8 @@ export default function Calendar({ events }: { events: (CalendarEvent | Recurrin
 				right: "prev,next,dayGridMonth,timeGridWeek",
 			}}
 			eventClick={e => setSelectedEvent(e)}
+			// TODO: user timezone option
+			timeZone="America/Denver"
 		/>
 
 		{selectedEvent && <Portal>
