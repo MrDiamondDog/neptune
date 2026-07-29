@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm";
 import ical, { ICalEventBusyStatus, ICalEventRepeatingFreq, ICalEventTransparency, ICalWeekday } from "ical-generator";
 import { NextRequest, NextResponse } from "next/server";
+import { RRule } from "rrule";
 
 import { coursesTable, db, meetingsTable,tasksTable,termsTable, usersTable } from "@/db/schema";
 import { getUniqueInstructors, getUniqueLocations, minutesToTime, prettyDaysOfWeek, sortDaysOfWeek } from "@/lib/meetings";
@@ -15,6 +16,15 @@ const icalDaysOfWeek = {
 	R: "TH",
 	F: "FR",
 	S: "SA"
+};
+const rruleDaysOfWeek = {
+	U: RRule.SU,
+	M: RRule.MO,
+	T: RRule.TU,
+	W: RRule.WE,
+	R: RRule.TH,
+	F: RRule.FR,
+	S: RRule.SA
 };
 
 /**
@@ -83,15 +93,17 @@ export async function GET(req: NextRequest, ctx: RouteContext<"/api/ical/[userId
 
 		calendar.createEvent({
 			summary: course.name,
+			timezone: "-06",
 			start: toUTCDate(recurStartTime),
 			// Start time + duration in minutes
-			end: toUTCDate(new Date(recurStartTime.getTime() + MINUTES * (meeting.timeEnd - meeting.timeStart))),
+			end: toUTCDate(new Date(recurStartTime.getTime() + MINUTES * (meeting.timeEnd - meeting.timeStart))).toISOString(),
 			repeating: {
 				freq: ICalEventRepeatingFreq.WEEKLY,
 				startOfWeek: ICalWeekday.SU,
 				until: term.end,
 				byDay: recurByDay as ICalWeekday[],
 				exclude: exclusions.length ? exclusions : undefined,
+				interval: 1
 			},
 			busystatus: ICalEventBusyStatus.BUSY,
 			transparency: ICalEventTransparency.OPAQUE,
@@ -100,23 +112,24 @@ export async function GET(req: NextRequest, ctx: RouteContext<"/api/ical/[userId
 		});
 	});
 
+	// TODO: implement this as normal VEVENTS cause nothing supports VTODO
 	// ical-generator doesn't have support for anything other than VEVENT, so this is how we're implementing VTODO!
-	let calendarStr = calendar.toString().replace("END:VCALENDAR", "");
+	// let calendarStr = calendar.toString().replace("END:VCALENDAR", "");
 
-	tasks.filter(t => t.dueDate).forEach(task => {
-		calendarStr += [
-			"BEGIN:VTODO",
-			`UID:task-${task.id}`,
-			`DTSTAMP:${new Date().toISOString().replaceAll(/\.|:|-/g, "")}`,
-			`DUE:${task.dueDate!.toISOString().replaceAll(/\.|:|-/g, "")}`,
-			`SUMMARY:${task.title}`,
-			...(task.complete ? [`COMPLETED:${task.dueDate!.toISOString().replaceAll(/\.|:|-/g, "")}`] : []),
-			"END:VTODO"
-		].join("\n");
-		calendarStr += "\n";
-	});
+	// tasks.filter(t => t.dueDate).forEach(task => {
+	// 	calendarStr += [
+	// 		"BEGIN:VTODO",
+	// 		`UID:task-${task.id}`,
+	// 		`DTSTAMP:${new Date().toISOString().replaceAll(/\.|:|-/g, "")}`,
+	// 		`DUE:${task.dueDate!.toISOString().replaceAll(/\.|:|-/g, "")}`,
+	// 		`SUMMARY:${task.title}`,
+	// 		...(task.complete ? [`COMPLETED:${task.dueDate!.toISOString().replaceAll(/\.|:|-/g, "")}`] : []),
+	// 		"END:VTODO"
+	// 	].join("\n");
+	// 	calendarStr += "\n";
+	// });
 
-	calendarStr += "END:VCALENDAR";
+	// calendarStr += "END:VCALENDAR";
 
-	return new NextResponse(calendarStr);
+	return new NextResponse(calendar.toString());
 }
