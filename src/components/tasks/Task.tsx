@@ -5,10 +5,11 @@ import Confetti from "react-confetti";
 
 import { editTask } from "@/app/actions/tasks";
 import { Task as TaskType } from "@/db/types";
+import { getDimmedColor } from "@/lib/colors";
 import { relativeDate } from "@/lib/time";
 
 import { useApp } from "../context/NeptuneContext";
-import { Popover } from "../primitives/Popover";
+import { Popover, PopoverContent } from "../primitives/Popover";
 import Subtext from "../primitives/Subtext";
 import TaskPopover from "./TaskPopover";
 
@@ -63,6 +64,8 @@ export default function Task({ task }: { task: TaskType }) {
 				</div>
 			</div>
 		</PopoverTrigger>
-		<TaskPopover task={task} />
+		<PopoverContent side="right" className="border-2 border-bg-lighter">
+			<TaskPopover task={task} />
+		</PopoverContent>
 	</Popover>;
 }

@@ -1,6 +1,9 @@
-import { Task } from "@/db/types";
+import { CalendarEvent } from "@/components/calendars/Calendar";
+import { NeptuneData } from "@/components/context/NeptuneContext";
+import { Task, User } from "@/db/types";
 
-import { DAYS, unitTime } from "./time";
+import { getDimmedColor } from "./colors";
+import { DAYS, MINUTES, unitTime } from "./time";
 
 export type DateMatcher = {
 	/**
@@ -203,4 +206,25 @@ export function sortTasks(tasks: Task[]) {
 		.sort((a, b) => (a.dueDate ?? new Date()).getTime() - (b.dueDate ?? new Date()).getTime())
 		// Then completed tasks to the bottom
 		.sort((a, b) => a.complete === b.complete ? 0 : a.complete ? 1 : -1);
+}
+
+export function taskToCalendar(data: NeptuneData, user: User, task: Task): CalendarEvent | null {
+	if (!task.dueDate)
+		return null;
+
+	const course = data.courses.find(c => c.id === task.courseId);
+	const color = course?.color ?? user.icalColor;
+
+	const { dueDate } = task;
+	const allDay = dueDate.getHours() === 23 && dueDate.getMinutes() === 59;
+
+	return {
+		id: `task-${task.id}`,
+		title: task.title,
+		color: getDimmedColor(color),
+		borderColor: color,
+		allDay,
+		start: dueDate,
+		end: allDay ? undefined : new Date(dueDate.getTime() + 30 * MINUTES)
+	};
 }

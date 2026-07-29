@@ -109,7 +109,7 @@ export function meetingToCalendar(data: NeptuneData, meetingId: string): Recurri
 		byweekday = [...sortDaysOfWeek(meeting.days)].map(d => rruleDaysOfWeek[d as keyof typeof rruleDaysOfWeek]);
 
 	return {
-		id: meeting.id,
+		id: `meeting-${meeting.id}`,
 		title: course.name,
 		duration: { minutes: meeting.timeEnd - meeting.timeStart },
 		exdate: meeting.exclusions ?? undefined,

@@ -8,7 +8,7 @@ import rrulePlugin from "@fullcalendar/rrule";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import { useEffect, useState } from "react";
 
-import { Course } from "@/db/types";
+import { Course, Task } from "@/db/types";
 import { MINUTES, prettyTime, prettyTimeRange } from "@/lib/time";
 
 import { useApp } from "../context/NeptuneContext";
@@ -16,12 +16,13 @@ import CourseInline from "../courses/CourseInline";
 import MeetingsInline from "../meetings/MeetingsInline";
 import Portal from "../primitives/Portal";
 import Subtext from "../primitives/Subtext";
+import TaskPopover from "../tasks/TaskPopover";
 
 export type CalendarEvent = {
 	id?: string;
 	title: string;
 	start: DateInput;
-	end: DateInput;
+	end?: DateInput;
 	allDay?: boolean;
 	color?: string;
 	borderColor?: string;
@@ -53,21 +54,24 @@ function getEventText(props: EventContentArg) {
 }
 
 export default function Calendar({ events }: { events: (CalendarEvent | RecurringEvent)[] }) {
-	const { courses, meetings } = useApp();
+	const { courses, meetings, tasks } = useApp();
 
 	const [selectedEvent, setSelectedEvent] = useState<EventClickArg>();
-	const [selectedCourse, setSelectedCourse] = useState<Course>();
+	const [selectedItem, setSelectedItem] = useState<Course | Task>();
 
 	useEffect(() => {
 		if (!selectedEvent || selectedEvent.event.id.startsWith("ical-"))
-			return void setSelectedCourse(undefined);
+			return void setSelectedItem(undefined);
 
-		const newMeeting = meetings.find(m => m.id === selectedEvent.event.id);
-		if (!newMeeting)
-			return;
+		if (selectedEvent.event.id.startsWith("meeting-")) {
+			const meeting = meetings.find(m => m.id === selectedEvent.event.id.replace("meeting-", ""));
+			if (!meeting)
+				return;
 
-		setSelectedCourse(courses.find(c => c.id === newMeeting.courseId));
-	}, [selectedEvent, meetings, courses]);
+			setSelectedItem(courses.find(c => c.id === meeting.courseId));
+		} else if (selectedEvent.event.id.startsWith("task-"))
+			setSelectedItem(tasks.find(t => t.id === selectedEvent.event.id.replace("task-", "")));
+	}, [selectedEvent, meetings, courses, tasks]);
 
 	return <>
 		<FullCalendar
@@ -90,15 +94,16 @@ export default function Calendar({ events }: { events: (CalendarEvent | Recurrin
 		/>
 
 		{selectedEvent && <Portal>
-			<div className="absolute inset-0 z-10" onClick={() => setSelectedEvent(undefined)} />
-			<div className="absolute z-20 bg-bg-lighter p-2 drop-shadow-lg border-2 border-bg-lightest" style={{
+			<div className="fixed inset-0 z-10" onClick={() => setSelectedEvent(undefined)} />
+			<div className="absolute z-20 bg-bg-light p-2 drop-shadow-lg border-2 border-bg-lighter" style={{
 				left: `${selectedEvent.el.getBoundingClientRect().x + selectedEvent.el.clientWidth}px`,
 				top: `${selectedEvent.el.getBoundingClientRect().y + window.scrollY}px`
 			}}>
-				{!selectedEvent.event.id.startsWith("ical-") ? <>
-					{selectedCourse && <CourseInline course={selectedCourse} day={selectedEvent.event.start} meetingId={selectedEvent.event.id} />}
-					{selectedCourse && <MeetingsInline meetings={meetings.filter(m => m.courseId === selectedCourse.id)} />}
-				</> : <>
+				{selectedEvent.event.id.startsWith("meeting-") && <>
+					{selectedItem && <CourseInline course={selectedItem as Course} day={selectedEvent.event.start} meetingId={selectedEvent.event.id} />}
+					{selectedItem && <MeetingsInline meetings={meetings.filter(m => m.courseId === selectedItem.id)} />}
+				</>}
+				{selectedEvent.event.id.startsWith("ical-") && <>
 					<p className="font-bold">{selectedEvent.event.title}</p>
 					{selectedEvent.event.start && selectedEvent.event.end &&
 						<p>
@@ -110,6 +115,9 @@ export default function Calendar({ events }: { events: (CalendarEvent | Recurrin
 						</p>
 					}
 					<Subtext>From iCal</Subtext>
+				</>}
+				{selectedEvent.event.id.startsWith("task") && <>
+					<TaskPopover task={selectedItem as Task} />
 				</>}
 			</div>
 		</Portal>}

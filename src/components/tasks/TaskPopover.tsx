@@ -3,6 +3,7 @@ import { useState } from "react";
 
 import { deleteTask, editTask } from "@/app/actions/tasks";
 import { Task } from "@/db/types";
+import { getDimmedColor } from "@/lib/colors";
 import { prettyDate, relativeDate } from "@/lib/time";
 
 import { useApp } from "../context/NeptuneContext";
@@ -10,7 +11,6 @@ import Button, { ButtonLooks } from "../primitives/Button";
 import Divider from "../primitives/Divider";
 import Input from "../primitives/Input";
 import Link from "../primitives/Link";
-import { PopoverContent } from "../primitives/Popover";
 import Subtext from "../primitives/Subtext";
 import EditTask from "./EditTask";
 
@@ -32,11 +32,11 @@ export default function TaskPopover({ task }: { task: Task }) {
 		dispatch({ context: "tasks", type: "edit", data: { id: task.id, link: editingUrl, note: editingNote } });
 	}
 
-	return <PopoverContent side="right" className="border-2 border-bg-lighter">
+	return <>
 		{!editing && <div className="flex gap-2">
 			<div className="h-full">
-				<div className={`min-w-5 min-h-5 border border-bg-lighter ${task.complete ? "bg-primary" : "bg-bg"} ml-1 mt-1 cursor-pointer`}>
-					{task.complete && <Check />}
+				<div className={`min-w-5 min-h-5 border border-bg-lighter ${task.complete ? "bg-primary" : "bg-bg"} ml-1 mt-1 cursor-pointer flex justify-center items-center`}>
+					{task.complete && <Check size={16} />}
 				</div>
 			</div>
 			<div className="flex flex-col gap-1">
@@ -75,5 +75,5 @@ export default function TaskPopover({ task }: { task: Task }) {
 				<Button look={ButtonLooks.DANGER} className="py-1" onClick={onDelete}>Delete</Button>
 			</div>
 		</>}
-	</PopoverContent>;
+	</>;
 }

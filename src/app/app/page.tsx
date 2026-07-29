@@ -19,13 +19,14 @@ import Subtext from "@/components/primitives/Subtext";
 import SmartOverview from "@/components/SmartOverview";
 import EditTask from "@/components/tasks/EditTask";
 import Task from "@/components/tasks/Task";
+import { User } from "@/db/types";
 import { throwToast } from "@/lib/errors";
 import { getDayOfWeekAbbr, getMeetingsOnDay, meetingToCalendar } from "@/lib/meetings";
 import { titleCase } from "@/lib/string";
-import { sortTasks } from "@/lib/tasks";
+import { sortTasks, taskToCalendar } from "@/lib/tasks";
 import { getCurrentTerm } from "@/lib/terms";
 
-import { getCalendarEvents } from "../actions/users";
+import { getCalendarEvents, getUser } from "../actions/users";
 
 function DashboardCard(props: React.HTMLProps<HTMLDivElement>) {
 	return <div className={`w-full border-2 border-bg-lighter bg-bg-light p-2 overflow-x-hidden overflow-y-scroll ${props.className ?? ""}`}>
@@ -40,6 +41,8 @@ export default function App() {
 	const { courses, meetings, tasks, terms } = data;
 	const currentTerm = getCurrentTerm(terms);
 
+	const [user, setUser] = useState<User>();
+
 	const [courseViewMode, setCourseViewMode] = useState<"today" | "tomorrow" | "all">("today");
 
 	const [icalEvents, setIcalEvents] = useState<CalendarEvent[]>([]);
@@ -50,6 +53,7 @@ export default function App() {
 	// Fetches from listed iCal source.
 	useEffect(() => {
 		getCalendarEvents().then(setIcalEvents).catch(e => throwToast("Could not fetch iCal events", e));
+		getUser().then(setUser).catch(e => throwToast("Could not fetch user", e));
 	}, []);
 
 	if (!session || !session.data?.user)
@@ -155,7 +159,11 @@ export default function App() {
 			<h2>Your Schedule</h2>
 			<Divider />
 
-			<Calendar events={[...meetings.map(m => meetingToCalendar(data, m.id)).filter(e => !!e), ...icalEvents]} />
+			<Calendar events={[
+				...meetings.map(m => meetingToCalendar(data, m.id)).filter(e => !!e),
+				...tasks.map(t => taskToCalendar(data, user!, t)).filter(e => !!e),
+				...icalEvents
+			]} />
 		</DashboardCard>
 
 		{openModal === "new-course" && <EditCourseModal onClose={() => setOpenModal("")} />}
