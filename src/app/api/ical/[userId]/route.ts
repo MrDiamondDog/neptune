@@ -49,6 +49,7 @@ export async function GET(req: NextRequest, ctx: RouteContext<"/api/ical/[userId
 
 	const calendar = ical({
 		name: "Neptune",
+		timezone: "America/Denver"
 	});
 
 	meetings.forEach(meeting => {
@@ -92,8 +93,6 @@ export async function GET(req: NextRequest, ctx: RouteContext<"/api/ical/[userId
 
 		calendar.createEvent({
 			summary: course.name,
-			// TODO: use user timezone here
-			timezone: "-06",
 			start: toUTCDate(recurStartTime),
 			// Start time + duration in minutes
 			end: toUTCDate(new Date(recurStartTime.getTime() + MINUTES * (meeting.timeEnd - meeting.timeStart))).toISOString(),

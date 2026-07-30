@@ -92,8 +92,8 @@ export default function Calendar({ events }: { events: (CalendarEvent | Recurrin
 				right: "prev,next,dayGridMonth,timeGridWeek",
 			}}
 			eventClick={e => setSelectedEvent(e)}
-			// TODO: user timezone option
-			timeZone="America/Denver"
+			// idk what fullcalendar is doing behind the scenes but this fixes all the timezone issues
+			timeZone=""
 		/>
 
 		{selectedEvent && <Portal>
