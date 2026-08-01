@@ -17,6 +17,7 @@ import Divider from "@/components/primitives/Divider";
 import Input from "@/components/primitives/Input";
 import Subtext from "@/components/primitives/Subtext";
 import EditTermPopover from "@/components/terms/EditTermPopover";
+import VersionInfo from "@/components/Version";
 import { throwToast } from "@/lib/errors";
 import { titleCase } from "@/lib/string";
 import { prettyTimeRange } from "@/lib/time";
@@ -145,5 +146,7 @@ export default function SettingsPage() {
 					</div>
 				</div>)}
 		</div>
+
+		<VersionInfo />
 	</main>;
 }
