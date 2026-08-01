@@ -46,18 +46,18 @@ export async function getCalendarEvents(): ActionRes<CalendarEvent[]> {
 				id: `ical-${event.uid}-${i}`,
 				title: instance.summary.toString(),
 				allDay: !!event.start.dateOnly,
-				start: new Date(instance.start.getTime() - MINUTES * dbUser.timezoneOffset),
-				end: new Date(instance.end.getTime() - MINUTES * dbUser.timezoneOffset),
-				color: dbUser.icalColor
+				start: new Date(instance.start.getTime() - MINUTES * instance.start.getTimezoneOffset()),
+				end: new Date(instance.end.getTime() - MINUTES * instance.start.getTimezoneOffset()),
+				color: dbUser.icalColor,
 			}));
 
 		return [{
 			id: `ical-${event.uid}`,
 			title: event.summary.toString(),
 			allDay: !!event.start.dateOnly,
-			start: new Date(event.start.getTime() - MINUTES * dbUser.timezoneOffset),
-			end: new Date((event.end ?? new Date(event.start.getTime() + 1 * DAYS)).getTime() - MINUTES * dbUser.timezoneOffset),
-			color: dbUser.icalColor
+			start: new Date(event.start.getTime() - MINUTES * event.start.getTimezoneOffset()),
+			end: new Date((event.end ?? new Date(event.start.getTime() + 1 * DAYS)).getTime() - MINUTES * event.start.getTimezoneOffset()),
+			color: dbUser.icalColor,
 		}];
 	}
 

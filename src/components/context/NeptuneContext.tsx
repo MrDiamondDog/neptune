@@ -65,6 +65,9 @@ export function NeptuneProvider({ children }: React.PropsWithChildren) {
 		getAllMeetings().then(data => dispatch({ context: "meetings", type: "set", data }));
 		getTerms().then(data => dispatch({ context: "terms", type: "set", data }));
 		getTasks().then(data => dispatch({ context: "tasks", type: "set", data }));
+		// dispatch({ context: "courses", type: "set", data: exampleCourses });
+		// dispatch({ context: "meetings", type: "set", data: exampleMeetings });
+		// dispatch({ context: "terms", type: "set", data: exampleTerms });
 	}, []);
 
 	return (<NeptuneContext value={{ ...data, dispatch }}>
