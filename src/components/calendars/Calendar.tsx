@@ -112,8 +112,8 @@ export default function Calendar({ events }: { events: (CalendarEvent | Recurrin
 						<p>
 							{/* I hate timezones */}
 							{prettyTimeRange(
-								new Date(selectedEvent.event.start.getTime()),
-								new Date(selectedEvent.event.end.getTime())
+								new Date(selectedEvent.event.start.getTime() + selectedEvent.event.start.getTimezoneOffset() * MINUTES),
+								new Date(selectedEvent.event.end.getTime() + selectedEvent.event.start.getTimezoneOffset() * MINUTES)
 							)}
 						</p>
 					}
