@@ -6,24 +6,29 @@ import ical, { VEvent } from "node-ical";
 import { CalendarEvent } from "@/components/calendars/Calendar";
 import { db, usersTable } from "@/db/schema";
 import { User } from "@/db/types";
-import { DAYS, MINUTES, YEARS } from "@/lib/time";
+import { DAYS, getTimezoneOffset, MINUTES, YEARS } from "@/lib/time";
 
 import { actionError, ActionRes, authenticate } from ".";
 
-export async function getUser(): ActionRes<User> {
+export async function getUser(): ActionRes<User | undefined> {
 	const user = await authenticate();
 
 	if (!user)
 		throw actionError("Not authenticated.");
 
-	const res = (await db.select().from(usersTable).where(eq(usersTable.id, user.id!)))[0] as User;
-	delete res.password;
+	// Everything but password field
+	const res = (await db.select({
+		email: usersTable.email,
+		name: usersTable.name,
+		timezoneOffset: usersTable.timezoneOffset,
+		icalUrl: usersTable.icalUrl,
+		icalColor: usersTable.icalColor
+	}).from(usersTable).where(eq(usersTable.id, user.id!)))[0] as User | undefined;
 
 	return res;
 }
 
 export async function getCalendarEvents(): ActionRes<CalendarEvent[]> {
-	// export async function getCalendarEvents(): ActionRes<(CalendarEvent | RecurringEvent)[]> {
 	const user = await authenticate();
 
 	if (!user)
@@ -33,6 +38,13 @@ export async function getCalendarEvents(): ActionRes<CalendarEvent[]> {
 
 	if (!dbUser || !dbUser.icalUrl)
 		return [];
+
+	const calendar = await ical.async.fromURL(dbUser.icalUrl);
+
+	if (!calendar)
+		return [];
+
+	const timezoneOffset = getTimezoneOffset(calendar.vcalendar?.["WR-TIMEZONE"] ?? "UTC");
 
 	// Returns an array to handle recurring events
 	function convertIcalEvent(event: VEvent): CalendarEvent[] {
@@ -46,25 +58,25 @@ export async function getCalendarEvents(): ActionRes<CalendarEvent[]> {
 				id: `ical-${event.uid}-${i}`,
 				title: instance.summary.toString(),
 				allDay: !!event.start.dateOnly,
-				start: new Date(instance.start.getTime() - MINUTES * instance.start.getTimezoneOffset()),
-				end: new Date(instance.end.getTime() - MINUTES * instance.start.getTimezoneOffset()),
-				color: dbUser.icalColor,
+				start: new Date(instance.start.getTime() + timezoneOffset * MINUTES),
+				end: new Date(instance.end.getTime() + timezoneOffset * MINUTES),
+				color: dbUser!.icalColor,
 			}));
 
 		return [{
 			id: `ical-${event.uid}`,
 			title: event.summary.toString(),
 			allDay: !!event.start.dateOnly,
-			start: new Date(event.start.getTime() - MINUTES * event.start.getTimezoneOffset()),
-			end: new Date((event.end ?? new Date(event.start.getTime() + 1 * DAYS)).getTime() - MINUTES * event.start.getTimezoneOffset()),
-			color: dbUser.icalColor,
+			start: new Date(event.start.getTime() + timezoneOffset * MINUTES),
+			end: new Date((event.end ?? new Date(event.start.getTime() + 1 * DAYS)).getTime() + timezoneOffset * MINUTES),
+			color: dbUser!.icalColor,
 		}];
 	}
 
 	// Fetches the events from the given URL, filters for only events and converts them using the above function
-	const events = await ical.async.fromURL(dbUser.icalUrl).then(res => Object.values(res))
-		.then(res => res.filter(r => !!r))
-		.then(vals => vals.filter(v => v.type === "VEVENT"));
+	const events = Object.values(calendar)
+		.filter(r => !!r)
+		.filter(v => v.type === "VEVENT");
 	return events.map(convertIcalEvent).flat();
 }
 

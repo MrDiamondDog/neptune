@@ -38,6 +38,8 @@ export default function SettingsPage() {
 
 	useEffect(() => {
 		getUser().then(user => {
+			if (!user)
+				return;
 			setName(user.name);
 			setIcalUrl(user.icalUrl ?? "");
 			setIcalColor(user.icalColor);

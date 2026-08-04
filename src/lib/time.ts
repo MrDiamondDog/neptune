@@ -163,3 +163,9 @@ export function toUTCDate(date: Date): Date {
 		)
 	);
 }
+
+export function getTimezoneOffset(tz: string): number {
+  const utcDate = new Date(new Date().toLocaleString("en-US", { timeZone: "UTC" }));
+  const tzDate = new Date(new Date().toLocaleString("en-US", { timeZone: tz }));
+  return (tzDate.getTime() - utcDate.getTime()) / 6e4;
+}
