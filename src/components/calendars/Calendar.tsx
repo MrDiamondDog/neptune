@@ -89,7 +89,7 @@ export default function Calendar({ events }: { events: (CalendarEvent | Recurrin
 			nowIndicator
 			headerToolbar={{
 				left: "title",
-				right: "prev,next,dayGridMonth,timeGridWeek",
+				right: "today,prev,next,dayGridMonth,timeGridWeek",
 			}}
 			eventClick={e => setSelectedEvent(e)}
 			// idk what fullcalendar is doing behind the scenes but this fixes all the timezone issues
