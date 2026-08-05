@@ -1,20 +1,17 @@
 "use client";
 
-import { Plus, Settings } from "lucide-react";
-import Link from "next/link";
+import { Plus } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 
 import Calendar, { CalendarEvent } from "@/components/calendars/Calendar";
 import { useApp } from "@/components/context/NeptuneContext";
 import CourseInline from "@/components/courses/CourseInline";
-import EditCourseModal from "@/components/courses/EditCourseModal";
 import Greeting from "@/components/Greeting";
+import Header from "@/components/Header";
 import MeetingsInline from "@/components/meetings/MeetingsInline";
-import Neptune from "@/components/Neptune";
 import Button, { ButtonLooks } from "@/components/primitives/Button";
 import Divider from "@/components/primitives/Divider";
-import { Dropdown, DropdownContent, DropdownItem, DropdownTrigger } from "@/components/primitives/Dropdown";
 import Subtext from "@/components/primitives/Subtext";
 import SmartOverview from "@/components/SmartOverview";
 import EditTask from "@/components/tasks/EditTask";
@@ -25,7 +22,6 @@ import { getDayOfWeekAbbr, getMeetingsOnDay, meetingToCalendar } from "@/lib/mee
 import { titleCase } from "@/lib/string";
 import { sortTasks, taskToCalendar } from "@/lib/tasks";
 import { getCurrentTerm } from "@/lib/terms";
-import { prettyDate, prettyTime } from "@/lib/time";
 
 import { getCalendarEvents, getUser } from "../actions/users";
 
@@ -49,23 +45,11 @@ export default function App() {
 	const [icalEvents, setIcalEvents] = useState<CalendarEvent[]>([]);
 
 	const [editingTask, setEditingTask] = useState<string>();
-	const [openModal, setOpenModal] = useState("");
-
-	const [date, setDate] = useState<Date>();
 
 	// Fetches from listed iCal source.
 	useEffect(() => {
 		getCalendarEvents().then(setIcalEvents).catch(e => throwToast("Could not fetch iCal events", e));
 		getUser().then(setUser).catch(e => throwToast("Could not fetch user", e));
-	}, []);
-
-	useEffect(() => {
-		setDate(new Date());
-		const interval = setInterval(() => {
-			// TODO: move to different component as to not rerender everything every second
-			setDate(new Date());
-		}, 1000);
-		return () => clearInterval(interval);
 	}, []);
 
 	if (!session || !session.data?.user || !user)
@@ -96,26 +80,7 @@ export default function App() {
 	});
 
 	return <main className="mx-auto w-200 overflow-x-hidden">
-		<div className="flex w-full *:w-full justify-between items-center mt-2">
-			<Neptune />
-			{date && <div className="text-gray-500">
-				<p className="text-center text-lg">{prettyTime(date)}</p>
-				<p className="text-center text-sm">{prettyDate(date, "hide")}</p>
-			</div>}
-			<div className="flex gap-2 items-center justify-end">
-				<Dropdown>
-					<DropdownTrigger asChild>
-						<Button className="w-fit!"><Plus /></Button>
-					</DropdownTrigger>
-					<DropdownContent>
-						<DropdownItem onClick={() => setOpenModal("new-course")}>New Course...</DropdownItem>
-					</DropdownContent>
-				</Dropdown>
-				<Link href="/app/settings">
-					<Button look={ButtonLooks.SECONDARY}><Settings /></Button>
-				</Link>
-			</div>
-		</div>
+		<Header />
 		<Divider />
 
 		<DashboardCard className="w-full mb-2">
@@ -181,7 +146,5 @@ export default function App() {
 				...icalEvents
 			]} />
 		</DashboardCard>
-
-		{openModal === "new-course" && <EditCourseModal onClose={() => setOpenModal("")} />}
 	</main>;
 }
