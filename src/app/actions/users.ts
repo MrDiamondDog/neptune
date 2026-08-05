@@ -64,8 +64,8 @@ export async function getCalendarEvents(): ActionRes<CalendarEvent[]> {
 				id: `ical-${event.uid}-${i}`,
 				title: instance.summary.toString(),
 				allDay: !!event.start.dateOnly,
-				start: offsetTime(instance.start),
-				end: offsetTime(instance.end ?? new Date(instance.start.getTime() + 1 * DAYS)),
+				start: event.start.dateOnly ? instance.start : offsetTime(instance.start),
+				end: event.start.dateOnly ? instance.end : offsetTime(instance.end ?? new Date(instance.start.getTime() + 1 * DAYS)),
 				color: dbUser!.icalColor,
 			}));
 
@@ -73,8 +73,8 @@ export async function getCalendarEvents(): ActionRes<CalendarEvent[]> {
 			id: `ical-${event.uid}`,
 			title: event.summary.toString(),
 			allDay: !!event.start.dateOnly,
-			start: offsetTime(event.start),
-			end: offsetTime(event.end ?? new Date(event.start.getTime() + 1 * DAYS)),
+			start: event.start.dateOnly ? event.start : offsetTime(event.start),
+			end: event.start.dateOnly ? event.end : offsetTime(event.end ?? new Date(event.start.getTime() + 1 * DAYS)),
 			color: dbUser!.icalColor,
 		}];
 	}
