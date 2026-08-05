@@ -2,7 +2,7 @@ import { Plus, Trash2, X } from "lucide-react";
 
 import { MeetingInsert } from "@/db/types";
 import { sortDaysOfWeek } from "@/lib/meetings";
-import { minutesToTime, timeToMinutes } from "@/lib/time";
+import { minutesToTime, prettyDate, timeToMinutes } from "@/lib/time";
 
 import Button, { ButtonLooks } from "../primitives/Button";
 import Input from "../primitives/Input";
@@ -56,6 +56,14 @@ export default function MeetingEditor({ meeting, onChange, onDelete }: {
 				onChange={t => onChange({ ...meeting, timeEnd: timeToMinutes(t) })}
 			/>
 		</div>
+
+		{!!meeting.exclusions?.length && <div className="flex gap-2 flex-col">
+			<p>Excluded Dates</p>
+			{meeting.exclusions.map(e => <div className="flex justify-between items-center bg-bg-lighter p-2" key={e.toString()}>
+				<p>{prettyDate(new Date(e.toString()), "hide")}</p>
+				<X className="text-gray-400 cursor-pointer" onClick={() => onChange({ ...meeting, exclusions: [...(meeting.exclusions ?? []).filter(me => me !== e)] })} />
+			</div>)}
+		</div>}
 
 		<div className="flex w-full items-end gap-2">
 			<div className="w-full">
