@@ -26,7 +26,7 @@ import { getCurrentTerm } from "@/lib/terms";
 import { getCalendarEvents, getUser } from "../actions/users";
 
 function DashboardCard(props: React.HTMLProps<HTMLDivElement>) {
-	return <div className={`w-full border-2 border-bg-lighter bg-bg-light p-2 overflow-x-hidden overflow-y-scroll ${props.className ?? ""}`}>
+	return <div className={`w-full rounded border border-bg-lighter bg-bg-light p-2 ${props.className ?? ""}`}>
 		{props.children}
 	</div>;
 }
