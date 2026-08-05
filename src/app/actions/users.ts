@@ -6,7 +6,7 @@ import ical, { VEvent } from "node-ical";
 import { CalendarEvent } from "@/components/calendars/Calendar";
 import { db, usersTable } from "@/db/schema";
 import { User } from "@/db/types";
-import { DAYS, getTimezoneOffset, MINUTES, YEARS } from "@/lib/time";
+import { DAYS, getTimezoneOffset, HOURS, inDST, MINUTES, YEARS } from "@/lib/time";
 
 import { actionError, ActionRes, authenticate } from ".";
 
@@ -44,10 +44,16 @@ export async function getCalendarEvents(): ActionRes<CalendarEvent[]> {
 	if (!calendar)
 		return [];
 
-	const timezoneOffset = getTimezoneOffset(calendar.vcalendar?.["WR-TIMEZONE"] ?? "UTC");
+	const timezone = calendar.vcalendar?.["WR-TIMEZONE"] ?? "UTC";
+	process.env.TZ = timezone;
+	const timezoneOffset = getTimezoneOffset(timezone);
 
 	// Returns an array to handle recurring events
 	function convertIcalEvent(event: VEvent): CalendarEvent[] {
+		// The stupidest workaround imo
+		const dst = inDST(event.start) ? 0 : -1 * HOURS;
+		const offsetTime = (t: Date) => new Date(t.getTime() + timezoneOffset * MINUTES + dst);
+
 		if (event.rrule)
 			// Expand recurring events +/- 10 years
 			// This doesn't expand them to recur for 10 years, it's just the boundaries
@@ -58,8 +64,8 @@ export async function getCalendarEvents(): ActionRes<CalendarEvent[]> {
 				id: `ical-${event.uid}-${i}`,
 				title: instance.summary.toString(),
 				allDay: !!event.start.dateOnly,
-				start: new Date(instance.start.getTime() + timezoneOffset * MINUTES),
-				end: new Date(instance.end.getTime() + timezoneOffset * MINUTES),
+				start: offsetTime(instance.start),
+				end: offsetTime(instance.end ?? new Date(instance.start.getTime() + 1 * DAYS)),
 				color: dbUser!.icalColor,
 			}));
 
@@ -67,8 +73,8 @@ export async function getCalendarEvents(): ActionRes<CalendarEvent[]> {
 			id: `ical-${event.uid}`,
 			title: event.summary.toString(),
 			allDay: !!event.start.dateOnly,
-			start: new Date(event.start.getTime() + timezoneOffset * MINUTES),
-			end: new Date((event.end ?? new Date(event.start.getTime() + 1 * DAYS)).getTime() + timezoneOffset * MINUTES),
+			start: offsetTime(event.start),
+			end: offsetTime(event.end ?? new Date(event.start.getTime() + 1 * DAYS)),
 			color: dbUser!.icalColor,
 		}];
 	}

@@ -169,3 +169,14 @@ export function getTimezoneOffset(tz: string): number {
   const tzDate = new Date(new Date().toLocaleString("en-US", { timeZone: tz }));
   return (tzDate.getTime() - utcDate.getTime()) / 6e4;
 }
+
+/**
+ * Measures the time difference between january and july. If different, returns true.
+ * @param date Date to measure time difference with. Only timezone property is used.
+ * @returns
+ */
+export function inDST(date: Date): boolean {
+    const jan = new Date(date.getFullYear(), 0, 1).getTimezoneOffset();
+    const jul = new Date(date.getFullYear(), 6, 1).getTimezoneOffset();
+    return Math.max(jan, jul) !== date.getTimezoneOffset();
+}
