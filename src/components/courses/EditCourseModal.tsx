@@ -8,7 +8,7 @@ import { createMeeting, deleteMeeting, editMeeting } from "@/app/actions/meeting
 import { Course, CourseInsert, Meeting, MeetingInsert } from "@/db/types";
 import { deleteFromArray, modifyArrayItem } from "@/lib/array";
 import { throwToast } from "@/lib/errors";
-import { useObjectState } from "@/lib/hooks";
+import { useDevice, useObjectState } from "@/lib/hooks";
 import { randomFrom } from "@/lib/random";
 import { titleCase } from "@/lib/string";
 
@@ -45,6 +45,7 @@ const defaultMeeting: MeetingInsert = {
 
 export default function EditCourseModal({ course: defaultCourse, ...props }: { course?: Course } & ModalProps) {
 	const session = useSession();
+	const [isMobile] = useDevice();
 
 	const { terms, meetings: meetingsList, dispatch } = useApp();
 
@@ -133,9 +134,9 @@ export default function EditCourseModal({ course: defaultCourse, ...props }: { c
 		<Divider />
 		{step === 0 && <>
 			<Input placeholder="Data Structures" label="Name" className="w-full" required value={course.name} onChange={v => setCourse({ name: v })} />
-			<div className="flex w-full gap-2">
-				<Input placeholder="CS" label="Subject" required value={course.subject} onChange={v => setCourse({ subject: v })} />
-				<Input placeholder="165" label="Course Number" required value={course.number} onChange={v => setCourse({ number: v })} />
+			<div className="md:flex w-full gap-2">
+				<Input className="w-full" placeholder="CS" label="Subject" required value={course.subject} onChange={v => setCourse({ subject: v })} />
+				<Input className="w-full" placeholder="165" label="Course Number" required value={course.number} onChange={v => setCourse({ number: v })} />
 			</div>
 
 			<p>Term <RequiredStar /></p>
@@ -159,7 +160,7 @@ export default function EditCourseModal({ course: defaultCourse, ...props }: { c
 				<EditTermPopover onCreate={term => {
 					setTermPopover(false);
 					setCourse({ termId: term.id });
-				}} side="right" />
+				}} side={isMobile ? "top" : "right"} />
 			</Popover>
 
 			<Input placeholder="4" label="Credit Hours" className="w-full" type="number" value={course.creditHours + ""} onChange={v => setCourse({ creditHours: parseInt(v) })} />
@@ -184,7 +185,11 @@ export default function EditCourseModal({ course: defaultCourse, ...props }: { c
 			<div className="bg-bg w-full p-2">
 				<div className="flex w-full justify-between items-center">
 					<p>Meetings</p>
-					<Plus size={20} className="cursor-pointer" onClick={() => setMeetings([...meetings, { ...defaultMeeting, id: (meetings.length - 1) + "" }])} />
+					<Plus
+						size={20}
+						className="cursor-pointer box-content p-1 bg-primary"
+						onClick={() => setMeetings([...meetings, { ...defaultMeeting, id: (meetings.length - 1) + "" }])}
+					/>
 				</div>
 				{meetings.map(m => <div key={m.id}>
 					<Divider />

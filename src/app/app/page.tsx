@@ -79,7 +79,7 @@ export default function App() {
 			return aMeetingsToday[0].timeStart - bMeetingsToday[0].timeStart;
 	});
 
-	return <main className="mx-auto w-200 overflow-x-hidden">
+	return <main className="mx-auto w-[95%] md:w-200 overflow-x-hidden">
 		<Header />
 		<Divider />
 
@@ -88,8 +88,8 @@ export default function App() {
 			{currentTerm ? <SmartOverview /> : <p>Enjoy your break!</p>}
 		</DashboardCard>
 
-		<div className="flex gap-2 mb-2 max-h-150">
-			<DashboardCard>
+		<div className="md:flex md:gap-2 mb-2 max-h-150">
+			<DashboardCard className="md:mb-0 mb-2">
 				<div className="flex justify-between items-end">
 					<h2>
 						{courseViewMode === "today" && "Today"}

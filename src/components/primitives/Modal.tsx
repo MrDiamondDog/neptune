@@ -30,7 +30,7 @@ export default function Modal({ children, title, open, onClose, danger }: Props)
 
 		{(open === undefined ? true : open) && <div
 			key="content"
-			className={`fixed top-1/2 left-1/2 -translate-1/2 bg-bg-light min-h-25 max-h-[95vh] md:w-fit w-[98vw]
+			className={`fixed top-1/2 left-1/2 -translate-1/2 bg-bg-light min-h-25 max-h-[95vh] w-full md:w-fit w-[98vw]
                 overflow-scroll border-2 ${danger ? "border-danger" : "border-bg-lighter"} px-4 py-3 z-110`}
 		>
 			<ModalTitle onClose={onClose}>{title}</ModalTitle>

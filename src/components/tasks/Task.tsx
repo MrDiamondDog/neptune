@@ -6,6 +6,7 @@ import Confetti from "react-confetti";
 import { editTask } from "@/app/actions/tasks";
 import { Task as TaskType } from "@/db/types";
 import { getDimmedColor } from "@/lib/colors";
+import { useDevice } from "@/lib/hooks";
 import { relativeDate } from "@/lib/time";
 
 import { useApp } from "../context/NeptuneContext";
@@ -15,6 +16,7 @@ import TaskPopover from "./TaskPopover";
 
 export default function Task({ task }: { task: TaskType }) {
 	const { courses, dispatch } = useApp();
+	const [isMobile] = useDevice();
 	const course = courses.find(c => c.id === task.courseId);
 
 	const checkRef = useRef<HTMLDivElement | null>(null);
@@ -64,7 +66,7 @@ export default function Task({ task }: { task: TaskType }) {
 				</div>
 			</div>
 		</PopoverTrigger>
-		<PopoverContent side="right" className="border-2 border-bg-lighter">
+		<PopoverContent side={isMobile ? "bottom" : "right"} className="border-2 border-bg-lighter">
 			<TaskPopover task={task} />
 		</PopoverContent>
 	</Popover>;
