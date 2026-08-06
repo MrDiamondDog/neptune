@@ -70,7 +70,7 @@ export default function SettingsPage() {
 		dispatch({ context: "terms", type: "delete", id: term });
 	}
 
-	return <main className="mx-auto w-[95%] md:min-w-200 overflow-x-hidden">
+	return <main className="mx-auto w-[95%] md:w-fit md:min-w-200 overflow-x-hidden">
 		<div className="flex md:w-full justify-between items-center">
 			<h1>Settings</h1>
 			<Link href="/app/" className="flex items-center link"><ArrowLeft size={20} /> Back</Link>
