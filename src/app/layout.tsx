@@ -14,22 +14,35 @@ const lexend = Lexend({
 });
 
 export const metadata: Metadata = {
-	title: "Neptune",
-	description: "Self-hostable college life organizer.",
-	icons: [
-		{
-			url: "/neptune.png",
-			type: "image/png",
-		},
-		{
-			url: "/neptune.ico",
-			rel: "shortcut icon",
-		},
-	],
-	applicationName: "Neptune",
-	appleWebApp: {
-		capable: false,
-	},
+    title: "Neptune",
+    description: "Self-hostable college life organizer.",
+    icons: [
+        {
+            url: "/neptune.png",
+            sizes: "96x96",
+            type: "image/png",
+        },
+        {
+            url: "/neptune.svg",
+            type: "image/svg+xml",
+        },
+        {
+            url: "/neptune.ico",
+            rel: "shortcut icon",
+        },
+        {
+            url: "/neptune.png",
+            rel: "apple-touch-icon",
+            sizes: "180x180",
+        },
+    ],
+    applicationName: "Filatrack",
+    appleWebApp: {
+        capable: true,
+        title: "Neptune",
+        startupImage: "/neptune.png",
+    },
+    manifest: "/site.webmanifest",
 };
 
 export default function RootLayout({
