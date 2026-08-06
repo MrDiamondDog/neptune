@@ -1,0 +1,15 @@
+{
+  "name": "Neptune",
+  "short_name": "Neptune",
+  "icons": [
+    {
+      "src": "/neptune.png",
+      "sizes": "535x535",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "theme_color": "#254fa8",
+  "background_color": "#0d0e10",
+  "display": "standalone"
+}
