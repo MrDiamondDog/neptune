@@ -22,7 +22,6 @@ COPY package.json pnpm-*.yaml* ./
 COPY patches/ ./patches/
 COPY drizzle.config.ts ./drizzle.config.ts
 COPY src/db/schema.ts ./src/db/schema.ts
-COPY .git/ ./.git/
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 
 # Rebuild the source code only when needed
@@ -54,9 +53,6 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/drizzle.config.ts ./drizzle.config.ts
 COPY --from=builder /app/data ./data
 COPY --from=builder /app/src/db/schema.ts ./src/db/schema.ts
-COPY --from=builder /app/.git/ ./.git/
-
-RUN git log --pretty=format:%h -n 1 > /app/public/version.txt
 
 # Automatically leverage output traces to reduce image size
 # https://nextjs.org/docs/advanced-features/output-file-tracing
