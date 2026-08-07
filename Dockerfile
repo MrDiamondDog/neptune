@@ -37,8 +37,6 @@ ENV NODE_ENV=production
 
 RUN mkdir /app/data
 
-RUN git log --pretty=format:%h -n 1 > /app/public/version.txt
-
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 RUN pnpm exec drizzle-kit push
 RUN pnpm run build
@@ -51,6 +49,8 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
+
+RUN git log --pretty=format:%h -n 1 > /app/public/version.txt
 
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/drizzle.config.ts ./drizzle.config.ts
