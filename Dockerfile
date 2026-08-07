@@ -54,6 +54,7 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/drizzle.config.ts ./drizzle.config.ts
 COPY --from=builder /app/data ./data
 COPY --from=builder /app/src/db/schema.ts ./src/db/schema.ts
+COPY --from=builder /app/.git/ ./.git/
 
 RUN git log --pretty=format:%h -n 1 > /app/public/version.txt
 
