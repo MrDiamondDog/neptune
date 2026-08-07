@@ -23,10 +23,6 @@ export const metadata: Metadata = {
             type: "image/png",
         },
         {
-            url: "/neptune.svg",
-            type: "image/svg+xml",
-        },
-        {
             url: "/neptune.ico",
             rel: "shortcut icon",
         },
@@ -36,7 +32,7 @@ export const metadata: Metadata = {
             sizes: "180x180",
         },
     ],
-    applicationName: "Filatrack",
+    applicationName: "Neptune",
     appleWebApp: {
         capable: true,
         title: "Neptune",
