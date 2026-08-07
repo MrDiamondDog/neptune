@@ -50,12 +50,12 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
-RUN git log --pretty=format:%h -n 1 > /app/public/version.txt
-
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/drizzle.config.ts ./drizzle.config.ts
 COPY --from=builder /app/data ./data
 COPY --from=builder /app/src/db/schema.ts ./src/db/schema.ts
+
+RUN git log --pretty=format:%h -n 1 > /app/public/version.txt
 
 # Automatically leverage output traces to reduce image size
 # https://nextjs.org/docs/advanced-features/output-file-tracing
