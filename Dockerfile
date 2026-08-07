@@ -22,6 +22,7 @@ COPY package.json pnpm-*.yaml* ./
 COPY patches/ ./patches/
 COPY drizzle.config.ts ./drizzle.config.ts
 COPY src/db/schema.ts ./src/db/schema.ts
+COPY .git/ ./.git/
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 
 # Rebuild the source code only when needed
@@ -35,6 +36,8 @@ ENV CI=true
 ENV NODE_ENV=production
 
 RUN mkdir /app/data
+
+RUN git log --pretty=format:%h -n 1 > /app/public/version.txt
 
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 RUN pnpm exec drizzle-kit push
