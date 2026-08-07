@@ -10,7 +10,6 @@ import { toast } from "sonner";
 import { deleteTerm } from "@/app/actions/terms";
 import { editUser, getUser } from "@/app/actions/users";
 import { useApp } from "@/components/context/NeptuneContext";
-import VersionInfo from "@/components/misc/Version";
 import Button, { ButtonLooks } from "@/components/primitives/Button";
 import PopoverColorPicker from "@/components/primitives/ColorPicker";
 import DeletePopover from "@/components/primitives/DeletePopover";
@@ -148,7 +147,5 @@ export default function SettingsPage() {
 					</div>
 				</div>)}
 		</div>
-
-		<VersionInfo />
 	</main>;
 }
