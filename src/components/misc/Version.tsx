@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 import { getCommit } from "@/app/actions/misc";
 
-import Subtext from "./primitives/Subtext";
+import Subtext from "../primitives/Subtext";
 
 export default function VersionInfo() {
 	const [commit, setCommit] = useState("");

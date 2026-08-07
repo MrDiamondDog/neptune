@@ -1,4 +1,4 @@
-import Neptune from "@/components/Neptune";
+import Neptune from "@/components/misc/Neptune";
 import Button, { ButtonLooks } from "@/components/primitives/Button";
 import Divider from "@/components/primitives/Divider";
 

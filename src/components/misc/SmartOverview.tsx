@@ -5,7 +5,7 @@ import { getDayOfWeekAbbr, getMeetingsOnDay, minutesToTime } from "@/lib/meeting
 import { getCurrentTerm } from "@/lib/terms";
 import { timeToMinutes } from "@/lib/time";
 
-import { useApp } from "./context/NeptuneContext";
+import { useApp } from "../context/NeptuneContext";
 
 export default function SmartOverview() {
 	const data = useApp();
