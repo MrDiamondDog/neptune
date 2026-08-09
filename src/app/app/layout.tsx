@@ -1,7 +1,9 @@
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
 
 import { auth } from "@/auth";
 import { NeptuneProvider } from "@/components/context/NeptuneContext";
+import Spinner from "@/components/primitives/Spinner";
 
 export default async function AppLayout({
 	children,
@@ -12,6 +14,8 @@ export default async function AppLayout({
 		return redirect("/auth");
 
 	return <NeptuneProvider>
-		{children}
+		<Suspense fallback={<Spinner />}>
+			{children}
+		</Suspense>
 	</NeptuneProvider>;
 }
