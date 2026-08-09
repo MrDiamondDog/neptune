@@ -11,6 +11,7 @@ import { relativeDate } from "@/lib/time";
 
 import { useApp } from "../context/NeptuneContext";
 import { Popover, PopoverContent } from "../primitives/Popover";
+import Portal from "../primitives/Portal";
 import Subtext from "../primitives/Subtext";
 import TaskPopover from "./TaskPopover";
 
@@ -41,15 +42,17 @@ export default function Task({ task }: { task: TaskType }) {
 						ref={checkRef}
 					>
 						{task.complete && <Check size={16} />}
-						{(task.complete && !confettiComplete) && <Confetti
-							gravity={.35}
-							confettiSource={confettiPos}
-							recycle={false}
-							tweenDuration={100}
-							numberOfPieces={10}
-							initialVelocityY={{ min: -5, max: -10 }}
-							onConfettiComplete={() => setConfettiComplete(true)}
-						/>}
+						{(task.complete && !confettiComplete) && <Portal>
+							<Confetti
+								gravity={.35}
+								confettiSource={confettiPos}
+								recycle={false}
+								tweenDuration={100}
+								numberOfPieces={10}
+								initialVelocityY={{ min: -5, max: -10 }}
+								onConfettiComplete={() => setConfettiComplete(true)}
+							/>
+						</Portal>}
 					</div>
 				</div>
 				<div className="flex flex-col gap-1 w-full overflow-hidden">
