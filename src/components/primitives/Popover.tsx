@@ -15,5 +15,5 @@ export function PopoverContent(props: RadixPopover.PopoverContentProps) {
 }
 
 export function PopoverArrow(props: RadixPopover.PopoverArrowProps) {
-	return <RadixPopover.PopoverArrow {...props} width={15} height={10} className="fill-bg-lightest" />;
+	return <RadixPopover.PopoverArrow {...props} width={15} height={10} className="fill-bg-lighter" />;
 }

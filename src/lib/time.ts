@@ -180,3 +180,10 @@ export function inDST(date: Date): boolean {
     const jul = new Date(date.getFullYear(), 6, 1).getTimezoneOffset();
     return Math.max(jan, jul) !== date.getTimezoneOffset();
 }
+
+export function prettyDuration(seconds: number): string {
+	const mins = Math.floor(seconds / 60);
+	seconds -= mins * 60;
+
+	return `${mins}:${seconds < 10 ? "0" : ""}${seconds}`;
+}

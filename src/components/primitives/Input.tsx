@@ -1,3 +1,5 @@
+"use client";
+
 import React, { createElement } from "react";
 
 import RequiredStar from "./RequiredStar";

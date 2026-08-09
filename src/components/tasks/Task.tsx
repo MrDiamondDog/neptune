@@ -26,7 +26,7 @@ export default function Task({ task }: { task: TaskType }) {
 
 	return <Popover>
 		<PopoverTrigger asChild>
-			<div className="flex gap-2 hover:bg-bg-lighter cursor-pointer pb-1">
+			<div className="flex gap-2 hover:bg-bg-lighter cursor-pointer pb-1 pr-2">
 				<div className="h-full">
 					<div className={`min-w-5 min-h-5 border border-bg-lighter ${task.complete ? "bg-primary" : "bg-bg"} ml-1 mt-1 cursor-pointer flex items-center justify-center`}
 						onClick={e => {
