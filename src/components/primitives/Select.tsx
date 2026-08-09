@@ -1,4 +1,4 @@
-import { ChevronDown } from "lucide-react";
+import { Check, ChevronDown } from "lucide-react";
 import React, { useState } from "react";
 
 import { Dropdown, DropdownContent, DropdownItem, DropdownTrigger } from "./Dropdown";
@@ -54,8 +54,8 @@ export function SelectMultiple({ options, values, onChange, placeholder, searcha
 	return (
 		<Dropdown>
 			<DropdownTrigger asChild>
-				<button {...props} className={`px-2 py-1 pr-2 rounded-lg bg-bg-lighter border-2 outline-none drop-shadow-lg
-                flex flex-row justify-between gap-4 items-center border-transparent focus:border-primary transition-all
+				<button {...props} className={`px-2 py-1 pr-2 bg-bg-lighter outline-none
+                flex flex-row justify-between gap-4 items-center transition-all w-full
                 cursor-pointer text-sm ${props.className ?? ""}`}>
 					{!values.length && <Subtext>{placeholder}</Subtext>}
 					{values.length === 1 && options[values[0]]}
@@ -87,7 +87,7 @@ export function SelectMultiple({ options, values, onChange, placeholder, searcha
 						key={k}
 						onSelect={e => e.preventDefault()}
 					>
-						{options[k]}
+						{values.includes(k) && <Check size={18} className="text-gray-500" />} {options[k]}
 					</DropdownItem>)
 				}
 			</DropdownContent>
