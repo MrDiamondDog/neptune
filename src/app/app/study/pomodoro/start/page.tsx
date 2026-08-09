@@ -104,6 +104,18 @@ export default function StartPomodoroPage() {
 		Notification.requestPermission();
 	}, []);
 
+	useEffect(() => {
+		function preventLeave(e: Event) {
+			if (state !== "complete") {
+				e.preventDefault();
+			}
+		}
+
+		window.addEventListener("beforeunload", preventLeave);
+
+		return () => window.removeEventListener("beforeunload", preventLeave);
+	}, [state]);
+
 	return <main className="absolute-center bg-bg-light border border-bg-lighter rounded p-2">
 		{state !== "complete" && <>
 			<div className="flex">
@@ -134,6 +146,7 @@ export default function StartPomodoroPage() {
 				</div>
 			</div>
 			<ModalFooter>
+				<Link href="/app/study/pomodoro"><Button look={ButtonLooks.SECONDARY2}>Cancel</Button></Link>
 				<Popover open={confirmation} onOpenChange={setConfirmation}>
 					<PopoverAnchor asChild>
 						<Button
