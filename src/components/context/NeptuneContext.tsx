@@ -8,10 +8,6 @@ import { getTasks } from "@/app/actions/tasks";
 import { getTerms } from "@/app/actions/terms";
 import { Course, Meeting, Task, Term } from "@/db/types";
 
-import { CoursesAction, coursesReducer } from "./courses";
-import { MeetingsAction, meetingsReducer } from "./meetings";
-import { TasksAction, tasksReducer } from "./tasks";
-import { TermsAction, termsReducer } from "./terms";
 
 export type NeptuneData = {
 	courses: Course[],
@@ -32,21 +28,47 @@ export const defaultNeptuneData: NeptuneData = {
 	dispatch: () => { throw "Dispatch called outside of NeptuneProvider."; },
 };
 
-export type ContextAction = CoursesAction | MeetingsAction | TermsAction | TasksAction;
+export type UnknownAction = { context: string, type: "create" | "edit" | "delete" | "set", data: any };
 
-export function reducer(data: NeptuneData, action: ContextAction): NeptuneData {
+export type ContextAction<T extends { id: string }> =
+	{ context: string, type: "create", data: T } |
+	{ context: string, type: "edit", data: Partial<T> & { id: string } } |
+	{ context: string, type: "delete", data: string } |
+	{ context: string, type: "set", data: T[] };
+
+export function defaultReducer<T extends { id: string }>(data: T[], action: ContextAction<T>): T[] {
+	switch (action.type) {
+		case "create": {
+			return [...data, action.data];
+		}
+		case "edit": {
+			return [...data.filter(t => t.id !== action.data.id), { ...data.find(t => t.id === action.data.id), ...action.data } as T];
+		}
+		case "set": {
+			return action.data;
+		}
+		case "delete": {
+			return data.filter(t => t.id !== action.data);
+		}
+		default: {
+			return data;
+		}
+	}
+}
+
+export function reducer(data: NeptuneData, action: UnknownAction): NeptuneData {
 	switch (action.context) {
 		case "courses": {
-			return { ...data, courses: coursesReducer(data.courses, action) };
+			return { ...data, courses: defaultReducer<Course>(data.courses, action) };
 		}
 		case "meetings": {
-			return { ...data, meetings: meetingsReducer(data.meetings, action) };
+			return { ...data, meetings: defaultReducer<Meeting>(data.meetings, action) };
 		}
 		case "terms": {
-			return { ...data, terms: termsReducer(data.terms, action) };
+			return { ...data, terms: defaultReducer<Term>(data.terms, action) };
 		}
 		case "tasks": {
-			return { ...data, tasks: tasksReducer(data.tasks, action) };
+			return { ...data, tasks: defaultReducer<Task>(data.tasks, action) };
 		}
 		default: {
 			console.error("Unknown context", action);
