@@ -13,7 +13,7 @@ export default function Input({ onChange, label, multiline, ...props }: { onChan
 		{createElement(element, {
 			...props,
 			onChange: e => onChange?.((e.target as HTMLInputElement).value),
-			className: `${props.className ?? ""} outline-none px-2 py-1 bg-bg-lighter border-2 border-transparent focus:border-bg-lightest transition-all`
+			className: `${props.className ?? ""} outline-none px-2 py-1 bg-bg-lighter border-2 border-transparent focus:border-bg-lightest transition-colors`
 		})}
 	</div>;
 }
