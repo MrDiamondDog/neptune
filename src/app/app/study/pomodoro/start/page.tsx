@@ -7,6 +7,7 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
+import { createStudySession } from "@/app/actions/studySessions";
 import { useApp } from "@/components/context/NeptuneContext";
 import Button, { ButtonLooks } from "@/components/primitives/Button";
 import Divider from "@/components/primitives/Divider";
@@ -14,6 +15,7 @@ import { ModalFooter } from "@/components/primitives/Modal";
 import { Popover, PopoverArrow, PopoverContent } from "@/components/primitives/Popover";
 import Task from "@/components/tasks/Task";
 import { Task as TaskType } from "@/db/types";
+import { throwToast } from "@/lib/errors";
 import { sortTasks } from "@/lib/tasks";
 import { prettyDuration } from "@/lib/time";
 
@@ -31,7 +33,8 @@ export default function StartPomodoroPage() {
 
 	const [active, setActive] = useState(true);
 	const [timerVisible, setTimerVisible] = useState(true);
-	const [startTime, setStartTime] = useState(workTime);
+	const [start, setStart] = useState(new Date());
+	const [initialTime, setInitialTime] = useState(workTime);
 	const [timeLeft, setTimeLeft] = useState(workTime);
 	const [secondsElapsed, setSecondsElapsed] = useState(0);
 	const [confirmation, setConfirmation] = useState(false);
@@ -52,7 +55,7 @@ export default function StartPomodoroPage() {
 
 	function startBreak() {
 		setTimeLeft(nextBreak === "short" ? shortBreak : longBreak);
-		setStartTime(nextBreak === "short" ? shortBreak : longBreak);
+		setInitialTime(nextBreak === "short" ? shortBreak : longBreak);
 		setNextBreak(nextBreak === "short" ? "long" : "short");
 		setState("break");
 		notif("Time for a break!");
@@ -60,7 +63,7 @@ export default function StartPomodoroPage() {
 
 	function startWork() {
 		setTimeLeft(workTime);
-		setStartTime(workTime);
+		setInitialTime(workTime);
 		setState("work");
 		notif("Your break is over!");
 	}
@@ -76,15 +79,20 @@ export default function StartPomodoroPage() {
 		setConfirmation(false);
 		setState("complete");
 		setActive(false);
+		createStudySession({
+			type: "pomodoro",
+			date: start,
+			secondsElapsed
+		}).catch(e => throwToast("Could not create study session.", e));
 	}
 
 	useEffect(() => {
-		if (active)
+		if (active && !interval.current)
 			interval.current = setInterval(() => {
 				setTimeLeft(t => t - 1);
 				setSecondsElapsed(s => s + 1);
 			}, 1000);
-		else {
+		else if (!active) {
 			if (interval.current)
 				clearInterval(interval.current);
 			interval.current = null;
@@ -125,7 +133,7 @@ export default function StartPomodoroPage() {
 						<circle cx="100" cy="100" r="90" strokeWidth="20" stroke={active ? "var(--color-secondary)" : "var(--color-primary)"} fill="none"
 							transform="rotate(90 100 100) translate(200 0) scale(-1 1)"
 							pathLength="360"
-							strokeDasharray={`${(timeLeft / startTime) * 360} 360`}
+							strokeDasharray={`${(timeLeft / initialTime) * 360} 360`}
 							strokeDashoffset="0"
 							strokeLinecap="round"
 							className="transition-all" />
@@ -146,7 +154,7 @@ export default function StartPomodoroPage() {
 				</div>
 			</div>
 			<ModalFooter>
-				<Link href="/app/study/pomodoro"><Button look={ButtonLooks.SECONDARY2}>Cancel</Button></Link>
+				<a href="/app/study/pomodoro"><Button look={ButtonLooks.SECONDARY2}>Cancel</Button></a>
 				<Popover open={confirmation} onOpenChange={setConfirmation}>
 					<PopoverAnchor asChild>
 						<Button
