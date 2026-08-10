@@ -12,7 +12,8 @@ const nextConfig: NextConfig = {
 				{ key: "Access-Control-Allow-Headers", value: "Accept, Accept-Version, Content-Length, Content-Type, Authorization" },
 			]
 		}]
-	}
+	},
+  	allowedDevOrigins: ['10.0.0.158'],
 };
 
 export default nextConfig;

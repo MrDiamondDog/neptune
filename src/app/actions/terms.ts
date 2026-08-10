@@ -65,13 +65,13 @@ export async function deleteTerm(id: string): ActionRes<void> {
 	if (!user)
 		throw actionError("Not authenticated.");
 
-	const task = (
+	const term = (
 		await db.select().from(termsTable)
 		.where(and(eq(termsTable.userId, user.id!), eq(termsTable.id, id)))
 			.catch(e => { throw actionError("Could not find term", e); })
 	)[0];
 
-	if (!task)
+	if (!term)
 		throw actionError("Could not find term", `could not find term id: ${id}`);
 
 	await db.delete(termsTable).where(eq(termsTable.id, id));

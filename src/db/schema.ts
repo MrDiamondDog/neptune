@@ -102,3 +102,12 @@ export const tasksTable = sqliteTable("task", {
 	note: text("note"),
 	priority: integer("priority"),
 });
+
+export const studySessionsTable = sqliteTable("studySessions", {
+	...id,
+	userId: text("userId").references(() => usersTable.id, { onDelete: "cascade" }).notNull(),
+
+	type: text("type", { enum: ["pomodoro", "flashcards", "quiz"] }).notNull(),
+	date: integer("date", { mode: "timestamp" }).notNull(),
+	secondsElapsed: integer("secondsElapsed").notNull()
+});
