@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { deleteTerm } from "@/app/actions/terms";
 import { editUser, getUser } from "@/app/actions/users";
 import { useApp } from "@/components/context/NeptuneContext";
+import { DashboardCard } from "@/components/misc/DashboardCard";
 import Button, { ButtonLooks } from "@/components/primitives/Button";
 import PopoverColorPicker from "@/components/primitives/ColorPicker";
 import DeletePopover from "@/components/primitives/DeletePopover";
@@ -69,50 +70,45 @@ export default function SettingsPage() {
 		dispatch({ context: "terms", type: "delete", data: term });
 	}
 
-	return <main className="mx-auto w-[95%] md:w-fit md:min-w-200 overflow-x-hidden">
+	return <main className="mx-auto w-[95%] md:w-fit md:min-w-200 overflow-x-hidden flex flex-col gap-2">
 		<div className="flex md:w-full justify-between items-center">
 			<h1>Settings</h1>
 			<Link href="/app/" className="flex items-center link"><ArrowLeft size={20} /> Back</Link>
 		</div>
-		<Divider />
 
-		<p>Name</p>
-		<Input className="w-full" value={name} onChange={setName} />
+		<DashboardCard>
+			<p>Name</p>
+			<Input className="w-full" value={name} onChange={setName} />
 
-		<p>iCalendar URL</p>
-		<Input className="w-full" type="password" value={icalUrl} onChange={setIcalUrl} />
-		<Subtext>Subscribe to another calendar to show them in Neptune. Must be a valid ICS URL.</Subtext>
-		<Subtext>Make sure to use the private URL or make the calendar public so Neptune can access it.</Subtext>
+			<p>iCalendar URL</p>
+			<Input className="w-full" type="password" value={icalUrl} onChange={setIcalUrl} />
+			<Subtext>Subscribe to another calendar to show them in Neptune. Must be a valid ICS URL.</Subtext>
+			<Subtext>Make sure to use the private URL or make the calendar public so Neptune can access it.</Subtext>
 
-		<p>iCalendar Event Color</p>
-		<PopoverColorPicker color={icalColor} onChange={setIcalColor} />
+			<p>iCalendar Event Color</p>
+			<PopoverColorPicker color={icalColor} onChange={setIcalColor} />
 
-		<Divider />
+			<Divider />
 
-		<Button loading={loading} onClick={save} className="py-1">Save</Button>
+			<p>Neptune Course ICS URL</p>
+			<div className="flex gap-1">
+				<Input className="w-full text-gray-400" type="password" disabled defaultValue={`${getPublicEnv().AUTH_URL}/api/ical/${session.data.user!.id}.ics`} />
+				<Button
+					className="py-1 w-fit!"
+					look={ButtonLooks.SECONDARY}
+					onClick={() => {
+						navigator.clipboard.writeText(`${getPublicEnv().AUTH_URL}/api/ical/${session.data.user!.id}.ics`);
+						toast.info("Copied!");
+					}}
+				>Copy</Button>
+			</div>
+			<Subtext>Subscribe to this calendar in the calendar app of your choice to add all of your Neptune courses and tasks.</Subtext>
+			<Subtext>Don't share this!</Subtext>
+		</DashboardCard>
 
-		<Divider />
-
-		<p>Neptune Course ICS URL</p>
-		<div className="flex gap-1">
-			<Input className="w-full text-gray-400" type="password" disabled defaultValue={`${getPublicEnv().AUTH_URL}/api/ical/${session.data.user!.id}.ics`} />
-			<Button
-				className="py-1 w-fit!"
-				look={ButtonLooks.SECONDARY}
-				onClick={() => {
-					navigator.clipboard.writeText(`${getPublicEnv().AUTH_URL}/api/ical/${session.data.user!.id}.ics`);
-					toast.info("Copied!");
-				}}
-			>Copy</Button>
-		</div>
-		<Subtext>Subscribe to this calendar in the calendar app of your choice to add all of your Neptune courses and tasks.</Subtext>
-		<Subtext>Don't share this!</Subtext>
-
-
-		<Divider />
-
+		<DashboardCard>
 		<p>Terms</p>
-		<div className="bg-bg-light p-2 flex flex-col gap-2">
+		<div className="flex flex-col gap-2">
 			<Popover open={termPopover === "new"} onOpenChange={() => setTermPopover("")}>
 				<PopoverAnchor asChild>
 					<Button look={ButtonLooks.SECONDARY2} className="py-1" onClick={() => setTermPopover("new")}><Plus size={16} /></Button>
@@ -146,6 +142,9 @@ export default function SettingsPage() {
 						</Popover>
 					</div>
 				</div>)}
-		</div>
+			</div>
+		</DashboardCard>
+
+		<Button loading={loading} onClick={save} className="py-1">Save</Button>
 	</main>;
 }
