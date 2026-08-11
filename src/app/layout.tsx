@@ -1,5 +1,6 @@
 import "./globals.css";
 
+import HolyLoader from "holy-loader";
 import { CheckCircle2, CircleAlert, Info } from "lucide-react";
 import type { Metadata } from "next";
 import { Lexend } from "next/font/google";
@@ -62,6 +63,10 @@ export default function RootLayout({
 				<SessionProvider>
 					{children}
 				</SessionProvider>
+
+                <HolyLoader
+                    color="linear-gradient(to right, #3263ce, #3364ce)"
+                />
 
 				<PublicEnv />
 
