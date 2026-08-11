@@ -66,7 +66,7 @@ export default function SettingsPage() {
 
 	async function onDeleteTerm(term: string) {
 		deleteTerm(term);
-		dispatch({ context: "terms", type: "delete", id: term });
+		dispatch({ context: "terms", type: "delete", data: term });
 	}
 
 	return <main className="mx-auto w-[95%] md:w-fit md:min-w-200 overflow-x-hidden">

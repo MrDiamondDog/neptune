@@ -57,7 +57,7 @@ export default function CourseInline({ course, day, meetingId, readOnly }: { cou
 
 			<DeletePopover what={`${course.subject}${course.number}`} onDelete={() => {
 				deleteCourse(course.id!);
-				dispatch({ context: "courses", type: "delete", id: course.id! });
+				dispatch({ context: "courses", type: "delete", data: course.id! });
 			}} />
 		</Popover>
 		<Subtext className="text-xs">{course.subject} {course.number}</Subtext>
