@@ -24,7 +24,8 @@ const eslintConfig = defineConfig([
 			"react/prop-types": "off",
 			"react/display-name": "off",
 			"react/no-unescaped-entities": "off",
-			"next/no-img-element": "off"
+			"next/no-img-element": "off",
+			"@typescript-eslint/no-explicit-any": "off"
 		}
 	},
 	{

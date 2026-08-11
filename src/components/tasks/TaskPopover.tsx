@@ -24,7 +24,7 @@ export default function TaskPopover({ task }: { task: Task }) {
 
 	function onDelete() {
 		deleteTask(task.id);
-		dispatch({ context: "tasks", type: "delete", id: task.id });
+		dispatch({ context: "tasks", type: "delete", data: task.id });
 	}
 
 	function updateOptionalFields() {

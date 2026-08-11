@@ -111,3 +111,12 @@ export const studySessionsTable = sqliteTable("studySessions", {
 	date: integer("date", { mode: "timestamp" }).notNull(),
 	secondsElapsed: integer("secondsElapsed").notNull()
 });
+
+export const flashcardsTable = sqliteTable("flashcards", {
+	...id,
+	userId: text("userId").references(() => usersTable.id, { onDelete: "cascade" }).notNull(),
+
+	name: text("name").notNull(),
+	data: text("data", { mode: "json" }).$type<[string, string][]>().notNull(),
+	lastUsed: integer("lastUsed", { mode: "timestamp" }),
+});

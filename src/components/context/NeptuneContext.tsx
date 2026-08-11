@@ -3,10 +3,11 @@
 import { ActionDispatch, createContext, useContext, useEffect, useReducer } from "react";
 
 import { getCourses } from "@/app/actions/courses";
+import { getFlashcards } from "@/app/actions/flashcards";
 import { getAllMeetings } from "@/app/actions/meetings";
 import { getTasks } from "@/app/actions/tasks";
 import { getTerms } from "@/app/actions/terms";
-import { Course, Meeting, Task, Term } from "@/db/types";
+import { Course, Flashcard, Meeting, Task, Term } from "@/db/types";
 
 
 export type NeptuneData = {
@@ -14,8 +15,9 @@ export type NeptuneData = {
 	meetings: Meeting[],
 	terms: Term[],
 	tasks: Task[],
+	flashcards: Flashcard[],
 
-	dispatch: ActionDispatch<[ContextAction]>,
+	dispatch: ActionDispatch<[UnknownAction]>,
 };
 
 // Currently uses default data from example-data.ts. This file is gitignored as it contains my schedule from my uni.
@@ -24,6 +26,7 @@ export const defaultNeptuneData: NeptuneData = {
 	meetings: [],
 	terms: [],
 	tasks: [],
+	flashcards: [],
 
 	dispatch: () => { throw "Dispatch called outside of NeptuneProvider."; },
 };
@@ -70,6 +73,9 @@ export function reducer(data: NeptuneData, action: UnknownAction): NeptuneData {
 		case "tasks": {
 			return { ...data, tasks: defaultReducer<Task>(data.tasks, action) };
 		}
+		case "flashcards": {
+			return { ...data, flashcards: defaultReducer<Flashcard>(data.flashcards, action) };
+		}
 		default: {
 			console.error("Unknown context", action);
 			return data;
@@ -87,6 +93,7 @@ export function NeptuneProvider({ children }: React.PropsWithChildren) {
 		getAllMeetings().then(data => dispatch({ context: "meetings", type: "set", data }));
 		getTerms().then(data => dispatch({ context: "terms", type: "set", data }));
 		getTasks().then(data => dispatch({ context: "tasks", type: "set", data }));
+		getFlashcards().then(data => dispatch({ context: "flashcards", type: "set", data }));
 		// dispatch({ context: "courses", type: "set", data: exampleCourses });
 		// dispatch({ context: "meetings", type: "set", data: exampleMeetings });
 		// dispatch({ context: "terms", type: "set", data: exampleTerms });

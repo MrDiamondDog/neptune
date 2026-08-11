@@ -1,6 +1,6 @@
 "use client";
 
-import { BookOpenText, ClockIcon, Plus, Settings } from "lucide-react";
+import { BookOpenText, ClockIcon, Plus, Settings, StickyNoteCheck } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -34,8 +34,8 @@ export default function Header() {
 				</DropdownTrigger>
 				<DropdownContent className="*:flex *:gap-2 *:items-center">
 					<DropdownItem onClick={() => router.push("/app/study/pomodoro")}><ClockIcon size={18} /> Pomodoro</DropdownItem>
-					{/* <DropdownItem onClick={() => router.push("/app/study/flashcards")}><StickyNoteCheck size={18} /> Flashcards</DropdownItem>
-					<DropdownItem onClick={() => router.push("/app/study/quiz")}><FileCheck size={18} /> Quiz</DropdownItem>*/}
+					<DropdownItem onClick={() => router.push("/app/study/flashcards")}><StickyNoteCheck size={18} /> Flashcards</DropdownItem>
+					{/* <DropdownItem onClick={() => router.push("/app/study/quiz")}><FileCheck size={18} /> Quiz</DropdownItem>*/}
 				</DropdownContent>
 			</Dropdown>
 			<Link href="/app/settings"><Button className="py-2" look={ButtonLooks.SECONDARY}><Settings /></Button></Link>

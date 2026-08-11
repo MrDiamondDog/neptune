@@ -8,6 +8,7 @@ import Calendar, { CalendarEvent } from "@/components/calendars/Calendar";
 import { useApp } from "@/components/context/NeptuneContext";
 import CourseInline from "@/components/courses/CourseInline";
 import MeetingsInline from "@/components/meetings/MeetingsInline";
+import { DashboardCard } from "@/components/misc/DashboardCard";
 import Greeting from "@/components/misc/Greeting";
 import Header from "@/components/misc/Header";
 import SmartOverview from "@/components/misc/SmartOverview";
@@ -24,12 +25,6 @@ import { sortTasks, taskToCalendar } from "@/lib/tasks";
 import { getCurrentTerm } from "@/lib/terms";
 
 import { getCalendarEvents, getUser } from "../actions/users";
-
-function DashboardCard(props: React.HTMLProps<HTMLDivElement>) {
-	return <div className={`w-full rounded border border-bg-lighter bg-bg-light p-2 ${props.className ?? ""}`}>
-		{props.children}
-	</div>;
-}
 
 export default function App() {
 	const session = useSession();

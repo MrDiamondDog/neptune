@@ -43,3 +43,17 @@ export function stringsToList(strings: string[]): string {
 		str += strings[i] + (i === strings.length - 1 ? "" : (i === strings.length - 2 ? ", and " : ", "));
 	return str;
 }
+
+export function shuffle<T>(array: T[]): T[] {
+  let currentIndex = array.length;
+
+  while (currentIndex !== 0) {
+    const randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex--;
+
+    [array[currentIndex], array[randomIndex]] = [
+      array[randomIndex], array[currentIndex]];
+  }
+
+	return array;
+}

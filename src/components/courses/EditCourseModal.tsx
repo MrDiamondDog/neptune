@@ -106,7 +106,7 @@ export default function EditCourseModal({ course: defaultCourse, ...props }: { c
 					.filter(m => !meetings.find(p => p.id === m.id))
 					.map(m => {
 						deleteMeeting(m.id);
-						dispatch({ context: "meetings", type: "delete", id: m.id });
+						dispatch({ context: "meetings", type: "delete", data: m.id });
 					})
 			).catch(e => {
 				setLoading(false);
