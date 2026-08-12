@@ -3,7 +3,7 @@ import { NeptuneData } from "@/components/context/NeptuneContext";
 import { Task, User } from "@/db/types";
 
 import { getDimmedColor } from "./colors";
-import { DAYS, MINUTES, unitTime } from "./time";
+import { DAYS, MINUTES, toUTCDate, unitTime } from "./time";
 
 export type DateMatcher = {
 	/**
@@ -224,7 +224,7 @@ export function taskToCalendar(data: NeptuneData, user: User, task: Task): Calen
 		color: getDimmedColor(color),
 		borderColor: color,
 		allDay,
-		start: dueDate,
-		end: allDay ? undefined : new Date(dueDate.getTime() + 30 * MINUTES)
+		start: toUTCDate(dueDate),
+		end: allDay ? undefined : toUTCDate(new Date(dueDate.getTime() + 30 * MINUTES))
 	};
 }
