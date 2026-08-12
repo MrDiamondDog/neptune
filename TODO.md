@@ -47,4 +47,4 @@
 	- [ ] Day overview in the morning
 - [x] Landing page
 - [x] Check exclusions for smart overview
-- [ ] Demo
+- [x] Demo
