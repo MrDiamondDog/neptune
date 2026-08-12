@@ -37,14 +37,16 @@
 	- [x] Show ICS link in settings
 - [ ] Landing page
 - [ ] Logout button
-- [ ] Study/work tools
-	- [ ] Pomodoro timer
-	- [ ] Flashcards
-- [ ] PWA
-	- [ ] Phone notifications (if not discord or smth)
-		- [ ] Class reminders
-		- [ ] Task reminders
-		- [ ] Day overview in the morning
+- [ ] Somewhere to view study sessions/statistics
+- [x] Study/work tools
+	- [x] Pomodoro timer
+	- [x] Flashcards
+- [x] PWA
+- [ ] Phone notifications (if not discord or smth)
+	- [ ] Class reminders
+	- [ ] Task reminders
+	- [ ] Day overview in the morning
+- [ ] Demo
 
 ## Fixes
 - [ ] Timezone option for calendar shenanegans

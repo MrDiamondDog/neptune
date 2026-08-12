@@ -3,7 +3,7 @@
 import { Popover, PopoverAnchor, PopoverTrigger } from "@radix-ui/react-popover";
 import { ArrowLeft, Pencil, Plus, Trash2 } from "lucide-react";
 import Link from "next/link";
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -146,5 +146,6 @@ export default function SettingsPage() {
 		</DashboardCard>
 
 		<Button loading={loading} onClick={save} className="py-1">Save</Button>
+		<Button onClick={() => signOut({ redirectTo: "/" })} look={ButtonLooks.SECONDARY}>Log Out</Button>
 	</main>;
 }
