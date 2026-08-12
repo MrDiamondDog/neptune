@@ -35,8 +35,7 @@
 	- [x] Sync to/from Google calendar
 	- [x] Meeting exclusions
 	- [x] Show ICS link in settings
-- [ ] Landing page
-- [ ] Logout button
+- [x] Logout button
 - [ ] Somewhere to view study sessions/statistics
 - [x] Study/work tools
 	- [x] Pomodoro timer
@@ -46,6 +45,7 @@
 	- [ ] Class reminders
 	- [ ] Task reminders
 	- [ ] Day overview in the morning
+- [ ] Landing page
 - [ ] Demo
 
 ## Fixes

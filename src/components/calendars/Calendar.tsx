@@ -103,7 +103,7 @@ export default function Calendar({ events }: { events: (CalendarEvent | Recurrin
 				top: `${selectedEvent.el.getBoundingClientRect().y + window.scrollY}px`
 			}}>
 				{selectedEvent.event.id.startsWith("meeting-") && <>
-					{selectedItem && <CourseInline course={selectedItem as Course} day={selectedEvent.event.start} meetingId={selectedEvent.event.id} />}
+					{selectedItem && <CourseInline course={selectedItem as Course} day={selectedEvent.event.start} meetingId={selectedEvent.event.id.replace("meeting-", "")} />}
 					{selectedItem && <MeetingsInline meetings={meetings.filter(m => m.courseId === selectedItem.id)} />}
 				</>}
 				{selectedEvent.event.id.startsWith("ical-") && <>
