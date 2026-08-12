@@ -1,8 +1,6 @@
 name: Neptune
 services:
     neptune:
-        ports:
-            - 3000:3000
         container_name: neptune
         build: .
         environment:
