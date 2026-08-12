@@ -1,9 +1,9 @@
 "use client";
 
 import { stringsToList } from "@/lib/array";
-import { getDayOfWeekAbbr, getMeetingsOnDay, minutesToTime } from "@/lib/meetings";
+import { getMeetingsOnDay, minutesToTime } from "@/lib/meetings";
 import { getCurrentTerm } from "@/lib/terms";
-import { timeToMinutes } from "@/lib/time";
+import { DAYS, timeToMinutes } from "@/lib/time";
 
 import { useApp } from "../context/NeptuneContext";
 
@@ -26,7 +26,7 @@ export default function SmartOverview() {
 			const strings = courses.map(c => `${c.name} at ${minutesToTime(meetingsLater.find(m => m.courseId === c.id)!.timeStart)}`);
 			return `You've got ${stringsToList(strings)}.`;
 		} else if (!meetingsToday.length || !meetingsLater.length) {
-			const meetingsTomorrow = getMeetingsOnDay(data.meetings, data.courses, getCurrentTerm(data.terms), getDayOfWeekAbbr(1)).sort((a, b) => a.timeStart - b.timeStart);
+			const meetingsTomorrow = getMeetingsOnDay(data.meetings, data.courses, getCurrentTerm(data.terms), new Date(new Date().getTime() + 1 * DAYS)).sort((a, b) => a.timeStart - b.timeStart);
 			const coursesTomorrow = data.courses.filter(c => meetingsTomorrow.map(m => m.courseId).includes(c.id));
 
 			const todayText = meetingsToday.length ? "All done today!" : "No classes today!";

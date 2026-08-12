@@ -41,12 +41,10 @@
 	- [x] Pomodoro timer
 	- [x] Flashcards
 - [x] PWA
-- [ ] Phone notifications (if not discord or smth)
+- [ ] ~~Phone notifications (if not discord or smth)~~ unfortunately WAY harder than I thought, maybe for a later date
 	- [ ] Class reminders
 	- [ ] Task reminders
 	- [ ] Day overview in the morning
-- [ ] Landing page
+- [x] Landing page
+- [x] Check exclusions for smart overview
 - [ ] Demo
-
-## Fixes
-- [ ] Timezone option for calendar shenanegans

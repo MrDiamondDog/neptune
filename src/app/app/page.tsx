@@ -19,10 +19,11 @@ import EditTask from "@/components/tasks/EditTask";
 import Task from "@/components/tasks/Task";
 import { User } from "@/db/types";
 import { throwToast } from "@/lib/errors";
-import { getDayOfWeekAbbr, getMeetingsOnDay, meetingToCalendar } from "@/lib/meetings";
+import { getMeetingsOnDay, meetingToCalendar } from "@/lib/meetings";
 import { titleCase } from "@/lib/string";
 import { sortTasks, taskToCalendar } from "@/lib/tasks";
 import { getCurrentTerm } from "@/lib/terms";
+import { DAYS } from "@/lib/time";
 
 import { getCalendarEvents, getUser } from "../actions/users";
 
@@ -57,7 +58,7 @@ export default function App() {
 		.filter(course => {
 			// Gets all of the courses for the given view mode, then returns only the courses that have meetings within the view
 			const courseMeetings = meetings.filter(m => m.courseId === course.id);
-			const day = getDayOfWeekAbbr(courseViewMode === "tomorrow" ? 1 : 0);
+			const day = new Date(new Date().getTime() + (courseViewMode === "tomorrow" ? 1 * DAYS : 0));
 			const courseMeetingsToday = courseViewMode === "all" ? courseMeetings : getMeetingsOnDay(courseMeetings, courses, getCurrentTerm(data.terms), day);
 
 			return courseMeetingsToday.length >= 1;
@@ -66,7 +67,7 @@ export default function App() {
 			const aCourseMeetings = meetings.filter(m => m.courseId === a.id);
 			const bCourseMeetings = meetings.filter(m => m.courseId === b.id);
 
-			const day = getDayOfWeekAbbr(courseViewMode === "tomorrow" ? 1 : 0);
+			const day = new Date(new Date().getTime() + (courseViewMode === "tomorrow" ? 1 * DAYS : 0));
 			const aMeetingsToday = courseViewMode === "all" ? aCourseMeetings : getMeetingsOnDay(aCourseMeetings, courses, getCurrentTerm(data.terms), day);
 			const bMeetingsToday = courseViewMode === "all" ? bCourseMeetings : getMeetingsOnDay(bCourseMeetings, courses, getCurrentTerm(data.terms), day);
 

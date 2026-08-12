@@ -68,10 +68,10 @@ export function minutesToTime(mins: number, mode: "24" | "12" = "12", tzOffset?:
 
 /**
  * Gets the current day of the week as a single letter abbriviation.
- * @param offset Number of days to offset by. Defaults to 0.
+ * @param date The date to get the day of week. Defaults to new Date
  */
-export function getDayOfWeekAbbr(offset?: number) {
-	return dayOrder[new Date().getDay() + (offset ?? 0)];
+export function getDayOfWeekAbbr(date?: Date) {
+	return dayOrder[(date ?? new Date()).getDay()];
 }
 
 /**
@@ -158,12 +158,18 @@ export function getUniqueLocations(meetings: (Meeting | MeetingInsert)[]): strin
  * @param meetings The meetings to filter.
  * @param courses All courses. (from `useApp`)
  * @param currentTerm The current term
- * @param day The day of week (abbr.) to use. Uses the current day of week if not specified.
+ * @param day Date to use (defaults to now)
  * @returns All of the meetings that take place on the given day of week in the given term.
  */
-export function getMeetingsOnDay(meetings: Meeting[], courses: Course[], currentTerm?: Term, day?: string): Meeting[] {
+export function getMeetingsOnDay(meetings: Meeting[], courses: Course[], currentTerm?: Term, day?: Date): Meeting[] {
 	if (!day)
-		day = getDayOfWeekAbbr();
+		day = new Date();
 
-	return meetings.filter(m => m.days.includes(day) && courses.find(c => c.id === m.courseId)?.termId === currentTerm?.id);
+	return meetings.filter(m =>
+		m.days.includes(getDayOfWeekAbbr(day)) &&
+		courses.find(c => c.id === m.courseId)?.termId === currentTerm?.id &&
+		!(m.exclusions ?? [])
+			.map(e => new Date(e.toString()))
+			.find(e => e.getDate() === day.getDate() && e.getMonth() === day.getMonth() && e.getFullYear() === day.getFullYear())
+	);
 }
