@@ -11,6 +11,7 @@ RUN corepack enable
 ENV PYTHONUNBUFFERED=1
 RUN apk --no-cache add libc6-compat build-base curl git
 RUN ln -sf python3 /usr/bin/python
+ENV PYTHON="/usr/bin/python"
 
 # Install dependencies only when needed
 FROM base AS deps
