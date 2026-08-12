@@ -11,6 +11,16 @@ import { DAYS, getTimezoneOffset, HOURS, inDST, MINUTES, YEARS } from "@/lib/tim
 import { actionError, ActionRes, authenticate } from ".";
 
 export async function getUser(): ActionRes<User | undefined> {
+	if (process.env.IS_DEMO === "true")
+		return {
+			id: "0",
+			email: "demo@neptune-demo.drewrat.dev",
+			name: "Demo User",
+			timezoneOffset: 0,
+			icalUrl: "",
+			icalColor: "#00ffff"
+		};
+
 	const user = await authenticate();
 
 	if (!user)
@@ -33,6 +43,9 @@ export async function getCalendarEvents(): ActionRes<CalendarEvent[]> {
 
 	if (!user)
 		throw actionError("Not authenticated.");
+
+	if (process.env.IS_DEMO === "true")
+		return [];
 
 	const dbUser = await getUser();
 
@@ -91,6 +104,9 @@ export async function editUser(newUser: Partial<User>): ActionRes<User> {
 
 	if (!user)
 		throw actionError("Not authenticated.");
+
+	if (process.env.IS_DEMO === "true")
+		throw actionError("You can not edit settings in the demo.");
 
 	if (newUser.id && (newUser.id !== user.id))
 		throw actionError("Not authenticated.");

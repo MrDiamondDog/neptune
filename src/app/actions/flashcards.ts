@@ -13,6 +13,9 @@ export async function getFlashcards(): ActionRes<Flashcard[]> {
 	if (!user)
 		throw actionError("Not authenticated.");
 
+	if (process.env.IS_DEMO === "true")
+		return [];
+
 	return await db.select().from(flashcardsTable)
 		.where(eq(flashcardsTable.userId, user.id!))
 		.catch(e => { throw actionError("Could not fetch flashcards", e); });
@@ -25,6 +28,10 @@ export async function createFlashcard(data: FlashcardInsert): ActionRes<Flashcar
 		throw actionError("Not authenticated.");
 
 	delete data.id;
+
+	if (process.env.IS_DEMO === "true")
+		// @ts-expect-error It's the demo it doesn't matter
+		return { id: randomUUID(), userId: "0", ...data };
 
 	const res = await db.insert(flashcardsTable).values({
 		...data,
@@ -49,6 +56,9 @@ export async function editFlashcard(data: Partial<Flashcard> & { id: string }): 
 	if (!flashcard)
 		throw actionError("Could not find flashcard", `could not find flashcard id: ${data.id}`);
 
+	if (process.env.IS_DEMO === "true")
+		return { ...flashcard, ...data };
+
 	const res = (
 		await db.update(flashcardsTable).set(data)
 			.where(and(eq(flashcardsTable.userId, user.id!), eq(flashcardsTable.id, data.id)))
@@ -64,6 +74,9 @@ export async function deleteFlashcard(id: string): ActionRes<void> {
 
 	if (!user)
 		throw actionError("Not authenticated.");
+
+	if (process.env.IS_DEMO === "true")
+		return;
 
 	const flashcard = (
 		await db.select().from(flashcardsTable)

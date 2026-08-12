@@ -13,6 +13,9 @@ export async function getAllMeetings(): ActionRes<Meeting[]> {
 	if (!user)
 		throw actionError("Not authenticated.");
 
+	if (process.env.IS_DEMO === "true")
+		return [];
+
 	return await db.select().from(meetingsTable)
 		.where(and(eq(meetingsTable.userId, user.id!)));
 }
@@ -22,6 +25,9 @@ export async function getMeetings(courseId: string): ActionRes<Meeting[]> {
 
 	if (!user)
 		throw actionError("Not authenticated.");
+
+	if (process.env.IS_DEMO === "true")
+		return [];
 
 	return await db.select().from(meetingsTable)
 		.where(and(eq(meetingsTable.userId, user.id!), eq(meetingsTable.courseId, courseId)));
@@ -34,6 +40,10 @@ export async function createMeeting(data: MeetingInsert): ActionRes<Meeting> {
 		throw actionError("Not authenticated.");
 
 	delete data.id;
+
+	if (process.env.IS_DEMO === "true")
+		// @ts-expect-error It's the demo it doesn't matter
+		return { id: randomUUID(), userId: "0", ...data };
 
 	const res = await db.insert(meetingsTable).values({
 		...data,
@@ -58,6 +68,9 @@ export async function editMeeting(data: Partial<Meeting> & { id: string }): Acti
 	if (!meeting)
 		throw actionError("Could not find meeting", `could not find meeting id: ${data.id}`);
 
+	if (process.env.IS_DEMO === "true")
+		return { ...meeting, ...data };
+
 	const res = (
 		await db.update(meetingsTable).set(data)
 			.where(and(eq(meetingsTable.userId, user.id!), eq(meetingsTable.id, data.id)))
@@ -73,6 +86,9 @@ export async function deleteMeeting(id: string): ActionRes<void> {
 
 	if (!user)
 		throw actionError("Not authenticated.");
+
+	if (process.env.IS_DEMO === "true")
+		return;
 
 	const task = (
 		await db.select().from(meetingsTable)

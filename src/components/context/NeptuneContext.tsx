@@ -8,6 +8,8 @@ import { getAllMeetings } from "@/app/actions/meetings";
 import { getTasks } from "@/app/actions/tasks";
 import { getTerms } from "@/app/actions/terms";
 import { Course, Flashcard, Meeting, Task, Term } from "@/db/types";
+import { exampleCourses, exampleMeetings, exampleTerms } from "@/example-data";
+import { getPublicEnv } from "@/public-env";
 
 
 export type NeptuneData = {
@@ -89,14 +91,17 @@ export function NeptuneProvider({ children }: React.PropsWithChildren) {
 	const [data, dispatch] = useReducer(reducer, defaultNeptuneData);
 
 	useEffect(() => {
+		if (getPublicEnv().IS_DEMO) {
+			dispatch({ context: "courses", type: "set", data: exampleCourses });
+			dispatch({ context: "meetings", type: "set", data: exampleMeetings });
+			dispatch({ context: "terms", type: "set", data: exampleTerms });
+			return;
+		}
 		getCourses().then(data => dispatch({ context: "courses", type: "set", data }));
 		getAllMeetings().then(data => dispatch({ context: "meetings", type: "set", data }));
 		getTerms().then(data => dispatch({ context: "terms", type: "set", data }));
 		getTasks().then(data => dispatch({ context: "tasks", type: "set", data }));
 		getFlashcards().then(data => dispatch({ context: "flashcards", type: "set", data }));
-		// dispatch({ context: "courses", type: "set", data: exampleCourses });
-		// dispatch({ context: "meetings", type: "set", data: exampleMeetings });
-		// dispatch({ context: "terms", type: "set", data: exampleTerms });
 	}, []);
 
 	return (<NeptuneContext value={{ ...data, dispatch }}>

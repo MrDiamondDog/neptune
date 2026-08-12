@@ -13,6 +13,9 @@ export async function getTerms(): ActionRes<Term[]> {
 	if (!user)
 		throw actionError("Not authenticated.");
 
+	if (process.env.IS_DEMO === "true")
+		return [];
+
 	return await db.select().from(termsTable)
 		.where(eq(termsTable.userId, user.id!))
 		.catch(e => { throw actionError("Could not fetch terms", e); });
@@ -25,6 +28,10 @@ export async function createTerm(data: TermInsert): ActionRes<Term> {
 		throw actionError("Not authenticated.");
 
 	delete data.id;
+
+	if (process.env.IS_DEMO === "true")
+		// @ts-expect-error It's the demo it doesn't matter
+		return { id: randomUUID(), userId: "0", ...data };
 
 	const res = await db.insert(termsTable).values({
 		...data,
@@ -49,6 +56,9 @@ export async function editTerm(data: Partial<Term> & { id: string }): ActionRes<
 	if (!term)
 		throw actionError("Could not find term", `could not find term id: ${data.id}`);
 
+	if (process.env.IS_DEMO === "true")
+		return { ...term, ...data };
+
 	const res = (
 		await db.update(termsTable).set(data)
 			.where(and(eq(termsTable.userId, user.id!), eq(termsTable.id, data.id)))
@@ -64,6 +74,9 @@ export async function deleteTerm(id: string): ActionRes<void> {
 
 	if (!user)
 		throw actionError("Not authenticated.");
+
+	if (process.env.IS_DEMO === "true")
+		return;
 
 	const term = (
 		await db.select().from(termsTable)

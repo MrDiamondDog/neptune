@@ -13,6 +13,9 @@ export async function getStudySessions(): ActionRes<StudySession[]> {
 	if (!user)
 		throw actionError("Not authenticated.");
 
+	if (process.env.IS_DEMO === "true")
+		return [];
+
 	return await db.select().from(studySessionsTable)
 		.where(eq(studySessionsTable.userId, user.id!))
 		.catch(e => { throw actionError("Could not fetch study sessions", e); });
@@ -25,6 +28,10 @@ export async function createStudySession(data: StudySessionInsert): ActionRes<St
 		throw actionError("Not authenticated.");
 
 	delete data.id;
+
+	if (process.env.IS_DEMO === "true")
+		// @ts-expect-error It's the demo it doesn't matter
+		return { id: randomUUID(), userId: "0", ...data };
 
 	const res = await db.insert(studySessionsTable).values({
 		...data,
@@ -49,6 +56,9 @@ export async function editStudySession(data: Partial<StudySession> & { id: strin
 	if (!studySession)
 		throw actionError("Could not find study session", `could not find study session id: ${data.id}`);
 
+	if (process.env.IS_DEMO === "true")
+		return { ...studySession, ...data };
+
 	const res = (
 		await db.update(studySessionsTable).set(data)
 			.where(and(eq(studySessionsTable.userId, user.id!), eq(studySessionsTable.id, data.id)))
@@ -64,6 +74,9 @@ export async function deleteStudySession(id: string): ActionRes<void> {
 
 	if (!user)
 		throw actionError("Not authenticated.");
+
+	if (process.env.IS_DEMO === "true")
+		return;
 
 	const studySession = (
 		await db.select().from(studySessionsTable)

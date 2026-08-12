@@ -1,5 +1,6 @@
 "use server";
 
+import { randomUUID } from "crypto";
 import { and, eq } from "drizzle-orm";
 
 import { db, tasksTable } from "@/db/schema";
@@ -13,6 +14,9 @@ export async function getTasks(): ActionRes<Task[]> {
 	if (!user)
 		throw actionError("Not authenticated.");
 
+	if (process.env.IS_DEMO === "true")
+		return [];
+
 	return await db.select().from(tasksTable)
 		.where(eq(tasksTable.userId, user.id!))
 		.catch(e => { throw actionError("Could not fetch tasks", e); });
@@ -25,6 +29,10 @@ export async function createTask(data: TaskInsert): ActionRes<Task> {
 		throw actionError("Not authenticated.");
 
 	delete data.id;
+
+	if (process.env.IS_DEMO === "true")
+		// @ts-expect-error It's the demo it doesn't matter
+		return { id: randomUUID(), userId: "0", ...data };
 
 	const res = await db.insert(tasksTable).values({
 		...data,
@@ -49,6 +57,9 @@ export async function editTask(data: Partial<Task> & { id: string }): ActionRes<
 	if (!task)
 		throw actionError("Could not find task", `could not find task id: ${data.id}`);
 
+	if (process.env.IS_DEMO === "true")
+		return { ...task, ...data };
+
 	const res = (
 		await db.update(tasksTable).set(data)
 			.where(and(eq(tasksTable.userId, user.id!), eq(tasksTable.id, data.id)))
@@ -64,6 +75,9 @@ export async function deleteTask(id: string): ActionRes<void> {
 
 	if (!user)
 		throw actionError("Not authenticated.");
+
+	if (process.env.IS_DEMO === "true")
+		return;
 
 	const task = (
 		await db.select().from(tasksTable)

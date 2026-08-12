@@ -3,4 +3,3 @@ node_modules
 next-env.d.ts
 data/
 .next
-src/example-data.ts

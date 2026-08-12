@@ -3,7 +3,7 @@
 import { Popover, PopoverAnchor, PopoverTrigger } from "@radix-ui/react-popover";
 import { ArrowLeft, Pencil, Plus, Trash2 } from "lucide-react";
 import Link from "next/link";
-import { signOut, useSession } from "next-auth/react";
+import { signOut } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -24,13 +24,12 @@ import { prettyTimeRange } from "@/lib/time";
 import { getPublicEnv } from "@/public-env";
 
 export default function SettingsPage() {
-	const session = useSession();
-
 	const { courses, terms, dispatch } = useApp();
 
 	const [loading, setLoading] = useState(false);
 
 	const [name, setName] = useState("");
+	const [userId, setUserId] = useState("");
 	const [icalUrl, setIcalUrl] = useState("");
 	const [icalColor, setIcalColor] = useState("#38c773");
 
@@ -41,13 +40,11 @@ export default function SettingsPage() {
 			if (!user)
 				return;
 			setName(user.name);
+			setUserId(user.id);
 			setIcalUrl(user.icalUrl ?? "");
 			setIcalColor(user.icalColor);
 		});
 	}, []);
-
-	if (!session || !session.data?.user)
-		return null;
 
 	async function save() {
 		setLoading(true);
@@ -92,12 +89,12 @@ export default function SettingsPage() {
 
 			<p>Neptune Course ICS URL</p>
 			<div className="flex gap-1">
-				<Input className="w-full text-gray-400" type="password" disabled defaultValue={`${getPublicEnv().AUTH_URL}/api/ical/${session.data.user!.id}.ics`} />
+				<Input className="w-full text-gray-400" type="password" disabled defaultValue={`${getPublicEnv().AUTH_URL}/api/ical/${userId}.ics`} />
 				<Button
 					className="py-1 w-fit!"
 					look={ButtonLooks.SECONDARY}
 					onClick={() => {
-						navigator.clipboard.writeText(`${getPublicEnv().AUTH_URL}/api/ical/${session.data.user!.id}.ics`);
+						navigator.clipboard.writeText(`${getPublicEnv().AUTH_URL}/api/ical/${userId}.ics`);
 						toast.info("Copied!");
 					}}
 				>Copy</Button>

@@ -10,7 +10,7 @@ export default async function AppLayout({
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
-	if (!(await auth())?.user)
+	if (!(await auth())?.user && process.env.IS_DEMO !== "true")
 		return redirect("/auth");
 
 	return <NeptuneProvider>

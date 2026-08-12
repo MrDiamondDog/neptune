@@ -1,7 +1,6 @@
 "use client";
 
 import { Plus } from "lucide-react";
-import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 
 import Calendar, { CalendarEvent } from "@/components/calendars/Calendar";
@@ -28,8 +27,6 @@ import { DAYS } from "@/lib/time";
 import { getCalendarEvents, getUser } from "../actions/users";
 
 export default function App() {
-	const session = useSession();
-
 	const data = useApp();
 	const { courses, meetings, tasks, terms } = data;
 	const currentTerm = getCurrentTerm(terms);
@@ -48,7 +45,7 @@ export default function App() {
 		getUser().then(setUser).catch(e => throwToast("Could not fetch user", e));
 	}, []);
 
-	if (!session || !session.data?.user || !user)
+	if (!user)
 		return null;
 
 	// Gets all the courses that have a meeting based on the selected view mode, in the order that they happen.

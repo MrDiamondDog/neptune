@@ -4,7 +4,7 @@ An all-in-one, self-hosted tool for college students. Keep tabs on your courses,
 
 ![app example image](/public/app_example.png)
 
-Made for Hack Club's [Stardance](https://stardance.hackclub.com/projects/31684)
+Made for Hack Club's [Stardance](https://stardance.hackclub.com/projects/31684)!
 
 ## Features
 
