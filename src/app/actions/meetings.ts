@@ -59,6 +59,10 @@ export async function editMeeting(data: Partial<Meeting> & { id: string }): Acti
 	if (!user)
 		throw actionError("Not authenticated.");
 
+	if (process.env.IS_DEMO === "true")
+		// @ts-expect-error Demo behavior
+		return { ...data };
+
 	const meeting = (
 		await db.select().from(meetingsTable)
 		.where(and(eq(meetingsTable.userId, user.id!), eq(meetingsTable.id, data.id)))
@@ -67,9 +71,6 @@ export async function editMeeting(data: Partial<Meeting> & { id: string }): Acti
 
 	if (!meeting)
 		throw actionError("Could not find meeting", `could not find meeting id: ${data.id}`);
-
-	if (process.env.IS_DEMO === "true")
-		return { ...meeting, ...data };
 
 	const res = (
 		await db.update(meetingsTable).set(data)

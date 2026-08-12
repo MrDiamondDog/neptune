@@ -47,6 +47,10 @@ export async function editFlashcard(data: Partial<Flashcard> & { id: string }): 
 	if (!user)
 		throw actionError("Not authenticated.");
 
+	if (process.env.IS_DEMO === "true")
+		// @ts-expect-error Demo behavior
+		return { ...data };
+
 	const flashcard = (
 		await db.select().from(flashcardsTable)
 		.where(and(eq(flashcardsTable.userId, user.id!), eq(flashcardsTable.id, data.id)))
@@ -55,9 +59,6 @@ export async function editFlashcard(data: Partial<Flashcard> & { id: string }): 
 
 	if (!flashcard)
 		throw actionError("Could not find flashcard", `could not find flashcard id: ${data.id}`);
-
-	if (process.env.IS_DEMO === "true")
-		return { ...flashcard, ...data };
 
 	const res = (
 		await db.update(flashcardsTable).set(data)

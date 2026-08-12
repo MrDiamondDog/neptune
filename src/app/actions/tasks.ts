@@ -48,6 +48,10 @@ export async function editTask(data: Partial<Task> & { id: string }): ActionRes<
 	if (!user)
 		throw actionError("Not authenticated.");
 
+	if (process.env.IS_DEMO === "true")
+		// @ts-expect-error Demo behavior
+		return { ...data };
+
 	const task = (
 		await db.select().from(tasksTable)
 		.where(and(eq(tasksTable.userId, user.id!), eq(tasksTable.id, data.id)))
@@ -56,9 +60,6 @@ export async function editTask(data: Partial<Task> & { id: string }): ActionRes<
 
 	if (!task)
 		throw actionError("Could not find task", `could not find task id: ${data.id}`);
-
-	if (process.env.IS_DEMO === "true")
-		return { ...task, ...data };
 
 	const res = (
 		await db.update(tasksTable).set(data)

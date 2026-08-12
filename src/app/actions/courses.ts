@@ -47,6 +47,10 @@ export async function editCourse(data: Partial<Course> & { id: string }): Action
 	if (!user)
 		throw actionError("Not authenticated.");
 
+	if (process.env.IS_DEMO === "true")
+		// @ts-expect-error Demo behavior
+		return { ...data };
+
 	const course = (
 		await db.select().from(coursesTable)
 		.where(and(eq(coursesTable.userId, user.id!), eq(coursesTable.id, data.id)))
@@ -55,9 +59,6 @@ export async function editCourse(data: Partial<Course> & { id: string }): Action
 
 	if (!course)
 		throw actionError("Could not find course", `could not find course id: ${data.id}`);
-
-	if (process.env.IS_DEMO === "true")
-		return { ...course, ...data };
 
 	const res = (
 		await db.update(coursesTable).set(data)

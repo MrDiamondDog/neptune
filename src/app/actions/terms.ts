@@ -47,6 +47,10 @@ export async function editTerm(data: Partial<Term> & { id: string }): ActionRes<
 	if (!user)
 		throw actionError("Not authenticated.");
 
+	if (process.env.IS_DEMO === "true")
+		// @ts-expect-error Demo behavior
+		return { ...data };
+
 	const term = (
 		await db.select().from(termsTable)
 		.where(and(eq(termsTable.userId, user.id!), eq(termsTable.id, data.id)))
@@ -55,9 +59,6 @@ export async function editTerm(data: Partial<Term> & { id: string }): ActionRes<
 
 	if (!term)
 		throw actionError("Could not find term", `could not find term id: ${data.id}`);
-
-	if (process.env.IS_DEMO === "true")
-		return { ...term, ...data };
 
 	const res = (
 		await db.update(termsTable).set(data)

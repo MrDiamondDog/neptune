@@ -47,6 +47,10 @@ export async function editStudySession(data: Partial<StudySession> & { id: strin
 	if (!user)
 		throw actionError("Not authenticated.");
 
+	if (process.env.IS_DEMO === "true")
+		// @ts-expect-error Demo behavior
+		return { ...data };
+
 	const studySession = (
 		await db.select().from(studySessionsTable)
 		.where(and(eq(studySessionsTable.userId, user.id!), eq(studySessionsTable.id, data.id)))
@@ -55,9 +59,6 @@ export async function editStudySession(data: Partial<StudySession> & { id: strin
 
 	if (!studySession)
 		throw actionError("Could not find study session", `could not find study session id: ${data.id}`);
-
-	if (process.env.IS_DEMO === "true")
-		return { ...studySession, ...data };
 
 	const res = (
 		await db.update(studySessionsTable).set(data)
