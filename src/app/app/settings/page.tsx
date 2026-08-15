@@ -89,7 +89,7 @@ export default function SettingsPage() {
 
 			<p>Neptune Course ICS URL</p>
 			<div className="flex gap-1">
-				<Input className="w-full text-gray-400" type="password" disabled defaultValue={`${getPublicEnv().AUTH_URL}/api/ical/${userId}.ics`} />
+				<Input className="w-full text-gray-400" type="password" disabled value={`${getPublicEnv().AUTH_URL}/api/ical/${userId}.ics`} />
 				<Button
 					className="py-1 w-fit!"
 					look={ButtonLooks.SECONDARY}
