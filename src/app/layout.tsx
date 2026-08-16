@@ -28,7 +28,7 @@ export const metadata: Metadata = {
             rel: "shortcut icon",
         },
         {
-            url: "/neptune.png",
+            url: "/apple-touch-icon.png",
             rel: "apple-touch-icon",
             sizes: "180x180",
         },
@@ -37,7 +37,7 @@ export const metadata: Metadata = {
     appleWebApp: {
         capable: true,
         title: "Neptune",
-        startupImage: "/neptune.png",
+		startupImage: "/neptune.png",
     },
     manifest: "/site.webmanifest",
 };
