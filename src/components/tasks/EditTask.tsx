@@ -14,7 +14,7 @@ import Input from "../primitives/Input";
 import Subtext from "../primitives/Subtext";
 
 const priorityRegex = /!(\d{1,2})/i;
-const courseRegex = /([a-zA-Z]+)-?(\d{1,4})/i;
+const courseRegex = /([a-zA-Z]+)-?(\d{1,4})/ig;
 const urlRegex = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/i;
 
 export default function EditTask({ task: defaultTask, onEditEnd }: { task?: Task, onEditEnd?: (cancelled: boolean) => void }) {
@@ -33,9 +33,9 @@ export default function EditTask({ task: defaultTask, onEditEnd }: { task?: Task
 		const priorityMatch = title.match(priorityRegex);
 		const priority = priorityMatch ? parseInt(priorityMatch[1]) : null;
 
-		const courseMatch = title.match(courseRegex);
-		const course = courseMatch ?
-			courses.find(c => c.subject.toLowerCase() === courseMatch[1]?.toLowerCase() && c.number === courseMatch[2])
+		const courseMatch = [...title.matchAll(courseRegex)].map(m => [m[1].toLowerCase(), m[2]]);
+		const course = courseMatch.length ?
+			courses.find(c => courseMatch.find(m => m[0] === c.subject.toLowerCase() && m[1] === c.number))
 			: null;
 
 		const url = title.match(urlRegex);
@@ -54,11 +54,8 @@ export default function EditTask({ task: defaultTask, onEditEnd }: { task?: Task
 		title = title.replaceAll(new RegExp(priorityRegex, "gi"), "");
 		title = title.replaceAll(new RegExp(urlRegex, "gi"), "");
 
-		// Since course regex is pretty vague, only remove the matches that are valid courses
-		[...title.matchAll(new RegExp(courseRegex, "gi"))].map(match => {
-			if (courses.find(c => c.subject.toLowerCase() === match[1].toLowerCase() && c.number === match[2]))
-				title = title.replace(match[0], "");
-		});
+		if (course)
+			title = title.replace(new RegExp(`${course.subject}${course.number}`, "i"), "");
 
 		const dateMatch = findDateMatch(title);
 		if (dateMatch)
