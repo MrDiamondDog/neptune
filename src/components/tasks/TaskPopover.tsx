@@ -50,7 +50,9 @@ export default function TaskPopover({ task }: { task: Task }) {
 						{course.name}
 					</div>}
 				</div>
-				{task.link && <Link external href={task.link} className="link" target="_blank">{task.link}</Link>}
+				{task.link && <div className="">
+					<Link external href={task.link} className="link [&>p]:max-w-75 [&>p]:text-ellipsis [&>p]:text-nowrap [&>p]:overflow-x-hidden" target="_blank">{task.link}</Link>
+				</div>}
 				{task.note && <p className="whitespace-pre-wrap">{task.note}</p>}
 			</div>
 		</div>}
