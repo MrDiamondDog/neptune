@@ -37,6 +37,7 @@ export default function App() {
 
 	const [icalEvents, setIcalEvents] = useState<CalendarEvent[]>([]);
 
+	const [taskFilterDays, setTaskFilterDays] = useState(2);
 	const [editingTask, setEditingTask] = useState<string>();
 
 	// Fetches from listed iCal source.
@@ -70,7 +71,29 @@ export default function App() {
 
 			// There really should only be one meeting a day, if there is more than one, this still uses the first
 			return aMeetingsToday[0].timeStart - bMeetingsToday[0].timeStart;
-	});
+		});
+
+	// Sort by due date, and only show tasks within the filter
+	const tasksDisplay = sortTasks(
+		tasks
+			// Remove tasks completed over a day ago
+			.filter(task => {
+				if (task.complete && new Date().getTime() - task.complete.getTime() >= 1 * DAYS)
+					return false;
+				return true;
+			})
+			.filter(task => {
+				const today1159 = new Date();
+				today1159.setHours(23);
+				today1159.setMinutes(59);
+				today1159.setSeconds(59);
+				const dueDate = task.dueDate ?? today1159;
+
+				if (dueDate.getTime() - today1159.getTime() <= taskFilterDays * DAYS)
+					return true;
+				return false;
+			})
+	);
 
 	return <main className="mx-auto w-[95%] md:w-200 overflow-x-hidden">
 		<Header />
@@ -113,7 +136,20 @@ export default function App() {
 				</div>)}
 			</DashboardCard>
 			<DashboardCard>
-				<h2>Tasks</h2>
+				<div className="flex justify-between items-end">
+					<h2>Tasks</h2>
+					<div className="flex *:py-1 text-sm">
+						<Button look={ButtonLooks.SECONDARY2} onClick={() => setTaskFilterDays(2)} className={taskFilterDays === 2 ? "bg-bg-lightest" : ""}>
+							day
+						</Button>
+						<Button look={ButtonLooks.SECONDARY2} onClick={() => setTaskFilterDays(7)} className={taskFilterDays === 7 ? "bg-bg-lightest" : ""}>
+							week
+						</Button>
+						<Button look={ButtonLooks.SECONDARY2} onClick={() => setTaskFilterDays(100000000)} className={taskFilterDays === 100000000 ? "bg-bg-lightest" : ""}>
+							all
+						</Button>
+					</div>
+				</div>
 				<Divider />
 
 				{!editingTask && <button className="w-full flex justify-center bg-bg py-1 mb-1 cursor-pointer hover:bg-bg-lighter" onClick={() => setEditingTask("new")}>
@@ -121,8 +157,7 @@ export default function App() {
 				</button>}
 				{editingTask === "new" && <EditTask onEditEnd={() => setEditingTask("")} />}
 
-				{/* Sort by due date */}
-				{sortTasks(tasks).map(task =>
+				{tasksDisplay.map(task =>
 					editingTask === task.id ?
 						<EditTask task={task} key={task.id} onEditEnd={() => setEditingTask(undefined)} /> :
 						<Task task={task} key={task.id} />

@@ -31,8 +31,8 @@ export default function Task({ task }: { task: TaskType }) {
 					<div className={`min-w-5 min-h-5 border border-bg-lighter ${task.complete ? "bg-primary" : "bg-bg"} ml-1 mt-1 cursor-pointer flex items-center justify-center`}
 						onClick={e => {
 							e.stopPropagation();
-							dispatch({ context: "tasks", type: "edit", data: { id: task.id, complete: new Date() } });
-							editTask({ id: task.id, complete: new Date() });
+							dispatch({ context: "tasks", type: "edit", data: { id: task.id, complete: task.complete ? null : new Date() } });
+							editTask({ id: task.id, complete: task.complete ? null : new Date() });
 							if (!task.complete) {
 								setConfettiComplete(false);
 								const box = checkRef.current!.getBoundingClientRect();
