@@ -85,7 +85,7 @@ export const dateMatchers: DateMatcher[] = [
 		// MM/DD(/YYYY) (at/@) (HH(:MM) (AM/PM))
 		// If no year, defaults to this year, or next year if the date as already passed
 		// If no time, defaults to 11:59pm
-		match: /(0?[1-9]|1[0-2])(-|\.|\\|\/)(0[1-9]|[12][0-9]|3[01])(-|\.|\\|\/)?((20|19)(\d{2}))?(( at| @)? (1[0-2]|0?\d|[2][0-3])((:([0-5]\d) ?(am|pm)?)|(am|pm)))?/i,
+		match: /(0?[1-9]|1[0-2])(-|\.|\\|\/)(0?[1-9]|[12][0-9]|3[01])(-|\.|\\|\/)?((20|19)(\d{2}))?(( at| @)? (1[0-2]|0?\d|[2][0-3])((:([0-5]\d) ?(am|pm)?)|(am|pm)))?/i,
 		priority: 8,
 		date: match => {
 			const month = parseInt(match[1]);
