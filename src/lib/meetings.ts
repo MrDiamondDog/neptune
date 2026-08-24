@@ -168,8 +168,8 @@ export function getMeetingsOnDay(meetings: Meeting[], courses: Course[], current
 	return meetings.filter(m =>
 		m.days.includes(getDayOfWeekAbbr(day)) &&
 		courses.find(c => c.id === m.courseId)?.termId === currentTerm?.id &&
-		!(m.exclusions ?? [])
+		!((m.exclusions ?? [])
 			.map(e => new Date(e.toString()))
-			.find(e => e.getDate() === day.getDate() && e.getMonth() === day.getMonth() && e.getFullYear() === day.getFullYear())
+			.find(e => e.getDate() === day.getDate() && e.getMonth() === day.getMonth() && e.getFullYear() === day.getFullYear()))
 	);
 }
