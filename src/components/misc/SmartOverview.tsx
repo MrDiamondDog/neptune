@@ -2,13 +2,17 @@
 
 import React from "react";
 
-import { Course } from "@/db/types";
+import { Course, Meeting } from "@/db/types";
 import { getDimmedColor } from "@/lib/colors";
 import { getMeetingsOnDay, minutesToTime } from "@/lib/meetings";
 import { getCurrentTerm } from "@/lib/terms";
-import { DAYS, timeToMinutes } from "@/lib/time";
+import { DAYS, MINUTES, timeToMinutes } from "@/lib/time";
 
 import { useApp } from "../context/NeptuneContext";
+import { Popover, PopoverContent } from "../primitives/Popover";
+import { PopoverTrigger } from "@radix-ui/react-popover";
+import CourseInline from "../courses/CourseInline";
+import MeetingsInline from "../meetings/MeetingsInline";
 
 export function NodeList({ nodes }: { nodes: React.ReactNode[] }): React.ReactNode {
 	if (nodes.length === 1)
@@ -22,8 +26,26 @@ export function NodeList({ nodes }: { nodes: React.ReactNode[] }): React.ReactNo
 	return node;
 }
 
-function CourseTitle({ children: course }: { children: Course }) {
-	return <span style={{ backgroundColor: getDimmedColor(course.color), border: `1px solid ${course.color}`, padding: "0 1px" }}>{course.name}</span>;
+function CourseTitle({ course, meetings }: { course: Course, meetings: Meeting[] }) {
+	const meeting = meetings.find(m => m.courseId === course.id)!;
+
+	const today = new Date();
+	today.setHours(0);
+	today.setMinutes(0);
+	today.setSeconds(0);
+	today.setMilliseconds(0);
+
+	return <Popover>
+		<PopoverTrigger asChild>
+			<span style={{ backgroundColor: getDimmedColor(course.color), border: `1px solid ${course.color}`, padding: "0 1px" }} className="cursor-pointer">
+				{course.name}
+			</span>
+		</PopoverTrigger>
+		<PopoverContent side="bottom" className="border border-bg-lighter">
+			<CourseInline course={course} meetingId={meeting.id} day={new Date(today.getTime() + meeting.timeStart * MINUTES)} />
+			<MeetingsInline meetings={meetings} />
+		</PopoverContent>
+	</Popover>;
 }
 
 export default function SmartOverview() {
@@ -39,11 +61,11 @@ export default function SmartOverview() {
 	// One meeting later today
 	if (meetingsLater.length === 1) {
 		const course = coursesLater.find(c => c.id === meetingsLater[0].courseId)!;
-		return <>You've just got <CourseTitle>{course}</CourseTitle> at {minutesToTime(meetingsLater[0].timeStart)}.</>;
+		return <>You've just got <CourseTitle course={course} meetings={meetingsLater} /> at {minutesToTime(meetingsLater[0].timeStart)}.</>;
 	// More than one meeting later today
 	} else if (meetingsLater.length > 1) {
 		const courses = meetingsLater.map(m => coursesLater.find(c => c.id === m.courseId)!);
-		const nodes = courses.map(c => <><CourseTitle>{c}</CourseTitle> at {minutesToTime(meetingsLater.find(m => m.courseId === c.id)!.timeStart)}</>);
+		const nodes = courses.map(c => <><CourseTitle course={c} meetings={meetingsLater} /> at {minutesToTime(meetingsLater.find(m => m.courseId === c.id)!.timeStart)}</>);
 
 		return <p>You've got <NodeList nodes={nodes} />.</p>;
 	// No meetings today
@@ -56,7 +78,7 @@ export default function SmartOverview() {
 		if (!meetingsTomorrow.length)
 			return todayText;
 
-		const nodes = coursesTomorrow.map(c => <CourseTitle key={c.id}>{c}</CourseTitle>);
+		const nodes = coursesTomorrow.map(c => <CourseTitle key={c.id} course={c} meetings={meetingsTomorrow} />);
 		return <p>{todayText} Tomorrow, you've got <NodeList nodes={nodes} />.</p>;
 	}
 
