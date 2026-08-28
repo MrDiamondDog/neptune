@@ -104,7 +104,7 @@ export default function App() {
 			{currentTerm ? <SmartOverview /> : <p>Enjoy your break!</p>}
 		</DashboardCard>
 
-		<div className="md:flex md:gap-2 mb-2 max-h-150">
+		<div className="md:flex md:gap-2 mb-2 md:max-h-150">
 			<DashboardCard className="md:mb-0 mb-2">
 				<div className="flex justify-between items-end">
 					<h2>

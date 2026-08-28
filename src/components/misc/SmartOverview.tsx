@@ -1,5 +1,6 @@
 "use client";
 
+import { PopoverTrigger } from "@radix-ui/react-popover";
 import React from "react";
 
 import { Course, Meeting } from "@/db/types";
@@ -9,10 +10,9 @@ import { getCurrentTerm } from "@/lib/terms";
 import { DAYS, MINUTES, timeToMinutes } from "@/lib/time";
 
 import { useApp } from "../context/NeptuneContext";
-import { Popover, PopoverContent } from "../primitives/Popover";
-import { PopoverTrigger } from "@radix-ui/react-popover";
 import CourseInline from "../courses/CourseInline";
 import MeetingsInline from "../meetings/MeetingsInline";
+import { Popover, PopoverContent } from "../primitives/Popover";
 
 export function NodeList({ nodes }: { nodes: React.ReactNode[] }): React.ReactNode {
 	if (nodes.length === 1)
