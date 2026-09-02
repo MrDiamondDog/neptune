@@ -41,7 +41,7 @@ export type RecurringEvent = {
 
 function getEventText(props: EventContentArg) {
 	if (props.event.allDay || !props.event.start || !props.event.end)
-		return `<div class="text-xs!">${props.event.title}</div>`;
+		return `<div class="text-xs! ${props.event.id.includes("-COMPLETE") ? "line-through" : ""}">${props.event.title}</div>`;
 
 	const duration = (props.event.end.getTime() - props.event.start.getTime()) / MINUTES;
 	const start = new Date(props.event.start.getTime() + props.event.start.getTimezoneOffset() * MINUTES);
@@ -49,9 +49,9 @@ function getEventText(props: EventContentArg) {
 	const monthViewDot = props.view.type === "dayGridMonth" ? `<div class="min-w-1.5 min-h-1.5 rounded-full mr-0.5" style="background-color: ${props.event.borderColor}"></div>` : "";
 
 	if (duration <= 30 || props.view.type === "dayGridMonth")
-		return `${monthViewDot}${prettyTime(start).replace(":00", "")} <b class="text-[10px]! overflow-hidden">${props.event.title}</b>`;
+		return `${monthViewDot}${prettyTime(start).replace(":00", "")} <b class="text-[10px]! overflow-hidden ${props.event.id.includes("-COMPLETE") ? "line-through" : ""}">${props.event.title}</b>`;
 	else
-		return `<p class="text-[10px]! overflow-hidden">${monthViewDot}${prettyTimeRange(start, end).replaceAll(":00", "")}\n<b class="text-[10px]! overflow-hidden">${props.event.title}</b></p>`;
+		return `<p class="text-[10px]! overflow-hidden">${monthViewDot}${prettyTimeRange(start, end).replaceAll(":00", "")}\n<b class="text-[10px]! overflow-hidden ${props.event.id.includes("-COMPLETE") ? "line-through" : ""}">${props.event.title}</b></p>`;
 }
 
 export default function Calendar({ events }: { events: (CalendarEvent | RecurringEvent)[] }) {
@@ -71,7 +71,7 @@ export default function Calendar({ events }: { events: (CalendarEvent | Recurrin
 
 			setSelectedItem(courses.find(c => c.id === meeting.courseId));
 		} else if (selectedEvent.event.id.startsWith("task-"))
-			setSelectedItem(tasks.find(t => t.id === selectedEvent.event.id.replace("task-", "")));
+			setSelectedItem(tasks.find(t => t.id === selectedEvent.event.id.replace("task-", "").replace("-COMPLETE", "")));
 	}, [selectedEvent, meetings, courses, tasks]);
 
 	return <>

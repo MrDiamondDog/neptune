@@ -219,7 +219,7 @@ export function taskToCalendar(data: NeptuneData, user: User, task: Task): Calen
 	const allDay = dueDate.getHours() === 23 && dueDate.getMinutes() === 59;
 
 	return {
-		id: `task-${task.id}`,
+		id: `task-${task.id}${task.complete ? "-COMPLETE" : ""}`,
 		title: task.title,
 		color: getDimmedColor(color),
 		borderColor: color,
