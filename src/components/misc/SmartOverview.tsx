@@ -43,7 +43,7 @@ function CourseTitle({ course, meetings }: { course: Course, meetings: Meeting[]
 		</PopoverTrigger>
 		<PopoverContent side="bottom" className="border border-bg-lighter">
 			<CourseInline course={course} meetingId={meeting.id} day={new Date(today.getTime() + meeting.timeStart * MINUTES)} />
-			<MeetingsInline meetings={meetings} />
+			<MeetingsInline meetings={meetings.filter(m => m.courseId === course.id)} />
 		</PopoverContent>
 	</Popover>;
 }
