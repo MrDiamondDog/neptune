@@ -63,7 +63,7 @@ export function SelectMultiple({ options, values, onChange, placeholder, searcha
 					<ChevronDown />
 				</button>
 			</DropdownTrigger>
-			<DropdownContent>
+			<DropdownContent className="max-h-[50vh] overflow-y-scroll">
 				{/* TODO: search unfocuses after some character inputs */}
 				{searchable &&
 					<Input

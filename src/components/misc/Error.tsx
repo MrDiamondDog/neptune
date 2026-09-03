@@ -1,12 +1,12 @@
 "use client";
 
-import { catchError, ErrorInfo } from "next/error";
-import Button, { ButtonLooks } from "../primitives/Button";
-import Subtext from "../primitives/Subtext";
-import { ModalFooter } from "../primitives/Modal";
-import { useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
+import { catchError, ErrorInfo } from "next/error";
+import { useState } from "react";
+
+import Button, { ButtonLooks } from "../primitives/Button";
 import Divider from "../primitives/Divider";
+import Subtext from "../primitives/Subtext";
 
 function ErrorFallback(_: any, { error, retry }: ErrorInfo) {
 	const [details, setDetails] = useState(false);
