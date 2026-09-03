@@ -8,6 +8,7 @@ import { useApp } from "@/components/context/NeptuneContext";
 import CourseInline from "@/components/courses/CourseInline";
 import MeetingsInline from "@/components/meetings/MeetingsInline";
 import { DashboardCard } from "@/components/misc/DashboardCard";
+import ErrorFallback from "@/components/misc/Error";
 import Greeting from "@/components/misc/Greeting";
 import Header from "@/components/misc/Header";
 import SmartOverview from "@/components/misc/SmartOverview";
@@ -25,6 +26,7 @@ import { getCurrentTerm } from "@/lib/terms";
 import { DAYS } from "@/lib/time";
 
 import { getCalendarEvents, getUser } from "../actions/users";
+import { ErrorBoundary } from "@/components/misc/Error";
 
 export default function App() {
 	const data = useApp();
@@ -95,7 +97,8 @@ export default function App() {
 			})
 	);
 
-	return <main className="mx-auto w-[95%] md:w-200 overflow-x-hidden">
+	return <ErrorBoundary>
+		<main className="mx-auto w-[95%] md:w-200 overflow-x-hidden">
 		<Header />
 		<Divider />
 
@@ -174,5 +177,6 @@ export default function App() {
 				...icalEvents
 			]} />
 		</DashboardCard>
-	</main>;
+		</main>
+	</ErrorBoundary>;
 }
