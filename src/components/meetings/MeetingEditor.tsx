@@ -57,7 +57,7 @@ export default function MeetingEditor({ meeting, onChange, onDelete }: {
 			/>
 		</div>
 
-		{!!meeting.exclusions?.length && <div className="flex gap-2 flex-col">
+		{(Array.isArray(meeting.exclusions) && !!meeting.exclusions?.length) && <div className="flex gap-2 flex-col">
 			<p>Excluded Dates</p>
 			{meeting.exclusions.map(e => <div className="flex justify-between items-center bg-bg-lighter p-2" key={e.toString()}>
 				<p>{prettyDate(new Date(e.toString()), "hide")}</p>

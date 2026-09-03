@@ -61,13 +61,13 @@ export default function SmartOverview() {
 	// One meeting later today
 	if (meetingsLater.length === 1) {
 		const course = coursesLater.find(c => c.id === meetingsLater[0].courseId)!;
-		return <>You've just got <CourseTitle course={course} meetings={meetingsLater} /> at {minutesToTime(meetingsLater[0].timeStart)}.</>;
+		return <>You just have <CourseTitle course={course} meetings={meetingsLater} /> at {minutesToTime(meetingsLater[0].timeStart)}.</>;
 	// More than one meeting later today
 	} else if (meetingsLater.length > 1) {
 		const courses = meetingsLater.map(m => coursesLater.find(c => c.id === m.courseId)!);
 		const nodes = courses.map(c => <><CourseTitle course={c} meetings={meetingsLater} /> at {minutesToTime(meetingsLater.find(m => m.courseId === c.id)!.timeStart)}</>);
 
-		return <p>You've got <NodeList nodes={nodes} />.</p>;
+		return <p>You have <NodeList nodes={nodes} />.</p>;
 	// No meetings today
 	} else if (!meetingsToday.length || !meetingsLater.length) {
 		const meetingsTomorrow = getMeetingsOnDay(data.meetings, data.courses, getCurrentTerm(data.terms), new Date(new Date().getTime() + 1 * DAYS)).sort((a, b) => a.timeStart - b.timeStart);
@@ -79,7 +79,7 @@ export default function SmartOverview() {
 			return todayText;
 
 		const nodes = coursesTomorrow.map(c => <CourseTitle key={c.id} course={c} meetings={meetingsTomorrow} />);
-		return <p>{todayText} Tomorrow, you've got <NodeList nodes={nodes} />.</p>;
+		return <p>{todayText} Tomorrow, you have <NodeList nodes={nodes} />.</p>;
 	}
 
 	return null;
