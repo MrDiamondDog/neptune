@@ -48,15 +48,16 @@ function CourseTitle({ course, meetings }: { course: Course, meetings: Meeting[]
 	</Popover>;
 }
 
-export default function SmartOverview() {
+export default function CourseOverview() {
 	const data = useApp();
 
-	const meetingsToday = getMeetingsOnDay(data.meetings, data.courses, getCurrentTerm(data.terms)).sort((a, b) => a.timeStart - b.timeStart);
+	const meetingsToday = getMeetingsOnDay(data.meetings, data.courses, getCurrentTerm(data.terms));
 
 	const timeMinutes = timeToMinutes(`${new Date().getHours()}:${new Date().getMinutes()}`);
 	const meetingsLater = meetingsToday.filter(t => t.timeStart > timeMinutes);
 
-	const coursesLater = data.courses.filter(c => meetingsLater.map(m => m.courseId).includes(c.id));
+	const coursesLater = data.courses.filter(c => meetingsLater.map(m => m.courseId).includes(c.id))
+		.sort((a, b) => meetingsToday.find(m => m.courseId === a.id)!.timeStart - meetingsToday.find(m => m.courseId === b.id)!.timeStart);
 
 	// One meeting later today
 	if (meetingsLater.length === 1) {
@@ -70,8 +71,10 @@ export default function SmartOverview() {
 		return <p>You have <NodeList nodes={nodes} />.</p>;
 	// No meetings today
 	} else if (!meetingsToday.length || !meetingsLater.length) {
-		const meetingsTomorrow = getMeetingsOnDay(data.meetings, data.courses, getCurrentTerm(data.terms), new Date(new Date().getTime() + 1 * DAYS)).sort((a, b) => a.timeStart - b.timeStart);
-		const coursesTomorrow = data.courses.filter(c => meetingsTomorrow.map(m => m.courseId).includes(c.id));
+		const meetingsTomorrow = getMeetingsOnDay(data.meetings, data.courses, getCurrentTerm(data.terms), new Date(new Date().getTime() + 1 * DAYS));
+
+		const coursesTomorrow = data.courses.filter(c => meetingsTomorrow.map(m => m.courseId).includes(c.id))
+				.sort((a, b) => meetingsTomorrow.find(m => m.courseId === a.id)!.timeStart - meetingsTomorrow.find(m => m.courseId === b.id)!.timeStart);
 
 		const todayText = meetingsToday.length ? "All done today!" : "No classes today!";
 
