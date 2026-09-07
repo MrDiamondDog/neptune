@@ -7,10 +7,12 @@ import Calendar, { CalendarEvent } from "@/components/calendars/Calendar";
 import { useApp } from "@/components/context/NeptuneContext";
 import CourseInline from "@/components/courses/CourseInline";
 import MeetingsInline from "@/components/meetings/MeetingsInline";
+import CourseOverview from "@/components/misc/CourseOverview";
 import { DashboardCard } from "@/components/misc/DashboardCard";
 import { ErrorBoundary } from "@/components/misc/Error";
 import Greeting from "@/components/misc/Greeting";
 import Header from "@/components/misc/Header";
+import TaskOverview from "@/components/misc/TaskOverview";
 import Button, { ButtonLooks } from "@/components/primitives/Button";
 import Divider from "@/components/primitives/Divider";
 import Subtext from "@/components/primitives/Subtext";
@@ -25,7 +27,6 @@ import { getCurrentTerm } from "@/lib/terms";
 import { DAYS } from "@/lib/time";
 
 import { getCalendarEvents, getUser } from "../actions/users";
-import CourseOverview from "@/components/misc/CourseOverview";
 
 export default function App() {
 	const data = useApp();
@@ -104,6 +105,7 @@ export default function App() {
 		<DashboardCard className="w-full mb-2">
 			<Greeting />
 			{currentTerm ? <CourseOverview /> : <p>Enjoy your break!</p>}
+			<TaskOverview />
 		</DashboardCard>
 
 		<div className="md:flex md:gap-2 mb-2 md:max-h-150">
