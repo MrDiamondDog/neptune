@@ -165,7 +165,8 @@ export default function App() {
 					editingTask === task.id ?
 						<EditTask task={task} key={task.id} onEditEnd={() => setEditingTask(undefined)} /> :
 						<Task task={task} key={task.id} />
-				)}
+					)}
+				{tasksDisplay.length === 0 && <Subtext className="w-full text-center">All done!</Subtext>}
 			</DashboardCard>
 		</div>
 		<DashboardCard className="mb-2">

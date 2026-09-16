@@ -18,8 +18,8 @@ export default function Clock() {
 	if (!date)
 		return null;
 
-	return <div className="text-gray-500">
-		<p className="text-center text-lg">{prettyTime(date)}</p>
-		<p className="text-center text-sm">{prettyDate(date, "hide")}</p>
+	return <div>
+		<p className="text-center text-lg font-bold">{prettyTime(date)}</p>
+		<p className="text-center text-sm text-gray-500">{prettyDate(date, "hide")}</p>
 	</div>;
 }

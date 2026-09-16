@@ -3,7 +3,7 @@ import { NeptuneData } from "@/components/context/NeptuneContext";
 import { Task, User } from "@/db/types";
 
 import { getDimmedColor } from "./colors";
-import { DAYS, MINUTES, toUTCDate, unitTime } from "./time";
+import { DAYS, MINUTES, toUTCDate, unitTime, WEEKS } from "./time";
 
 export type DateMatcher = {
 	/**
@@ -22,6 +22,28 @@ export type DateMatcher = {
 };
 
 export const dateMatchers: DateMatcher[] = [
+	{
+		// Tonight
+		match: /tonight/i,
+		priority: 10,
+		date: () => {
+			const today = new Date();
+			today.setHours(23);
+			today.setMinutes(59);
+			return today;
+		}
+	},
+	{
+		// Next week
+		match: /next week/i,
+		priority: 10,
+		date: () => {
+			const nextWeek = new Date(new Date().getTime() + WEEKS);
+			nextWeek.setHours(23);
+			nextWeek.setMinutes(59);
+			return nextWeek;
+		}
+	},
 	{
 		// Tomorrow (at time)
 		match: /(tomorrow|tmrw)(( at| @)? (1[0-2]|0?\d|[2][0-3])((:([0-5]\d) ?(am|pm)?)|(am|pm)))?/i,
