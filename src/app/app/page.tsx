@@ -102,7 +102,7 @@ export default function App() {
 		<Header />
 		<Divider />
 
-		<DashboardCard className="w-full mb-2 flex flex-col gap-1">
+		<DashboardCard className="w-full mb-2">
 			<Greeting />
 			{currentTerm ? <CourseOverview /> : <p>Enjoy your break!</p>}
 			<TaskOverview />

@@ -9,9 +9,12 @@ import TaskPopover from "../tasks/TaskPopover";
 import NodeList from "./NodeList";
 
 export function TaskTitle({ task }: { task: Task }) {
+	const { courses } = useApp();
+	const course = courses.find(c => c.id === task.courseId);
+
 	return <Popover>
 		<PopoverTrigger asChild>
-			<span className="cursor-pointer underline text-primary">
+			<span className="cursor-pointer underline" style={{ color: course ? course.color : "var(--color-primary)" }}>
 				{task.title}
 			</span>
 		</PopoverTrigger>
@@ -40,7 +43,7 @@ export default function TaskOverview() {
 	if (tasksToday.length)
 		return <p>Tonight, you need to finish <NodeList nodes={tasksToday.map(t => <TaskTitle task={t} key={t.id} />)} />. {tasksUpcoming.length && `You have ${tasksUpcoming.length} other tasks to work on due soon.`}</p>;
 	else if (tasksUpcoming.length)
-		return <p>Nothing due tonight! You should start working on <NodeList nodes={tasksUpcoming.map(t => <TaskTitle task={t} key={t.id} />)} />.</p>;
+		return <p>You have nothing due tonight! You should start working on <NodeList nodes={tasksUpcoming.map(t => <TaskTitle task={t} key={t.id} />)} />.</p>;
 	else if (!tasksToday.length && !tasksUpcoming.length)
 		return <p>You have no tasks you need to complete soon! {tasksThisWeek.length && `You should consider working on the ${tasksThisWeek.length} tasks due in the next week.`}</p>;
 

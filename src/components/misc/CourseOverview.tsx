@@ -25,7 +25,7 @@ function CourseTitle({ course, meetings }: { course: Course, meetings: Meeting[]
 
 	return <Popover>
 		<PopoverTrigger asChild>
-			<span style={{ backgroundColor: getDimmedColor(course.color), border: `1px solid ${course.color}`, padding: "0 1px" }} className="cursor-pointer">
+			<span style={{ color: course.color }} className="cursor-pointer underline">
 				{course.name}
 			</span>
 		</PopoverTrigger>
