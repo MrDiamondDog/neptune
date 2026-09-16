@@ -27,6 +27,7 @@ import { getCurrentTerm } from "@/lib/terms";
 import { DAYS } from "@/lib/time";
 
 import { getCalendarEvents, getUser } from "../actions/users";
+import Checkbox from "@/components/primitives/Checkbox";
 
 export default function App() {
 	const data = useApp();
@@ -41,6 +42,7 @@ export default function App() {
 
 	const [taskFilterDays, setTaskFilterDays] = useState(2);
 	const [editingTask, setEditingTask] = useState<string>();
+	const [showComplete, setShowComplete] = useState(false);
 
 	// Fetches from listed iCal source.
 	useEffect(() => {
@@ -80,6 +82,8 @@ export default function App() {
 		tasks
 			// Remove tasks completed over a day ago
 			.filter(task => {
+				if (showComplete)
+					return true;
 				if (task.complete && new Date().getTime() - task.complete.getTime() >= 1 * DAYS)
 					return false;
 				return true;
@@ -167,6 +171,9 @@ export default function App() {
 						<Task task={task} key={task.id} />
 					)}
 				{tasksDisplay.length === 0 && <Subtext className="w-full text-center">All done!</Subtext>}
+
+				<Divider />
+				<Checkbox checked={showComplete} onCheckedChange={setShowComplete}>Show all completed tasks</Checkbox>
 			</DashboardCard>
 		</div>
 		<DashboardCard className="mb-2">
