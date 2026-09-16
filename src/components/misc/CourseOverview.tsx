@@ -50,7 +50,7 @@ export default function CourseOverview() {
 	// One meeting later today
 	if (meetingsLater.length === 1) {
 		const course = coursesLater.find(c => c.id === meetingsLater[0].courseId)!;
-		return <>You just have <CourseTitle course={course} meetings={meetingsLater} /> at {minutesToTime(meetingsLater[0].timeStart)}.</>;
+		return <p>You just have <CourseTitle course={course} meetings={meetingsLater} /> at {minutesToTime(meetingsLater[0].timeStart)}.</p>;
 	// More than one meeting later today
 	} else if (meetingsLater.length > 1) {
 		const courses = meetingsLater.map(m => coursesLater.find(c => c.id === m.courseId)!);
