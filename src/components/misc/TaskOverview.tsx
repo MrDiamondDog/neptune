@@ -45,7 +45,7 @@ export default function TaskOverview() {
 	else if (tasksUpcoming.length)
 		return <p>You have nothing due tonight! You should start working on <NodeList nodes={tasksUpcoming.map(t => <TaskTitle task={t} key={t.id} />)} />.</p>;
 	else if (!tasksToday.length && !tasksUpcoming.length)
-		return <p>You have no tasks you need to complete soon! {tasksThisWeek.length && `You should consider working on the ${tasksThisWeek.length} tasks due in the next week.`}</p>;
+		return <p>You have no tasks you need to complete soon! {!!tasksThisWeek.length && `You should consider working on the ${tasksThisWeek.length} tasks due in the next week.`}</p>;
 
 	return null;
 }
