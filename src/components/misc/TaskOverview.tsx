@@ -41,7 +41,7 @@ export default function TaskOverview() {
 	const tasksThisWeek = tasks.filter(t => !t.complete && t.dueDate && t.dueDate.getTime() - new Date().getTime() < WEEKS);
 
 	if (tasksToday.length)
-		return <p>Tonight, you need to finish <NodeList nodes={tasksToday.map(t => <TaskTitle task={t} key={t.id} />)} />. {tasksUpcoming.length && `You have ${tasksUpcoming.length} other tasks to work on due soon.`}</p>;
+		return <p>Tonight, you need to finish <NodeList nodes={tasksToday.map(t => <TaskTitle task={t} key={t.id} />)} />. {!!tasksUpcoming.length && `You have ${tasksUpcoming.length} other tasks to work on due soon.`}</p>;
 	else if (tasksUpcoming.length)
 		return <p>You have nothing due tonight! You should start working on <NodeList nodes={tasksUpcoming.map(t => <TaskTitle task={t} key={t.id} />)} />.</p>;
 	else if (!tasksToday.length && !tasksUpcoming.length)
