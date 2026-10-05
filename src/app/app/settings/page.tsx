@@ -118,7 +118,7 @@ export default function SettingsPage() {
 					<div>
 						{titleCase(term.season)} {term.year}
 						<Subtext>{prettyTimeRange(term.start, term.end)}</Subtext>
-						<Subtext>{courses.filter(c => c.termId === term.id).length} course(s)</Subtext>
+						<Subtext>{courses.filter(c => c.termId === term.id).length} course(s) - {courses.map(c => c.creditHours).reduce((prev, curr) => (prev ?? 0) + (curr ?? 0))} credit hours</Subtext>
 					</div>
 
 					<div className="flex gap-2">
