@@ -57,8 +57,8 @@ export default function MeetingEditor({ meeting, onChange, onDelete }: {
 			/>
 		</div>
 
-		{(Array.isArray(meeting.exclusions) && !!meeting.exclusions?.length) && <div className="flex gap-2 flex-col">
-			<p>Excluded Dates</p>
+		<p>Excluded Dates</p>
+		{(Array.isArray(meeting.exclusions) && !!meeting.exclusions?.length) && <div className="grid grid-cols-2 gap-2">
 			{meeting.exclusions.map(e => <div className="flex justify-between items-center bg-bg-lighter p-2" key={e.toString()}>
 				<p>{prettyDate(new Date(e.toString()), "hide")}</p>
 				<X className="text-gray-400 cursor-pointer" onClick={() => onChange({ ...meeting, exclusions: [...(meeting.exclusions ?? []).filter(me => me !== e)] })} />

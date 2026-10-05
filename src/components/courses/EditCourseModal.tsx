@@ -181,7 +181,7 @@ export default function EditCourseModal({ course: defaultCourse, ...props }: { c
 			<CourseColorPicker value={course.color} onChange={c => setCourse({ color: c })} />
 		</>}
 
-		{step === 1 && <>
+		{step === 1 && <div className="flex flex-col gap-2">
 			<div className="bg-bg w-full p-2">
 				<div className="flex w-full justify-between items-center">
 					<p>Meetings</p>
@@ -191,16 +191,15 @@ export default function EditCourseModal({ course: defaultCourse, ...props }: { c
 						onClick={() => setMeetings([...meetings, { ...defaultMeeting, id: (meetings.length - 1) + "" }])}
 					/>
 				</div>
-				{meetings.map(m => <div key={m.id}>
-					<Divider />
-					<MeetingEditor
-						meeting={m}
-						onChange={m => setMeetings(modifyArrayItem(meetings, m, "id"))}
-						onDelete={() => setMeetings(deleteFromArray(meetings, m, "id"))}
-					/>
-				</div>)}
 			</div>
-		</>}
+			{meetings.map(m => <div key={m.id} className="bg-bg w-full p-2">
+				<MeetingEditor
+					meeting={m}
+					onChange={m => setMeetings(modifyArrayItem(meetings, m, "id"))}
+					onDelete={() => setMeetings(deleteFromArray(meetings, m, "id"))}
+				/>
+			</div>)}
+		</div>}
 
 		{step === 2 && <>
 			<CourseInline course={course} readOnly />
