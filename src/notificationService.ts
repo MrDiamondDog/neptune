@@ -39,12 +39,13 @@ const notifications: NotificationPredicate[] = [
 	{
 		// Reminders for courses soon
 		key: "courses",
-		predicate: ({ courses, meetings, terms }) => {
+		predicate: ({ user, courses, meetings, terms }) => {
+			const userDate = new Date(new Date().getTime() - user.timezoneOffset * MINUTES);
 			const meetingsToday = getMeetingsOnDay(meetings, courses, getCurrentTerm(terms));
 			if (!meetingsToday.length)
 				return null;
 
-			const timeInMins = timeToMinutes(new Date().getHours() + ":" + new Date().getMinutes());
+			const timeInMins = timeToMinutes(userDate.getHours() + ":" + userDate.getMinutes());
 			for (const meeting of meetingsToday) {
 				const course = courses.find(c => c.id === meeting.courseId)!;
 				if (meeting.timeStart - 15 === timeInMins) {
@@ -62,15 +63,16 @@ const notifications: NotificationPredicate[] = [
 	{
 		// List of tasks after all classes are done
 		key: "tasks",
-		predicate: ({ meetings, courses, terms, tasks }) => {
+		predicate: ({ user, meetings, courses, terms, tasks }) => {
+			const userDate = new Date(new Date().getTime() - user.timezoneOffset * MINUTES);
 			const meetingsToday = getMeetingsOnDay(meetings, courses, getCurrentTerm(terms)).sort((a, b) => a.timeStart - b.timeStart);
 			if (!meetingsToday.length)
 				return null;
 
-			const timeInMins = timeToMinutes(new Date().getHours() + ":" + new Date().getMinutes());
+			const timeInMins = timeToMinutes(userDate.getHours() + ":" + userDate.getMinutes());
 			const lastCourseEnd = meetingsToday[meetingsToday.length - 1].timeEnd;
 			if (timeInMins === lastCourseEnd) {
-				const today = new Date();
+				const today = userDate;
 				const tomorrow = new Date(today.getTime() + DAYS);
 
 				const tasksToday = getTasksOnDay(tasks, today);
