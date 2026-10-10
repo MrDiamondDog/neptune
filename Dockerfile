@@ -53,7 +53,8 @@ ENV NEXT_TELEMETRY_DISABLED=1
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/drizzle.config.ts ./drizzle.config.ts
 COPY --from=builder /app/data ./data
-COPY --from=builder /app/src/db/schema.ts ./src/db/schema.ts
+COPY --from=builder /app/src/ ./src
+COPY --from=builder /app/node_modules/ ./node_modules
 
 # Automatically leverage output traces to reduce image size
 # https://nextjs.org/docs/advanced-features/output-file-tracing
@@ -69,4 +70,4 @@ ENV PORT=3000
 # server.js is created by next build from the standalone output
 # https://nextjs.org/docs/pages/api-reference/config/next-config-js/output
 ENV HOSTNAME="0.0.0.0"
-CMD ["node", "server.js"]
+CMD node server.js & npm run notif-service

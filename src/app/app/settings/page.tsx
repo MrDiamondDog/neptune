@@ -11,6 +11,7 @@ import { deleteTerm } from "@/app/actions/terms";
 import { editUser, getUser } from "@/app/actions/users";
 import { useApp } from "@/components/context/NeptuneContext";
 import { DashboardCard } from "@/components/misc/DashboardCard";
+import { PushNotificationManager } from "@/components/misc/NotificationManager";
 import Button, { ButtonLooks } from "@/components/primitives/Button";
 import PopoverColorPicker from "@/components/primitives/ColorPicker";
 import DeletePopover from "@/components/primitives/DeletePopover";
@@ -22,7 +23,6 @@ import { throwToast } from "@/lib/errors";
 import { titleCase } from "@/lib/string";
 import { prettyTimeRange } from "@/lib/time";
 import { getPublicEnv } from "@/public-env";
-import { getCurrentTerm } from "@/lib/terms";
 
 export default function SettingsPage() {
 	const { courses, terms, dispatch } = useApp();
@@ -143,6 +143,11 @@ export default function SettingsPage() {
 					</div>
 				</div>)}
 			</div>
+		</DashboardCard>
+
+		<DashboardCard>
+			<p>Push Notifications</p>
+			<PushNotificationManager />
 		</DashboardCard>
 
 		<Button loading={loading} onClick={save} className="py-1">Save</Button>

@@ -2,6 +2,9 @@ import { DateInput } from "@fullcalendar/core/index.js";
 import { createClient } from "@libsql/client";
 import { drizzle } from "drizzle-orm/libsql";
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { PushSubscription } from "web-push";
+
+import { defaultNotificationSettings, UserNotificationKeys } from "./types";
 
 const client = createClient({
 	url: "file:./data/neptune.db",
@@ -26,7 +29,10 @@ export const usersTable = sqliteTable("user", {
 	timezoneOffset: integer("timezoneOffset").notNull(),
 
 	icalUrl: text("icalUrl"),
-	icalColor: text("icalColor").default("#38c773").notNull()
+	icalColor: text("icalColor").default("#38c773").notNull(),
+
+	pushSubscription: text("pushSubscription", { mode: "json" }).default(null).$type<PushSubscription>(),
+	pushNotifications: text("pushNotifications", { mode: "json" }).default(defaultNotificationSettings).$type<Record<UserNotificationKeys, boolean>>().notNull(),
 });
 
 export const termsTable = sqliteTable("term", {

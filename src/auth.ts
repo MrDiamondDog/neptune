@@ -5,6 +5,7 @@ import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 
 import { db, usersTable } from "./db/schema";
+import { defaultNotificationSettings } from "./db/types";
 import { getPublicEnv } from "./public-env";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
@@ -44,6 +45,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 						icalUrl: user.icalUrl,
 						timezoneOffset: user.timezoneOffset,
 						icalColor: user.icalColor,
+						pushNotifications: defaultNotificationSettings,
+						pushSubscription: null,
 					};
 				} catch (error) {
 					console.error("Error during authentication:", error);

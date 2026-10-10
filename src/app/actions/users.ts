@@ -5,7 +5,7 @@ import ical, { VEvent } from "node-ical";
 
 import { CalendarEvent } from "@/components/calendars/Calendar";
 import { db, usersTable } from "@/db/schema";
-import { User } from "@/db/types";
+import { defaultNotificationSettings, User } from "@/db/types";
 import { DAYS, getTimezoneOffset, HOURS, inDST, MINUTES, YEARS } from "@/lib/time";
 
 import { actionError, ActionRes, authenticate } from ".";
@@ -18,7 +18,8 @@ export async function getUser(): ActionRes<User | undefined> {
 			name: "Demo User",
 			timezoneOffset: 0,
 			icalUrl: "",
-			icalColor: "#00ffff"
+			icalColor: "#00ffff",
+			pushNotifications: defaultNotificationSettings,
 		};
 
 	const user = await authenticate();
@@ -26,13 +27,14 @@ export async function getUser(): ActionRes<User | undefined> {
 	if (!user)
 		throw actionError("Not authenticated.");
 
-	// Everything but password field
+	// Everything but password and pushSubscription field
 	const res = (await db.select({
 		email: usersTable.email,
 		name: usersTable.name,
 		timezoneOffset: usersTable.timezoneOffset,
 		icalUrl: usersTable.icalUrl,
-		icalColor: usersTable.icalColor
+		icalColor: usersTable.icalColor,
+		pushNotifications: usersTable.pushNotifications,
 	}).from(usersTable).where(eq(usersTable.id, user.id!)))[0] as User | undefined;
 
 	return res;
