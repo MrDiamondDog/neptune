@@ -1,6 +1,7 @@
 // This file does not run with nextjs; it is separate and is used to send notifications to users.
 import { config } from "dotenv";
 import { eq, isNotNull } from "drizzle-orm";
+import { exit } from "process";
 import webpush from "web-push";
 
 import { coursesTable, db, meetingsTable, tasksTable, termsTable, usersTable } from "./db/schema";
@@ -8,8 +9,7 @@ import { Course, Meeting, Task, Term, User, UserNotificationKeys } from "./db/ty
 import { getMeetingsOnDay } from "./lib/meetings";
 import { list } from "./lib/string";
 import { getCurrentTerm } from "./lib/terms";
-import { DAYS, MINUTES, minutesToTime, timeToMinutes } from "./lib/time";
-import { exit } from "process";
+import { DAYS, MINUTES, minutesToTime } from "./lib/time";
 
 config({ quiet: true });
 
@@ -68,12 +68,10 @@ const notifications: NotificationPredicate[] = [
 		predicate: ({ user, meetings, courses, terms, tasks }) => {
 			const userDate = new Date(new Date().getTime() - user.timezoneOffset * MINUTES);
 			const meetingsToday = getMeetingsOnDay(meetings, courses, getCurrentTerm(terms)).sort((a, b) => a.timeStart - b.timeStart);
-			if (!meetingsToday.length)
-				return null;
 
 			const timeInMins = userDate.getHours() * 60 + userDate.getMinutes();
-			const lastCourseEnd = meetingsToday[meetingsToday.length - 1].timeEnd;
-			if (lastCourseEnd + user.timezoneOffset === timeInMins) {
+			const lastCourseEnd = meetingsToday.length ? meetingsToday[meetingsToday.length - 1].timeEnd : -1;
+			if (lastCourseEnd + user.timezoneOffset === timeInMins || (!meetingsToday.length && userDate.getHours() === 14 && userDate.getMinutes() === 0)) {
 				const today = userDate;
 				const tomorrow = new Date(today.getTime() + DAYS);
 
@@ -87,10 +85,10 @@ const notifications: NotificationPredicate[] = [
 				else if (tasksUpcoming.length)
 					bodyStr = `You have nothing due tonight, but you should start working on ${list(...tasksUpcoming.map(t => t.title))}.`;
 				else if (!tasksToday.length && !tasksUpcoming.length)
-					bodyStr = "You have nothing due tonight!";
+					bodyStr = "You have no tasks due today or tomorrow!";
 
 				return {
-					title: "Task Reminder",
+					title: meetingsToday.length ? "All done today!" : (!tasksToday.length && !tasksUpcoming.length ? "Happy day off!" : "Don't forget about your tasks!"),
 					message: bodyStr,
 					topic: "tasks",
 				};
