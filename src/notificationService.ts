@@ -73,7 +73,7 @@ const notifications: NotificationPredicate[] = [
 
 			const timeInMins = userDate.getHours() * 60 + userDate.getMinutes();
 			const lastCourseEnd = meetingsToday[meetingsToday.length - 1].timeEnd;
-			if (lastCourseEnd + user.timezoneOffset - 15 === timeInMins) {
+			if (lastCourseEnd + user.timezoneOffset === timeInMins) {
 				const today = userDate;
 				const tomorrow = new Date(today.getTime() + DAYS);
 
