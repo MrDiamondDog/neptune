@@ -2,6 +2,8 @@ name: Neptune
 services:
     neptune:
         container_name: neptune
+        ports:
+          - 3000:3000
         build: .
         environment:
             - AUTH_SECRET=${AUTH_SECRET}

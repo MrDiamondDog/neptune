@@ -1,7 +1,6 @@
 // This file does not run with nextjs; it is separate and is used to send notifications to users.
 import { config } from "dotenv";
 import { eq, isNotNull } from "drizzle-orm";
-import { exit } from "process";
 import webpush from "web-push";
 
 import { coursesTable, db, meetingsTable, tasksTable, termsTable, usersTable } from "./db/schema";
@@ -10,11 +9,14 @@ import { getMeetingsOnDay } from "./lib/meetings";
 import { list } from "./lib/string";
 import { getCurrentTerm } from "./lib/terms";
 import { DAYS, MINUTES, minutesToTime, timeToMinutes } from "./lib/time";
+import { exit } from "process";
 
-config();
+config({ quiet: true });
 
-if (process.env.ALLOW_NOTIFICATIONS !== "true")
-	exit(1);
+if (process.env.ALLOW_NOTIFICATIONS !== "true") {
+	console.error("[notif-service] Notifications are not enabled.");
+	exit(0);
+}
 
 process.env.TZ = "Etc/UTC";
 
@@ -45,10 +47,10 @@ const notifications: NotificationPredicate[] = [
 			if (!meetingsToday.length)
 				return null;
 
-			const timeInMins = timeToMinutes(userDate.getHours() + ":" + userDate.getMinutes());
+			const timeInMins = userDate.getHours() * 60 + userDate.getMinutes();
 			for (const meeting of meetingsToday) {
 				const course = courses.find(c => c.id === meeting.courseId)!;
-				if (meeting.timeStart - 15 === timeInMins) {
+				if (meeting.timeStart + user.timezoneOffset - 15 === timeInMins) {
 					return {
 						title: "Reminder",
 						message: `${course.name} starts in 15 minutes!`,
@@ -69,9 +71,9 @@ const notifications: NotificationPredicate[] = [
 			if (!meetingsToday.length)
 				return null;
 
-			const timeInMins = timeToMinutes(userDate.getHours() + ":" + userDate.getMinutes());
+			const timeInMins = userDate.getHours() * 60 + userDate.getMinutes();
 			const lastCourseEnd = meetingsToday[meetingsToday.length - 1].timeEnd;
-			if (timeInMins === lastCourseEnd) {
+			if (lastCourseEnd + user.timezoneOffset - 15 === timeInMins) {
 				const today = userDate;
 				const tomorrow = new Date(today.getTime() + DAYS);
 
@@ -105,8 +107,8 @@ const notifications: NotificationPredicate[] = [
 				return null;
 			const meetingsToday = getMeetingsOnDay(meetings, courses, getCurrentTerm(terms));
 
-			const timeMinutes = timeToMinutes(`${new Date().getHours()}:${new Date().getMinutes()}`);
-			const meetingsLater = meetingsToday.filter(t => t.timeStart > timeMinutes);
+			const timeInMins = userDate.getHours() * 60 + userDate.getMinutes();
+			const meetingsLater = meetingsToday.filter(t => t.timeStart + user.timezoneOffset > timeInMins);
 
 			const coursesLater = courses.filter(c => meetingsLater.map(m => m.courseId).includes(c.id))
 				.sort((a, b) => meetingsToday.find(m => m.courseId === a.id)!.timeStart - meetingsToday.find(m => m.courseId === b.id)!.timeStart);
