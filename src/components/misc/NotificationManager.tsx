@@ -11,7 +11,7 @@ import Button, { ButtonLooks } from "../primitives/Button";
 import Checkbox from "../primitives/Checkbox";
 import Subtext from "../primitives/Subtext";
 
-import webpush from "webpush";
+import webpush from "web-push";
 import Spinner from "../primitives/Spinner";
 import { deleteFromArray } from "@/lib/array";
 
