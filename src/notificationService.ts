@@ -1,6 +1,6 @@
 // This file does not run with nextjs; it is separate and is used to send notifications to users.
 import { config } from "dotenv";
-import { eq, isNotNull } from "drizzle-orm";
+import { eq, ne } from "drizzle-orm";
 import { exit } from "process";
 import webpush from "web-push";
 
@@ -137,7 +137,7 @@ const notifications: NotificationPredicate[] = [
 				const strs = coursesTomorrow.map(c => c.name);
 				courseText = `${todayText} Tomorrow, you have ${list(...strs)}.`;
 			}
-			const tasksToday = getTasksOnDay(tasks, new Date());
+			const tasksToday = getTasksOnDay(tasks, userDate);
 
 			if (!meetingsToday.length && !tasksToday.length)
 				return {
@@ -164,24 +164,25 @@ webpush.setVapidDetails(
 async function sendNotification(userId: string, notif: Notification) {
 	const user = (await db.select().from(usersTable).where(eq(usersTable.id, userId)))[0];
 
-	if (!user || !user.pushSubscription)
+	if (!user || !user.pushSubscriptions.length)
 		throw "No user found with push subscription";
 
 	console.log("[notif-service] Sending notification to " + userId);
 
-	try {
-		await webpush.sendNotification(
-			user.pushSubscription,
-			JSON.stringify({
-				title: notif.title,
-				body: notif.message,
-				icon: "/neptune.png",
-			})
-		);
-		return { success: true };
-	} catch (error) {
-		console.error("Error sending push notification:", error);
-		return { success: false, error: "Failed to send notification" };
+	for (const sub of user.pushSubscriptions) {
+		try {
+			await webpush.sendNotification(
+				sub,
+				JSON.stringify({
+					title: notif.title,
+					body: notif.message,
+					icon: "/neptune.png",
+				})
+			);
+		} catch (error) {
+			console.error("Error sending push notification:", error);
+			return { success: false, error: "Failed to send notification" };
+		}
 	}
 }
 
@@ -189,7 +190,7 @@ async function checkForNotifications() {
 	console.time("[notif-service] Notif check took");
 	console.log("[notif-service] Checking for notifications for all subscribed users");
 
-	const users = await db.select().from(usersTable).where(isNotNull(usersTable.pushSubscription));
+	const users = await db.select().from(usersTable).where(ne(usersTable.pushSubscriptions, []));
 
 	console.log(`[notif-service] Found ${users.length} subscribed users`);
 
@@ -227,16 +228,16 @@ async function checkForNotifications() {
 
 if (process.argv.includes("--now")) {
 	console.log("[notif-service] Started with --now flag");
-	checkForNotifications().catch(console.log);
+	checkForNotifications().catch(e => console.log(`[notif-service] Error when checking for notifications: ${e}`));
 	setInterval(() => {
-		checkForNotifications().catch(console.log);
+		checkForNotifications().catch(e => console.log(`[notif-service] Error when checking for notifications: ${e}`));
 	}, 1000 * 60);
 } else {
 	console.log("[notif-service] Starting, waiting for minute turn");
 	setTimeout(() => {
-		checkForNotifications().catch(console.log);
+		checkForNotifications().catch(e => console.log(`[notif-service] Error when checking for notifications: ${e}`));
 		setInterval(() => {
-			checkForNotifications().catch(console.log);
+			checkForNotifications().catch(e => console.log(`[notif-service] Error when checking for notifications: ${e}`));
 		}, 1000 * 60);
 		console.log("[notif-service] Started");
 	}, 1000 * (60 - new Date().getSeconds()));

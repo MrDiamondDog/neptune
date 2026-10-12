@@ -35,6 +35,7 @@ export async function getUser(): ActionRes<User | undefined> {
 		icalUrl: usersTable.icalUrl,
 		icalColor: usersTable.icalColor,
 		pushNotifications: usersTable.pushNotifications,
+		pushSubscriptions: usersTable.pushSubscriptions,
 	}).from(usersTable).where(eq(usersTable.id, user.id!)))[0] as User | undefined;
 
 	return res;

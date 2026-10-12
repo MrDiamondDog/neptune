@@ -46,7 +46,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 						timezoneOffset: user.timezoneOffset,
 						icalColor: user.icalColor,
 						pushNotifications: defaultNotificationSettings,
-						pushSubscription: null,
+						pushSubscriptions: [],
 					};
 				} catch (error) {
 					console.error("Error during authentication:", error);

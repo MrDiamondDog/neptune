@@ -31,7 +31,7 @@ export const usersTable = sqliteTable("user", {
 	icalUrl: text("icalUrl"),
 	icalColor: text("icalColor").default("#38c773").notNull(),
 
-	pushSubscription: text("pushSubscription", { mode: "json" }).default(null).$type<PushSubscription>(),
+	pushSubscriptions: text("pushSubscription", { mode: "json" }).default([]).$type<PushSubscription[]>().notNull(),
 	pushNotifications: text("pushNotifications", { mode: "json" }).default(defaultNotificationSettings).$type<Record<UserNotificationKeys, boolean>>().notNull(),
 });
 

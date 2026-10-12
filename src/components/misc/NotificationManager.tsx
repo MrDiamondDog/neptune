@@ -11,6 +11,10 @@ import Button, { ButtonLooks } from "../primitives/Button";
 import Checkbox from "../primitives/Checkbox";
 import Subtext from "../primitives/Subtext";
 
+import webpush from "webpush";
+import Spinner from "../primitives/Spinner";
+import { deleteFromArray } from "@/lib/array";
+
 function urlBase64ToUint8Array(base64String: string) {
 	const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
 	const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
@@ -31,6 +35,9 @@ export function PushNotificationManager() {
 	const [user, setUser] = useState<User>();
 
 	async function registerServiceWorker() {
+		if (!user)
+			return;
+
 		const registration = await navigator.serviceWorker.register(
 			new URL("../../lib/service-worker.js", import.meta.url),
 			{
@@ -43,6 +50,9 @@ export function PushNotificationManager() {
 	}
 
 	async function subscribeToPush() {
+		if (!user)
+			return;
+
 		const registration = await navigator.serviceWorker.ready;
 		const sub = await registration.pushManager.subscribe({
 			userVisibleOnly: true,
@@ -50,13 +60,24 @@ export function PushNotificationManager() {
 		});
 		setSubscription(sub);
 		const serializedSub = JSON.parse(JSON.stringify(sub));
-		await subscribeUser(serializedSub, defaultNotificationSettings);
+		console.log(serializedSub);
+		await subscribeUser(serializedSub, defaultNotificationSettings)
+			.then(() => setUser({ ...user, pushSubscriptions: [...user.pushSubscriptions, serializedSub] }));
 	}
 
 	async function unsubscribeFromPush() {
+		if (!user)
+			return;
+
 		await subscription?.unsubscribe();
 		setSubscription(null);
-		await unsubscribeUser();
+		const registration = await navigator.serviceWorker.ready;
+		const sub = await registration.pushManager.getSubscription();
+		if (!sub)
+			return;
+		const serializedSub = JSON.parse(JSON.stringify(sub));
+		await unsubscribeUser(serializedSub)
+			.then(() => setUser({ ...user, pushSubscriptions: deleteFromArray(user.pushSubscriptions, serializedSub) }));
 	}
 
 	async function sendTestNotification() {
@@ -72,13 +93,17 @@ export function PushNotificationManager() {
 	}
 
 	useEffect(() => {
+		getUser().then(user => {
+			setUser(user);
+		});
+	}, []);
+
+	useEffect(() => {
 		if ("serviceWorker" in navigator && "PushManager" in window) {
 			setIsSupported(true);
 			registerServiceWorker();
 		}
-
-		getUser().then(setUser);
-	}, []);
+	}, [user]);
 
 	if (!getPublicEnv().ALLOW_NOTIFICATIONS)
 		return <Subtext>Notifications have been turned off by your administrator.</Subtext>;
@@ -86,10 +111,16 @@ export function PushNotificationManager() {
 	if (!isSupported)
 		return <Subtext>Push notifications are not supported in this browser.</Subtext>;
 
-	return <div className="flex flex-col gap-2 w-full">
-		<Checkbox onCheckedChange={c => c ? subscribeToPush() : unsubscribeFromPush()} checked={!!subscription}>Allow Notifications</Checkbox>
+	if (!user)
+		return <Spinner />;
 
-		{subscription && <>
+	const deviceSub = JSON.parse(JSON.stringify(subscription)) as webpush.PushSubscription | null;
+	const thisDeviceSubbed = !!user.pushSubscriptions.find(sub => deviceSub?.endpoint === sub.endpoint);
+
+	return <div className="flex flex-col gap-2 w-full">
+		<Checkbox onCheckedChange={c => c ? subscribeToPush() : unsubscribeFromPush()} checked={thisDeviceSubbed}>Allow Notifications</Checkbox>
+
+		{thisDeviceSubbed && <>
 			{notificationKeys.map(notif => <div key={notif.key}>
 				<Checkbox checked={user?.pushNotifications[notif.key] ?? false} onCheckedChange={c => updateSetting(notif.key, c)}>{notif.name}</Checkbox>
 				<Subtext>{notif.subtext}</Subtext>
