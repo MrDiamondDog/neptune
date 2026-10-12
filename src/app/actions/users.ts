@@ -20,6 +20,7 @@ export async function getUser(): ActionRes<User | undefined> {
 			icalUrl: "",
 			icalColor: "#00ffff",
 			pushNotifications: defaultNotificationSettings,
+			pushSubscriptions: [],
 		};
 
 	const user = await authenticate();
