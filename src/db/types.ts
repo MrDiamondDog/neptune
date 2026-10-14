@@ -29,7 +29,7 @@ export const defaultNotificationSettings: UserNotificationSettings = {
 
 export const notificationKeys: { key: UserNotificationKeys, name: string, subtext: string }[] = [
 	{ key: "courses", name: "Course Reminders", subtext: "Receive a reminder 15 minutes before a class." },
-	{ key: "tasks", name: "Task Reminders", subtext: "A task reminder after your last class of the day." },
+	{ key: "tasks", name: "Task Reminders", subtext: "A task reminder after your last class of the day, and when an incomplete task is about to be due." },
 	{ key: "exams", name: "Exams", subtext: "Study reminders and good wishes for exams." },
 	{ key: "morning-overview", name: "Morning Overview", subtext: "Receive an overview of your day at 7am." },
 	{ key: "evening-overview", name: "Evening Overview", subtext: "Receive an overview of tomorrow at 9pm." }

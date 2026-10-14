@@ -71,11 +71,11 @@ const notifications: NotificationPredicate[] = [
 
 			const timeInMins = userDate.getHours() * 60 + userDate.getMinutes();
 			const lastCourseEnd = meetingsToday.length ? meetingsToday[meetingsToday.length - 1].timeEnd : -1;
-			if (lastCourseEnd + user.timezoneOffset === timeInMins || (!meetingsToday.length && userDate.getHours() === 14 && userDate.getMinutes() === 0)) {
-				const today = userDate;
-				const tomorrow = new Date(today.getTime() + DAYS);
 
-				const tasksToday = getTasksOnDay(tasks, today);
+			const today = userDate;
+			const tomorrow = new Date(today.getTime() + DAYS);
+			const tasksToday = getTasksOnDay(tasks, today);
+			if (lastCourseEnd + user.timezoneOffset === timeInMins || (!meetingsToday.length && userDate.getHours() === 14 && userDate.getMinutes() === 0)) {
 				const tasksUpcoming = [...getTasksOnDay(tasks, tomorrow), ...getTasksOnDay(tasks, new Date(tomorrow.getTime() + DAYS))];
 
 				let bodyStr = "";
@@ -92,6 +92,20 @@ const notifications: NotificationPredicate[] = [
 					message: bodyStr,
 					topic: "tasks",
 				};
+			}
+
+			for (const task of tasks) {
+				if (!task.dueDate || task.complete)
+					continue;
+				// Current date and due date are within an hour
+				const timeToDue = task.dueDate.getTime() / 1000 / 60 / 60 - new Date().getTime() / 1000 / 60 / 60;
+				console.log(timeToDue);
+				if (timeToDue < 1 && timeToDue >= 0.999)
+					return {
+						title: "Task due soon",
+						message: `${task.title} is due in 1 hour!`,
+						topic: "tasks"
+					};
 			}
 
 			return null;
@@ -170,7 +184,6 @@ async function sendNotification(userId: string, notif: Notification) {
 	console.log("[notif-service] Sending notification to " + userId);
 
 	for (const sub of user.pushSubscriptions) {
-		try {
 			await webpush.sendNotification(
 				sub,
 				JSON.stringify({
@@ -178,11 +191,7 @@ async function sendNotification(userId: string, notif: Notification) {
 					body: notif.message,
 					icon: "/neptune.png",
 				})
-			);
-		} catch (error) {
-			console.error("Error sending push notification:", error);
-			return { success: false, error: "Failed to send notification" };
-		}
+			).catch(e => console.error("Could not send push notification: " + e));
 	}
 }
 

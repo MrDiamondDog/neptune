@@ -1,19 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import webpush from "web-push";
 
 import { sendNotification, subscribeUser, unsubscribeUser } from "@/app/actions/notifications";
 import { editUser, getUser } from "@/app/actions/users";
 import { defaultNotificationSettings, notificationKeys, User, UserNotificationKeys } from "@/db/types";
+import { deleteFromArray } from "@/lib/array";
 import { getPublicEnv } from "@/public-env";
 
 import Button, { ButtonLooks } from "../primitives/Button";
 import Checkbox from "../primitives/Checkbox";
-import Subtext from "../primitives/Subtext";
-
-import webpush from "web-push";
 import Spinner from "../primitives/Spinner";
-import { deleteFromArray } from "@/lib/array";
+import Subtext from "../primitives/Subtext";
 
 function urlBase64ToUint8Array(base64String: string) {
 	const padding = "=".repeat((4 - (base64String.length % 4)) % 4);

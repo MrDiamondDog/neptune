@@ -5,10 +5,10 @@ import webpush, { PushSubscription } from "web-push";
 
 import { db, usersTable } from "@/db/schema";
 import { defaultNotificationSettings, UserNotificationSettings } from "@/db/types";
+import { deleteFromArray } from "@/lib/array";
 
 import { actionError, authenticate } from ".";
 import { getUser } from "./users";
-import { deleteFromArray } from "@/lib/array";
 
 webpush.setVapidDetails(
   "https://neptune.drewrat.dev/",
@@ -67,7 +67,6 @@ export async function sendNotification() {
 			);
 		} catch (error) {
 			console.error("Error sending push notification:", error);
-			return { success: false, error: "Failed to send notification" };
 		}
 	}
 	return { success: true };
