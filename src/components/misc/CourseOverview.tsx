@@ -3,7 +3,6 @@
 import { PopoverTrigger } from "@radix-ui/react-popover";
 
 import { Course, Meeting } from "@/db/types";
-import { getDimmedColor } from "@/lib/colors";
 import { getMeetingsOnDay, minutesToTime } from "@/lib/meetings";
 import { getCurrentTerm } from "@/lib/terms";
 import { DAYS, MINUTES, timeToMinutes } from "@/lib/time";
@@ -36,6 +35,7 @@ function CourseTitle({ course, meetings }: { course: Course, meetings: Meeting[]
 	</Popover>;
 }
 
+// TODO: Convert to Temporal
 export default function CourseOverview() {
 	const data = useApp();
 

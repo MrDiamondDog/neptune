@@ -14,6 +14,7 @@ import Greeting from "@/components/misc/Greeting";
 import Header from "@/components/misc/Header";
 import TaskOverview from "@/components/misc/TaskOverview";
 import Button, { ButtonLooks } from "@/components/primitives/Button";
+import Checkbox from "@/components/primitives/Checkbox";
 import Divider from "@/components/primitives/Divider";
 import Subtext from "@/components/primitives/Subtext";
 import EditTask from "@/components/tasks/EditTask";
@@ -27,8 +28,8 @@ import { getCurrentTerm } from "@/lib/terms";
 import { DAYS } from "@/lib/time";
 
 import { getCalendarEvents, getUser } from "../actions/users";
-import Checkbox from "@/components/primitives/Checkbox";
 
+// TODO: Convert to Temporal
 export default function App() {
 	const data = useApp();
 	const { courses, meetings, tasks, terms } = data;

@@ -1,7 +1,7 @@
-import { DateInput } from "@fullcalendar/core/index.js";
 import { createClient } from "@libsql/client";
 import { drizzle } from "drizzle-orm/libsql";
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { Temporal } from "temporal-spec";
 import { PushSubscription } from "web-push";
 
 import { defaultNotificationSettings, UserNotificationKeys } from "./types";
@@ -44,9 +44,9 @@ export const termsTable = sqliteTable("term", {
 	year: integer("year").notNull(),
 
 	// Start must be a Sunday.
-	start: integer("start", { mode: "timestamp" }).notNull(),
+	start: integer("start").notNull(),
 	// End must be a Saturday.
-	end: integer("end", { mode: "timestamp" }).notNull(),
+	end: integer("end").notNull(),
 });
 
 // Represents a course. Each course is divided into sections.
@@ -90,7 +90,7 @@ export const meetingsTable = sqliteTable("meeting", {
 	location: text("location"),
 	// A list of excluded dates this meeting will not happen on.
 	exclusions: text("exclusions", { mode: "json" }).default([])
-		.$type<DateInput[]>()
+		.$type<Temporal.Instant[]>()
 });
 
 export const tasksTable = sqliteTable("task", {
@@ -100,8 +100,8 @@ export const tasksTable = sqliteTable("task", {
 	title: text("title").notNull(),
 	// The title before any auto-fill options were removed
 	originalTitle: text("originalTitle").notNull(),
-	complete: integer("complete", { mode: "timestamp" }),
-	dueDate: integer("dueDate", { mode: "timestamp" }),
+	complete: integer("complete"),
+	dueDate: integer("dueDate"),
 	// Optionally attach a course to this task.
 	courseId: text("courseId").references(() => coursesTable.id, { onDelete: "cascade" }),
 	link: text("link"),
@@ -114,7 +114,7 @@ export const studySessionsTable = sqliteTable("studySessions", {
 	userId: text("userId").references(() => usersTable.id, { onDelete: "cascade" }).notNull(),
 
 	type: text("type", { enum: ["pomodoro", "flashcards", "quiz"] }).notNull(),
-	date: integer("date", { mode: "timestamp" }).notNull(),
+	date: integer("date").notNull(),
 	secondsElapsed: integer("secondsElapsed").notNull()
 });
 
@@ -124,5 +124,5 @@ export const flashcardsTable = sqliteTable("flashcards", {
 
 	name: text("name").notNull(),
 	data: text("data", { mode: "json" }).$type<[string, string][]>().notNull(),
-	lastUsed: integer("lastUsed", { mode: "timestamp" }),
+	lastUsed: integer("lastUsed"),
 });

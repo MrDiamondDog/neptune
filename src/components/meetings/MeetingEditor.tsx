@@ -18,6 +18,7 @@ const daysOfWeek = {
 	"S": "Sat"
 };
 
+// TODO: Convert to Temporal (exclusions)
 export default function MeetingEditor({ meeting, onChange, onDelete }: {
 	meeting: MeetingInsert,
 	onChange: (m: MeetingInsert) => void,

@@ -10,6 +10,7 @@ import Button from "../primitives/Button";
 import Input from "../primitives/Input";
 import { PopoverArrow,PopoverContent } from "../primitives/Popover";
 
+// TODO: Convert to Temporal
 export default function EditTermPopover({ term: defaultTerm, onCreate, side }: { term?: Term, onCreate?: (term: Term) => void, side?: "right" | "top" | "bottom" | "left" }) {
 	const { dispatch } = useApp();
 

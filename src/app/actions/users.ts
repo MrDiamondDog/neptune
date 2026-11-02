@@ -42,6 +42,7 @@ export async function getUser(): ActionRes<User | undefined> {
 	return res;
 }
 
+// TODO: Convert to Temporal
 export async function getCalendarEvents(): ActionRes<CalendarEvent[]> {
 	const user = await authenticate();
 

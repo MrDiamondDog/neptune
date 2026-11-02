@@ -1,12 +1,13 @@
 "use client";
 
-import { DateInput, DurationInput, EventClickArg, EventContentArg } from "@fullcalendar/core/index.js";
+import { EventClickArg, EventContentArg } from "@fullcalendar/core/index.js";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import iCalendarPlugin from "@fullcalendar/icalendar";
 import FullCalendar from "@fullcalendar/react";
 import rrulePlugin from "@fullcalendar/rrule";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import { useEffect, useState } from "react";
+import type { Temporal } from "temporal-spec";
 
 import { Course, Task } from "@/db/types";
 import { MINUTES, prettyTime, prettyTimeRange } from "@/lib/time";
@@ -21,8 +22,8 @@ import TaskPopover from "../tasks/TaskPopover";
 export type CalendarEvent = {
 	id?: string;
 	title: string;
-	start: DateInput;
-	end?: DateInput;
+	start: Temporal.PlainDateTime;
+	end?: Temporal.PlainDateTime;
 	allDay?: boolean;
 	color?: string;
 	borderColor?: string;
@@ -32,13 +33,14 @@ export type RecurringEvent = {
 	id?: string;
 	title: string;
 	allDay?: boolean;
-	duration: DurationInput;
+	duration: Temporal.Duration;
 	color?: string;
 	borderColor?: string;
 	rrule: string;
-	exdate?: DateInput[]
+	exdate?: Temporal.Instant[]
 };
 
+// TODO: Convert to Temporal
 function getEventText(props: EventContentArg) {
 	if (props.event.allDay || !props.event.start || !props.event.end)
 		return `<div class="text-xs! ${props.event.id.includes("-COMPLETE") ? "line-through" : ""}">${props.event.title}</div>`;
@@ -54,6 +56,7 @@ function getEventText(props: EventContentArg) {
 		return `<p class="text-[10px]! overflow-hidden">${monthViewDot}${prettyTimeRange(start, end).replaceAll(":00", "")}\n<b class="text-[10px]! overflow-hidden ${props.event.id.includes("-COMPLETE") ? "line-through" : ""}">${props.event.title}</b></p>`;
 }
 
+// TODO: Convert to Temporal
 export default function Calendar({ events }: { events: (CalendarEvent | RecurringEvent)[] }) {
 	const { courses, meetings, tasks } = useApp();
 

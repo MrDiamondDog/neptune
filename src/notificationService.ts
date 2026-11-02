@@ -37,6 +37,7 @@ type NotificationPredicate = {
 	predicate: (user: { user: User, terms: Term[], courses: Course[], meetings: Meeting[], tasks: Task[] }) => Notification | null;
 };
 
+// TODO: Convert to Temporal
 const notifications: NotificationPredicate[] = [
 	{
 		// Reminders for courses soon
@@ -99,7 +100,6 @@ const notifications: NotificationPredicate[] = [
 					continue;
 				// Current date and due date are within an hour
 				const timeToDue = task.dueDate.getTime() / 1000 / 60 / 60 - new Date().getTime() / 1000 / 60 / 60;
-				console.log(timeToDue);
 				if (timeToDue < 1 && timeToDue >= 0.999)
 					return {
 						title: "Task due soon",
