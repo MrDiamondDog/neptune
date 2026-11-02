@@ -5,7 +5,7 @@ import { NeptuneData } from "@/components/context/NeptuneContext";
 import { Course, Meeting, MeetingInsert, Term } from "@/db/types";
 
 import { getDimmedColor } from "./colors";
-import { DAYS, MINUTES, toUTCDate } from "./time";
+import { DAYS, HOURS, inDST, MINUTES, toUTCDate } from "./time";
 
 
 const daysOfWeek = {
@@ -54,6 +54,8 @@ export function prettyDaysOfWeek(days: string): string {
  */
 export function minutesToTime(mins: number, mode: "24" | "12" = "12", tzOffset?: number): string {
 	mins += tzOffset ?? new Date().getTimezoneOffset();
+	if (!inDST(new Date()))
+		mins -= 60;
 
 	let hours = Math.floor(mins / 60);
 	const minutes = mins - hours * 60;
@@ -97,7 +99,8 @@ export function meetingToCalendar(data: NeptuneData, meetingId: string): Recurri
 		term.start.getTime() +
 		(DAYS * dayOrder.indexOf(sortDaysOfWeek(meeting.days)[0])) +
 		(MINUTES * meeting.timeStart) +
-		(MINUTES * new Date().getTimezoneOffset())
+		(MINUTES * new Date().getTimezoneOffset()) +
+		(!inDST(new Date()) ? -HOURS : 0)
 	);
 
 	let byweekday: Weekday[] = [];
