@@ -8,7 +8,7 @@ import { useApp } from "@/components/context/NeptuneContext";
 import Button from "@/components/primitives/Button";
 import Divider from "@/components/primitives/Divider";
 import Subtext from "@/components/primitives/Subtext";
-import { relativeDate } from "@/lib/time";
+import { epochToTemporal, relativeDate } from "@/lib/time";
 
 export default function FlashcardsPage() {
 	const { flashcards } = useApp();
@@ -28,7 +28,7 @@ export default function FlashcardsPage() {
 				onClick={() => router.push(`/app/study/flashcards/${f.id}`)}>
 				<h3>{f.name}</h3>
 				<Subtext>{f.data.length} flashcards</Subtext>
-				<Subtext>Last used {f.lastUsed ? relativeDate(f.lastUsed) : "never"}</Subtext>
+				<Subtext>Last used {f.lastUsed ? relativeDate(epochToTemporal(f.lastUsed)) : "never"}</Subtext>
 			</div>)}
 		</div>}
 		{!flashcards.length && <Subtext>You have no flashcard sets!</Subtext>}

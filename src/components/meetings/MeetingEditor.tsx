@@ -1,8 +1,7 @@
 import { Plus, Trash2, X } from "lucide-react";
 
 import { MeetingInsert } from "@/db/types";
-import { sortDaysOfWeek } from "@/lib/meetings";
-import { minutesToTime, prettyDate, timeToMinutes } from "@/lib/time";
+import { epochToTemporal, minutesToTime, prettyDate, sortDaysOfWeek, timeToMinutes } from "@/lib/time";
 
 import Button, { ButtonLooks } from "../primitives/Button";
 import Input from "../primitives/Input";
@@ -18,7 +17,6 @@ const daysOfWeek = {
 	"S": "Sat"
 };
 
-// TODO: Convert to Temporal (exclusions)
 export default function MeetingEditor({ meeting, onChange, onDelete }: {
 	meeting: MeetingInsert,
 	onChange: (m: MeetingInsert) => void,
@@ -46,25 +44,27 @@ export default function MeetingEditor({ meeting, onChange, onDelete }: {
 				label="Start Time"
 				type="time"
 				className="w-full"
-				value={minutesToTime(meeting.timeStart)}
+				value={minutesToTime(meeting.timeStart - new Date().getTimezoneOffset())}
 				onChange={t => onChange({ ...meeting, timeStart: timeToMinutes(t) })}
 			/>
 			<Input
 				label="End Time"
 				type="time"
 				className="w-full"
-				value={minutesToTime(meeting.timeEnd)}
+				value={minutesToTime(meeting.timeEnd - new Date().getTimezoneOffset())}
 				onChange={t => onChange({ ...meeting, timeEnd: timeToMinutes(t) })}
 			/>
 		</div>
 
-		<p>Excluded Dates</p>
-		{(Array.isArray(meeting.exclusions) && !!meeting.exclusions?.length) && <div className="grid grid-cols-2 gap-2">
-			{meeting.exclusions.map(e => <div className="flex justify-between items-center bg-bg-lighter p-2" key={e.toString()}>
-				<p>{prettyDate(new Date(e.toString()), "hide")}</p>
-				<X className="text-gray-400 cursor-pointer" onClick={() => onChange({ ...meeting, exclusions: [...(meeting.exclusions ?? []).filter(me => me !== e)] })} />
-			</div>)}
-		</div>}
+		{(Array.isArray(meeting.exclusions) && !!meeting.exclusions?.length) && <>
+			<p>Excluded Dates</p>
+			<div className="grid grid-cols-2 gap-2">
+				{meeting.exclusions.map(e => <div className="flex justify-between items-center bg-bg-lighter p-2" key={e.toString()}>
+					<p>{prettyDate(epochToTemporal(e), "hide")}</p>
+					<X className="text-gray-400 cursor-pointer" onClick={() => onChange({ ...meeting, exclusions: [...(meeting.exclusions ?? []).filter(me => me !== e)] })} />
+				</div>)}
+			</div>
+		</>}
 
 		<div className="flex w-full items-end gap-2">
 			<div className="w-full">

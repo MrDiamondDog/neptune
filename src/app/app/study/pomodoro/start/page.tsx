@@ -81,7 +81,7 @@ export default function StartPomodoroPage() {
 		setActive(false);
 		createStudySession({
 			type: "pomodoro",
-			date: start,
+			date: start.getTime(),
 			secondsElapsed
 		}).catch(e => throwToast("Could not create study session.", e));
 	}

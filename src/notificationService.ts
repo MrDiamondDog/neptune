@@ -1,4 +1,7 @@
 // This file does not run with nextjs; it is separate and is used to send notifications to users.
+import "temporal-polyfill/global";
+import "temporal-polyfill/types/global";
+
 import { config } from "dotenv";
 import { eq, ne } from "drizzle-orm";
 import { exit } from "process";
@@ -9,8 +12,9 @@ import { Course, Meeting, Task, Term, User, UserNotificationKeys } from "./db/ty
 import { getMeetingsOnDay } from "./lib/meetings";
 import { list } from "./lib/string";
 import { getCurrentTerm } from "./lib/terms";
-import { DAYS, MINUTES, minutesToTime } from "./lib/time";
+import { epochToTemporal, minutesToTime } from "./lib/time";
 
+// i am going to kill whoever made dotenv why did you sell out that hard
 config({ quiet: true });
 
 if (process.env.ALLOW_NOTIFICATIONS !== "true") {
@@ -20,10 +24,12 @@ if (process.env.ALLOW_NOTIFICATIONS !== "true") {
 
 process.env.TZ = "Etc/UTC";
 
-function getTasksOnDay(tasks: Task[], day: Date) {
-	return tasks.filter(t => !t.complete && t.dueDate && t.dueDate.getFullYear() === day.getFullYear() &&
-		t.dueDate.getMonth() === day.getMonth() &&
-		t.dueDate.getDate() === day.getDate());
+function getTasksOnDay(tasks: Task[], day: Temporal.PlainDateTime) {
+	return tasks.filter(t =>
+		!t.complete &&
+		t.dueDate &&
+		epochToTemporal(t.dueDate).round({ roundingMode: "floor", smallestUnit: "day" }).equals(day.round({ roundingMode: "floor", smallestUnit: "day" }))
+	);
 }
 
 type Notification = {
@@ -37,21 +43,20 @@ type NotificationPredicate = {
 	predicate: (user: { user: User, terms: Term[], courses: Course[], meetings: Meeting[], tasks: Task[] }) => Notification | null;
 };
 
-// TODO: Convert to Temporal
 const notifications: NotificationPredicate[] = [
 	{
 		// Reminders for courses soon
 		key: "courses",
 		predicate: ({ user, courses, meetings, terms }) => {
-			const userDate = new Date(new Date().getTime() - user.timezoneOffset * MINUTES);
+			const userDate = Temporal.Now.plainDateTimeISO(user.timezone);
 			const meetingsToday = getMeetingsOnDay(meetings, courses, getCurrentTerm(terms));
 			if (!meetingsToday.length)
 				return null;
 
-			const timeInMins = userDate.getHours() * 60 + userDate.getMinutes();
+			const timeInMins = userDate.hour * 60 + userDate.minute;
 			for (const meeting of meetingsToday) {
 				const course = courses.find(c => c.id === meeting.courseId)!;
-				if (meeting.timeStart + user.timezoneOffset - 15 === timeInMins) {
+				if (meeting.timeStart - 15 === timeInMins) {
 					return {
 						title: "Reminder",
 						message: `${course.name} starts in 15 minutes!`,
@@ -67,17 +72,17 @@ const notifications: NotificationPredicate[] = [
 		// List of tasks after all classes are done
 		key: "tasks",
 		predicate: ({ user, meetings, courses, terms, tasks }) => {
-			const userDate = new Date(new Date().getTime() - user.timezoneOffset * MINUTES);
+			const userDate = Temporal.Now.plainDateTimeISO(user.timezone);
 			const meetingsToday = getMeetingsOnDay(meetings, courses, getCurrentTerm(terms)).sort((a, b) => a.timeStart - b.timeStart);
 
-			const timeInMins = userDate.getHours() * 60 + userDate.getMinutes();
+			const timeInMins = userDate.hour * 60 + userDate.minute;
 			const lastCourseEnd = meetingsToday.length ? meetingsToday[meetingsToday.length - 1].timeEnd : -1;
 
 			const today = userDate;
-			const tomorrow = new Date(today.getTime() + DAYS);
+			const tomorrow = userDate.add({ days: 1 });
 			const tasksToday = getTasksOnDay(tasks, today);
-			if (lastCourseEnd + user.timezoneOffset === timeInMins || (!meetingsToday.length && userDate.getHours() === 14 && userDate.getMinutes() === 0)) {
-				const tasksUpcoming = [...getTasksOnDay(tasks, tomorrow), ...getTasksOnDay(tasks, new Date(tomorrow.getTime() + DAYS))];
+			if (lastCourseEnd + user.timezoneOffset === timeInMins || (!meetingsToday.length && userDate.hour === 14 && userDate.minute === 0)) {
+				const tasksUpcoming = [...getTasksOnDay(tasks, tomorrow), ...getTasksOnDay(tasks, tomorrow.add({ days: 1 }))];
 
 				let bodyStr = "";
 
@@ -99,7 +104,7 @@ const notifications: NotificationPredicate[] = [
 				if (!task.dueDate || task.complete)
 					continue;
 				// Current date and due date are within an hour
-				const timeToDue = task.dueDate.getTime() / 1000 / 60 / 60 - new Date().getTime() / 1000 / 60 / 60;
+				const timeToDue = task.dueDate / 1000 / 60 / 60 - Temporal.Now.instant().epochMilliseconds / 1000 / 60 / 60;
 				if (timeToDue < 1 && timeToDue >= 0.999)
 					return {
 						title: "Task due soon",
@@ -114,12 +119,12 @@ const notifications: NotificationPredicate[] = [
 	{
 		key: "morning-overview",
 		predicate: ({ user, terms, courses, meetings, tasks }) => {
-			const userDate = new Date(new Date().getTime() - user.timezoneOffset * MINUTES);
-			if (userDate.getHours() !== 7 || userDate.getMinutes() !== 0)
+			const userDate = Temporal.Now.plainDateTimeISO(user.timezone);
+			if (userDate.hour !== 7 || userDate.minute !== 0)
 				return null;
 			const meetingsToday = getMeetingsOnDay(meetings, courses, getCurrentTerm(terms));
 
-			const timeInMins = userDate.getHours() * 60 + userDate.getMinutes();
+			const timeInMins = userDate.hour * 60 + userDate.minute;
 			const meetingsLater = meetingsToday.filter(t => t.timeStart + user.timezoneOffset > timeInMins);
 
 			const coursesLater = courses.filter(c => meetingsLater.map(m => m.courseId).includes(c.id))
@@ -138,7 +143,7 @@ const notifications: NotificationPredicate[] = [
 				courseText = `You have ${list(...strs)}.`;
 			// No meetings today
 			} else if (!meetingsToday.length || !meetingsLater.length) {
-				const meetingsTomorrow = getMeetingsOnDay(meetings, courses, getCurrentTerm(terms), new Date(new Date().getTime() + 1 * DAYS));
+				const meetingsTomorrow = getMeetingsOnDay(meetings, courses, getCurrentTerm(terms), userDate.add({ days: 1 }));
 
 				const coursesTomorrow = courses.filter(c => meetingsTomorrow.map(m => m.courseId).includes(c.id))
 						.sort((a, b) => meetingsTomorrow.find(m => m.courseId === a.id)!.timeStart - meetingsTomorrow.find(m => m.courseId === b.id)!.timeStart);
@@ -199,6 +204,8 @@ async function checkForNotifications() {
 	console.time("[notif-service] Notif check took");
 	console.log("[notif-service] Checking for notifications for all subscribed users");
 
+	console.log(`[notif-service] Current Time: ${Temporal.Now.plainDateTimeISO().toLocaleString()}`);
+
 	const users = await db.select().from(usersTable).where(ne(usersTable.pushSubscriptions, []));
 
 	console.log(`[notif-service] Found ${users.length} subscribed users`);
@@ -249,5 +256,5 @@ if (process.argv.includes("--now")) {
 			checkForNotifications().catch(e => console.log(`[notif-service] Error when checking for notifications: ${e}`));
 		}, 1000 * 60);
 		console.log("[notif-service] Started");
-	}, 1000 * (60 - new Date().getSeconds()));
+	}, 1000 * (60 - Temporal.Now.plainDateTimeISO().second));
 }

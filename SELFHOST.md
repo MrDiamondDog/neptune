@@ -89,3 +89,19 @@ To update:
 
 If the update includes a database migration, run this command and follow the prompts.
 - `docker exec -it neptune pnpm exec drizzle-kit push --allow-builds`
+
+### Super Specific Notes
+
+If you were using a version from before the temporal rework, you'll have to do this migration:
+```sql
+-- The -6 here is your timezone offset!
+UPDATE meeting SET timeStart = timeStart - 60 * -6;
+UPDATE meeting SET timeEnd = timeEnd - 60 * -6;
+UPDATE meeting SET exclusions = (SELECT json_group_array(value * 1000) FROM (SELECT value FROM json_each(meeting.exclusions) ORDER BY key)) WHERE exclusions IS NOT NULL;
+UPDATE task SET dueDate = dueDate * 1000;
+UPDATE task SET complete = complete * 1000;
+UPDATE term SET start = start * 1000;
+UPDATE term SET end = end * 1000;
+UPDATE flashcards SET lastUsed = lastUsed * 1000;
+UPDATE studySessions SET date = date * 1000;
+```

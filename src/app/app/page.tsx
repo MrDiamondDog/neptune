@@ -29,7 +29,6 @@ import { DAYS } from "@/lib/time";
 
 import { getCalendarEvents, getUser } from "../actions/users";
 
-// TODO: Convert to Temporal
 export default function App() {
 	const data = useApp();
 	const { courses, meetings, tasks, terms } = data;
@@ -61,7 +60,11 @@ export default function App() {
 		.filter(course => {
 			// Gets all of the courses for the given view mode, then returns only the courses that have meetings within the view
 			const courseMeetings = meetings.filter(m => m.courseId === course.id);
-			const day = new Date(new Date().getTime() + (courseViewMode === "tomorrow" ? 1 * DAYS : 0));
+
+			let day = Temporal.Now.plainDateTimeISO();
+			if (courseViewMode === "tomorrow")
+				day = day.add({ days: 1 });
+
 			const courseMeetingsToday = courseViewMode === "all" ? courseMeetings : getMeetingsOnDay(courseMeetings, courses, getCurrentTerm(data.terms), day);
 
 			return courseMeetingsToday.length >= 1;
@@ -70,7 +73,10 @@ export default function App() {
 			const aCourseMeetings = meetings.filter(m => m.courseId === a.id);
 			const bCourseMeetings = meetings.filter(m => m.courseId === b.id);
 
-			const day = new Date(new Date().getTime() + (courseViewMode === "tomorrow" ? 1 * DAYS : 0));
+			let day = Temporal.Now.plainDateTimeISO();
+			if (courseViewMode === "tomorrow")
+				day = day.add({ days: 1 });
+
 			const aMeetingsToday = courseViewMode === "all" ? aCourseMeetings : getMeetingsOnDay(aCourseMeetings, courses, getCurrentTerm(data.terms), day);
 			const bMeetingsToday = courseViewMode === "all" ? bCourseMeetings : getMeetingsOnDay(bCourseMeetings, courses, getCurrentTerm(data.terms), day);
 
@@ -85,7 +91,7 @@ export default function App() {
 			.filter(task => {
 				if (showComplete)
 					return true;
-				if (task.complete && new Date().getTime() - task.complete.getTime() >= 1 * DAYS)
+				if (task.complete && Temporal.Now.instant().epochMilliseconds - task.complete >= 1 * DAYS)
 					return false;
 				return true;
 			})
@@ -94,9 +100,9 @@ export default function App() {
 				today1159.setHours(23);
 				today1159.setMinutes(59);
 				today1159.setSeconds(59);
-				const dueDate = task.dueDate ?? today1159;
+				const dueDate = task.dueDate ?? today1159.getTime();
 
-				if (dueDate.getTime() - today1159.getTime() <= taskFilterDays * DAYS)
+				if (dueDate - today1159.getTime() <= taskFilterDays * DAYS)
 					return true;
 				return false;
 			})

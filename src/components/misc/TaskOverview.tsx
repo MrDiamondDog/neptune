@@ -1,7 +1,7 @@
 import { Popover, PopoverTrigger } from "@radix-ui/react-popover";
 
 import { Task } from "@/db/types";
-import { DAYS, WEEKS } from "@/lib/time";
+import { epochToTemporal, WEEKS } from "@/lib/time";
 
 import { useApp } from "../context/NeptuneContext";
 import { PopoverContent } from "../primitives/Popover";
@@ -24,22 +24,24 @@ export function TaskTitle({ task }: { task: Task }) {
 	</Popover>;
 }
 
-// TODO: Convert to Temporal
 export default function TaskOverview() {
 	const { tasks } = useApp();
 
-	const today = new Date();
-	const tomorrow = new Date(today.getTime() + DAYS);
+	const today = Temporal.Now.plainDateTimeISO();
+	const now = Temporal.Now.instant();
+	const tomorrow = today.add({ days: 1 });
 
-	function getTasksOnDay(day: Date) {
-		return tasks.filter(t => !t.complete && t.dueDate && t.dueDate.getFullYear() === day.getFullYear() &&
-			t.dueDate.getMonth() === day.getMonth() &&
-			t.dueDate.getDate() === day.getDate());
+	function getTasksOnDay(day: Temporal.PlainDateTime) {
+		return tasks.filter(t =>
+			!t.complete &&
+			t.dueDate &&
+			epochToTemporal(t.dueDate).round({ roundingMode: "floor", smallestUnit: "day" }).equals(day.round({ roundingMode: "floor", smallestUnit: "day" }))
+		);
 	}
 
 	const tasksToday = getTasksOnDay(today);
-	const tasksUpcoming = [...getTasksOnDay(tomorrow), ...getTasksOnDay(new Date(tomorrow.getTime() + DAYS))];
-	const tasksThisWeek = tasks.filter(t => !t.complete && t.dueDate && t.dueDate.getTime() - new Date().getTime() < WEEKS);
+	const tasksUpcoming = [...getTasksOnDay(tomorrow), ...getTasksOnDay(tomorrow.add({ days: 1 }))];
+	const tasksThisWeek = tasks.filter(t => !t.complete && t.dueDate && t.dueDate - now.epochMilliseconds < WEEKS);
 
 	if (tasksToday.length)
 		return <p>Tonight, you need to finish <NodeList nodes={tasksToday.map(t => <TaskTitle task={t} key={t.id} />)} />. {!!tasksUpcoming.length && `You have ${tasksUpcoming.length} other tasks to work on due soon.`}</p>;

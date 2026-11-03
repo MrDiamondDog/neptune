@@ -6,7 +6,7 @@ import ical, { VEvent } from "node-ical";
 import { CalendarEvent } from "@/components/calendars/Calendar";
 import { db, usersTable } from "@/db/schema";
 import { defaultNotificationSettings, User } from "@/db/types";
-import { DAYS, getTimezoneOffset, HOURS, inDST, MINUTES, YEARS } from "@/lib/time";
+import { YEARS } from "@/lib/time";
 
 import { actionError, ActionRes, authenticate } from ".";
 
@@ -16,7 +16,7 @@ export async function getUser(): ActionRes<User | undefined> {
 			id: "0",
 			email: "demo@neptune-demo.drewrat.dev",
 			name: "Demo User",
-			timezoneOffset: 0,
+			timezone: "America/Denver",
 			icalUrl: "",
 			icalColor: "#00ffff",
 			pushNotifications: defaultNotificationSettings,
@@ -30,9 +30,10 @@ export async function getUser(): ActionRes<User | undefined> {
 
 	// Everything but password and pushSubscription field
 	const res = (await db.select({
+		id: usersTable.id,
 		email: usersTable.email,
 		name: usersTable.name,
-		timezoneOffset: usersTable.timezoneOffset,
+		timezone: usersTable.timezone,
 		icalUrl: usersTable.icalUrl,
 		icalColor: usersTable.icalColor,
 		pushNotifications: usersTable.pushNotifications,
@@ -42,7 +43,6 @@ export async function getUser(): ActionRes<User | undefined> {
 	return res;
 }
 
-// TODO: Convert to Temporal
 export async function getCalendarEvents(): ActionRes<CalendarEvent[]> {
 	const user = await authenticate();
 
@@ -63,15 +63,11 @@ export async function getCalendarEvents(): ActionRes<CalendarEvent[]> {
 		return [];
 
 	const timezone = calendar.vcalendar?.["WR-TIMEZONE"] ?? "UTC";
+	// just in case...
 	process.env.TZ = timezone;
-	const timezoneOffset = getTimezoneOffset(timezone);
 
 	// Returns an array to handle recurring events
 	function convertIcalEvent(event: VEvent): CalendarEvent[] {
-		// The stupidest workaround imo
-		const dst = inDST(event.start) ? 0 : -1 * HOURS;
-		const offsetTime = (t: Date) => new Date(t.getTime() + timezoneOffset * MINUTES + dst);
-
 		if (event.rrule)
 			// Expand recurring events +/- 10 years
 			// This doesn't expand them to recur for 10 years, it's just the boundaries
@@ -82,8 +78,8 @@ export async function getCalendarEvents(): ActionRes<CalendarEvent[]> {
 				id: `ical-${event.uid}-${i}`,
 				title: instance.summary.toString(),
 				allDay: !!event.start.dateOnly,
-				start: event.start.dateOnly ? instance.start : offsetTime(instance.start),
-				end: event.start.dateOnly ? instance.end : offsetTime(instance.end ?? new Date(instance.start.getTime() + 1 * DAYS)),
+				start: instance.start,
+				end: instance.end,
 				color: dbUser!.icalColor,
 			}));
 
@@ -91,8 +87,8 @@ export async function getCalendarEvents(): ActionRes<CalendarEvent[]> {
 			id: `ical-${event.uid}`,
 			title: event.summary.toString(),
 			allDay: !!event.start.dateOnly,
-			start: event.start.dateOnly ? event.start : offsetTime(event.start),
-			end: event.start.dateOnly ? event.end : offsetTime(event.end ?? new Date(event.start.getTime() + 1 * DAYS)),
+			start: event.start,
+			end: event.end,
 			color: dbUser!.icalColor,
 		}];
 	}

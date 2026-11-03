@@ -50,8 +50,8 @@ export default function FlashcardPage({ params }: { params: Promise<{ id: string
 			return;
 
 		setLoading(true);
-		await editFlashcard({ id, lastUsed: new Date() });
-		await createStudySession({ date: new Date(), secondsElapsed, type: "flashcards" });
+		await editFlashcard({ id, lastUsed: new Date().getTime() });
+		await createStudySession({ date: new Date().getTime(), secondsElapsed, type: "flashcards" });
 		setLoading(false);
 		router.push("/app/study/flashcards");
 	}

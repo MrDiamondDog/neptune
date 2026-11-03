@@ -1,40 +1,16 @@
+
 import { eq } from "drizzle-orm";
 import ical, { ICalEventBusyStatus, ICalEventRepeatingFreq, ICalEventTransparency, ICalWeekday } from "ical-generator";
 import { NextRequest, NextResponse } from "next/server";
-import { RRule } from "rrule";
 
-import { coursesTable, db, meetingsTable,tasksTable,termsTable, usersTable } from "@/db/schema";
-import { getUniqueInstructors, getUniqueLocations, minutesToTime, prettyDaysOfWeek, sortDaysOfWeek } from "@/lib/meetings";
-import { DAYS, MINUTES, toUTCDate } from "@/lib/time";
+import { coursesTable, db, meetingsTable,termsTable, usersTable } from "@/db/schema";
+import { getUniqueInstructors, getUniqueLocations, minutesToTime, prettyDaysOfWeek } from "@/lib/meetings";
+import { epochToTemporal, rruleDaysOfWeek, sortDaysOfWeek } from "@/lib/time";
 
-const daysOfWeek = [..."UMTWRFS"];
-const icalDaysOfWeek = {
-	U: "SU",
-	M: "MO",
-	T: "TU",
-	W: "WE",
-	R: "TH",
-	F: "FR",
-	S: "SA"
-};
-const rruleDaysOfWeek = {
-	U: RRule.SU,
-	M: RRule.MO,
-	T: RRule.TU,
-	W: RRule.WE,
-	R: RRule.TH,
-	F: RRule.FR,
-	S: RRule.SA
-};
-
-// TODO: Convert to Temporal
 /**
  * This API route responds with a valid iCal file to use within other calendar apps.
  */
 export async function GET(req: NextRequest, ctx: RouteContext<"/api/ical/[userId]">) {
-	// Javascript dates are the stupidest thing ever, this is what you have to do to make it consistent across timezones
-	process.env.TZ = "Etc/UTC";
-
 	const params = await ctx.params;
 	const userId = params.userId.replace(".ics", "");
 
@@ -46,11 +22,10 @@ export async function GET(req: NextRequest, ctx: RouteContext<"/api/ical/[userId
 	const terms = await db.select().from(termsTable).where(eq(termsTable.userId, userId));
 	const courses = await db.select().from(coursesTable).where(eq(coursesTable.userId, userId));
 	const meetings = await db.select().from(meetingsTable).where(eq(meetingsTable.userId, userId));
-	const tasks = await db.select().from(tasksTable).where(eq(tasksTable.userId, userId));
 
 	const calendar = ical({
 		name: "Neptune",
-		timezone: "America/Denver"
+		timezone: "Etc/Utc"
 	});
 
 	meetings.forEach(meeting => {
@@ -60,15 +35,11 @@ export async function GET(req: NextRequest, ctx: RouteContext<"/api/ical/[userId
 
 		const meetingDays = sortDaysOfWeek(meeting.days);
 
-		// Term start time + the day of week to position the first event correctly + start time.
-		const recurStartTime = new Date(
-			term.start.getTime() +
-			(DAYS * daysOfWeek.indexOf(meetingDays[0])) +
-			(meeting.timeStart * MINUTES)
-		);
+		const recurStartTime = epochToTemporal(term.start)
+			.add({ minutes: meeting.timeStart });
 
 		// Converts meeting days to ical format
-		const recurByDay = [...meetingDays].map(d => icalDaysOfWeek[d as keyof typeof icalDaysOfWeek]);
+		const recurByDay = [...meetingDays].map(d => rruleDaysOfWeek[d as keyof typeof rruleDaysOfWeek]);
 
 		let description = `${course.subject}${course.number}\n`;
 
@@ -81,26 +52,23 @@ export async function GET(req: NextRequest, ctx: RouteContext<"/api/ical/[userId
 			description += `${uniqueLocations[0]}\n`;
 
 		allCourseMeetings.forEach(m => description +=
-			`${prettyDaysOfWeek(m.days)} | ${minutesToTime(m.timeStart, "12", user.timezoneOffset)} - ${minutesToTime(m.timeEnd, "12", user.timezoneOffset)} ` +
+			`${prettyDaysOfWeek(m.days)} | ${minutesToTime(m.timeStart, "12")} - ${minutesToTime(m.timeEnd, "12")} ` +
 			(uniqueLocations.length > 1 ? `| ${m.location} ` : "") +
 			(uniqueInstructors.length > 1 ? `| ${m.instructor} ` : "") + "\n"
 		);
 
-		// Make sure it's an array, (fixed) db bug that put in "[]" instead of [] as the default
 		const exclusions = (Array.isArray(meeting.exclusions) ? meeting.exclusions : [])
-			.map(e => new Date(e.toString()))
-			// Filter out invalid dates (old db bug that I fixed)
-			.filter(d => !Number.isNaN(d.getTime()));
+			.map(e => epochToTemporal(e));
 
 		calendar.createEvent({
 			summary: course.name,
-			start: toUTCDate(recurStartTime),
+			start: recurStartTime,
 			// Start time + duration in minutes
-			end: toUTCDate(new Date(recurStartTime.getTime() + MINUTES * (meeting.timeEnd - meeting.timeStart))).toISOString(),
+			end: recurStartTime.add({ minutes: meeting.timeEnd - meeting.timeStart }),
 			repeating: {
 				freq: ICalEventRepeatingFreq.WEEKLY,
 				startOfWeek: ICalWeekday.SU,
-				until: term.end,
+				until: epochToTemporal(term.end),
 				byDay: recurByDay as ICalWeekday[],
 				exclude: exclusions.length ? exclusions : undefined,
 				interval: 1
@@ -108,28 +76,10 @@ export async function GET(req: NextRequest, ctx: RouteContext<"/api/ical/[userId
 			busystatus: ICalEventBusyStatus.BUSY,
 			transparency: ICalEventTransparency.OPAQUE,
 			location: meeting.location ?? undefined,
-			description: description.trim()
+			description: description.trim(),
+			timezone: null
 		});
 	});
-
-	// TODO: implement this as normal VEVENTS cause nothing supports VTODO
-	// ical-generator doesn't have support for anything other than VEVENT, so this is how we're implementing VTODO!
-	// let calendarStr = calendar.toString().replace("END:VCALENDAR", "");
-
-	// tasks.filter(t => t.dueDate).forEach(task => {
-	// 	calendarStr += [
-	// 		"BEGIN:VTODO",
-	// 		`UID:task-${task.id}`,
-	// 		`DTSTAMP:${new Date().toISOString().replaceAll(/\.|:|-/g, "")}`,
-	// 		`DUE:${task.dueDate!.toISOString().replaceAll(/\.|:|-/g, "")}`,
-	// 		`SUMMARY:${task.title}`,
-	// 		...(task.complete ? [`COMPLETED:${task.dueDate!.toISOString().replaceAll(/\.|:|-/g, "")}`] : []),
-	// 		"END:VTODO"
-	// 	].join("\n");
-	// 	calendarStr += "\n";
-	// });
-
-	// calendarStr += "END:VCALENDAR";
 
 	return new NextResponse(calendar.toString());
 }

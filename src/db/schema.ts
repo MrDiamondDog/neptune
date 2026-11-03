@@ -1,7 +1,6 @@
 import { createClient } from "@libsql/client";
 import { drizzle } from "drizzle-orm/libsql";
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
-import { Temporal } from "temporal-spec";
 import { PushSubscription } from "web-push";
 
 import { defaultNotificationSettings, UserNotificationKeys } from "./types";
@@ -24,9 +23,7 @@ export const usersTable = sqliteTable("user", {
 	password: text("password").notNull(),
 	name: text("name").notNull(),
 
-	// Timezone offset, in minutes
-	// (result of Date.getTimezoneOffset())
-	timezoneOffset: integer("timezoneOffset").notNull(),
+	timezone: text("timezone").notNull().default("America/Denver"),
 
 	icalUrl: text("icalUrl"),
 	icalColor: text("icalColor").default("#38c773").notNull(),
@@ -90,7 +87,7 @@ export const meetingsTable = sqliteTable("meeting", {
 	location: text("location"),
 	// A list of excluded dates this meeting will not happen on.
 	exclusions: text("exclusions", { mode: "json" }).default([])
-		.$type<Temporal.Instant[]>()
+		.$type<number[]>()
 });
 
 export const tasksTable = sqliteTable("task", {

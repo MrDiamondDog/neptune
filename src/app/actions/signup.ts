@@ -5,7 +5,7 @@ import bcrypt from "bcryptjs";
 import { db, usersTable } from "@/db/schema";
 import { User } from "@/db/types";
 
-export async function signUp(email: string, name: string, password: string, timezone: number): Promise<User> {
+export async function signUp(email: string, name: string, password: string, timezone: string): Promise<User> {
 	if (process.env.ALLOW_SIGNUPS !== "true" || process.env.IS_DEMO === "true")
 		throw "Sign ups are disabled by the adminsistrator of this application.";
 
@@ -17,7 +17,7 @@ export async function signUp(email: string, name: string, password: string, time
 			email: email,
 			password: await bcrypt.hash(password, 10),
 			name,
-			timezoneOffset: timezone
+			timezone
 		})
 			.returning()
 	)[0];

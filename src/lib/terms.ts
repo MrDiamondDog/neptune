@@ -5,8 +5,8 @@ import { Term } from "@/db/types";
  * @param terms From `useApp`
  * @returns The current term, or undefined.
  */
-export function getCurrentTerm(terms: Term[]) {
+export function getCurrentTerm(terms: Term[]): Term | null {
 	const now = new Date().getTime();
 
-	return terms.find(t => t.start.getTime() < now && t.end.getTime() > now);
+	return terms.find(t => t.start < now && t.end > now) ?? null;
 }

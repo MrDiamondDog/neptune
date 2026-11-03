@@ -7,6 +7,7 @@ import { useState } from "react";
 import { deleteCourse } from "@/app/actions/courses";
 import { editMeeting } from "@/app/actions/meetings";
 import { Course, CourseInsert } from "@/db/types";
+import { temporalToEpoch } from "@/lib/time";
 
 import { useApp } from "../context/NeptuneContext";
 import DeletePopover from "../primitives/DeletePopover";
@@ -15,7 +16,7 @@ import { Popover } from "../primitives/Popover";
 import Subtext from "../primitives/Subtext";
 import EditCourseModal from "./EditCourseModal";
 
-export default function CourseInline({ course, day, meetingId, readOnly }: { course: CourseInsert, day?: Date | null, meetingId?: string | null, readOnly?: boolean }) {
+export default function CourseInline({ course, day, meetingId, readOnly }: { course: CourseInsert, day?: Temporal.PlainDateTime | null, meetingId?: string | null, readOnly?: boolean }) {
 	const { meetings, dispatch } = useApp();
 
 	const [openModal, setOpenModal] = useState("");
@@ -28,7 +29,7 @@ export default function CourseInline({ course, day, meetingId, readOnly }: { cou
 		if (!meeting)
 			return;
 
-		const exclusions = [...(meeting.exclusions?.length ? meeting.exclusions : []), day.toISOString()];
+		const exclusions = [...(meeting.exclusions?.length ? meeting.exclusions : []), temporalToEpoch(day)];
 
 		dispatch({ context: "meetings", type: "edit", data: { id: meeting.id, exclusions } });
 		await editMeeting({

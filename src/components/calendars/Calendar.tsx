@@ -1,16 +1,15 @@
 "use client";
 
-import { EventClickArg, EventContentArg } from "@fullcalendar/core/index.js";
+import { DateInput, DurationInput, EventClickArg, EventContentArg } from "@fullcalendar/core/index.js";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import iCalendarPlugin from "@fullcalendar/icalendar";
 import FullCalendar from "@fullcalendar/react";
 import rrulePlugin from "@fullcalendar/rrule";
 import timeGridPlugin from "@fullcalendar/timegrid";
-import { useEffect, useState } from "react";
-import type { Temporal } from "temporal-spec";
+import { useEffect, useRef, useState } from "react";
 
 import { Course, Task } from "@/db/types";
-import { MINUTES, prettyTime, prettyTimeRange } from "@/lib/time";
+import { epochToTemporal, MINUTES, prettyTime, prettyTimeRange } from "@/lib/time";
 
 import { useApp } from "../context/NeptuneContext";
 import CourseInline from "../courses/CourseInline";
@@ -22,8 +21,8 @@ import TaskPopover from "../tasks/TaskPopover";
 export type CalendarEvent = {
 	id?: string;
 	title: string;
-	start: Temporal.PlainDateTime;
-	end?: Temporal.PlainDateTime;
+	start: DateInput;
+	end?: DateInput;
 	allDay?: boolean;
 	color?: string;
 	borderColor?: string;
@@ -33,21 +32,20 @@ export type RecurringEvent = {
 	id?: string;
 	title: string;
 	allDay?: boolean;
-	duration: Temporal.Duration;
+	duration: DurationInput;
 	color?: string;
 	borderColor?: string;
 	rrule: string;
-	exdate?: Temporal.Instant[]
+	exdate?: DateInput[]
 };
 
-// TODO: Convert to Temporal
 function getEventText(props: EventContentArg) {
 	if (props.event.allDay || !props.event.start || !props.event.end)
 		return `<div class="text-xs! ${props.event.id.includes("-COMPLETE") ? "line-through" : ""}">${props.event.title}</div>`;
 
 	const duration = (props.event.end.getTime() - props.event.start.getTime()) / MINUTES;
-	const start = new Date(props.event.start.getTime() + props.event.start.getTimezoneOffset() * MINUTES);
-	const end = new Date(props.event.end.getTime() + props.event.end.getTimezoneOffset() * MINUTES);
+	const start = epochToTemporal(props.event.start.getTime() - new Date().getTimezoneOffset() * MINUTES);
+	const end = epochToTemporal(props.event.end.getTime() - new Date().getTimezoneOffset() * MINUTES);
 	const monthViewDot = props.view.type === "dayGridMonth" ? `<div class="min-w-1.5 min-h-1.5 rounded-full mr-0.5" style="background-color: ${props.event.borderColor}"></div>` : "";
 
 	if (duration <= 30 || props.view.type === "dayGridMonth")
@@ -56,9 +54,11 @@ function getEventText(props: EventContentArg) {
 		return `<p class="text-[10px]! overflow-hidden">${monthViewDot}${prettyTimeRange(start, end).replaceAll(":00", "")}\n<b class="text-[10px]! overflow-hidden ${props.event.id.includes("-COMPLETE") ? "line-through" : ""}">${props.event.title}</b></p>`;
 }
 
-// TODO: Convert to Temporal
 export default function Calendar({ events }: { events: (CalendarEvent | RecurringEvent)[] }) {
 	const { courses, meetings, tasks } = useApp();
+
+	const calendarRef = useRef<FullCalendar | null>(null);
+	const [view, setView] = useState("timeGridWeek");
 
 	const [selectedEvent, setSelectedEvent] = useState<EventClickArg>();
 	const [selectedItem, setSelectedItem] = useState<Course | Task>();
@@ -77,6 +77,12 @@ export default function Calendar({ events }: { events: (CalendarEvent | Recurrin
 			setSelectedItem(tasks.find(t => t.id === selectedEvent.event.id.replace("task-", "").replace("-COMPLETE", "")));
 	}, [selectedEvent, meetings, courses, tasks]);
 
+	useEffect(() => {
+		if (!calendarRef.current)
+			return;
+		calendarRef.current.getApi().on("datesSet", e => setView(e.view.type));
+	}, [calendarRef]);
+
 	return <>
 		<FullCalendar
 			plugins={[timeGridPlugin, dayGridPlugin, iCalendarPlugin, rrulePlugin]}
@@ -88,15 +94,15 @@ export default function Calendar({ events }: { events: (CalendarEvent | Recurrin
 			})}
 			events={events}
 			scrollTime="7:00"
-			allDaySlot={events.findIndex(e => e.allDay) !== -1}
+			allDaySlot={true}
 			nowIndicator
 			headerToolbar={{
 				left: "title",
 				right: "today,prev,next,dayGridMonth,timeGridWeek",
 			}}
 			eventClick={e => setSelectedEvent(e)}
-			// idk what fullcalendar is doing behind the scenes but this fixes all the timezone issues
-			timeZone=""
+			contentHeight={view === "dayGridMonth" ? "auto" : undefined}
+			ref={calendarRef}
 		/>
 
 		{selectedEvent && <Portal>
@@ -106,17 +112,19 @@ export default function Calendar({ events }: { events: (CalendarEvent | Recurrin
 				top: `${selectedEvent.el.getBoundingClientRect().y + window.scrollY}px`
 			}}>
 				{selectedEvent.event.id.startsWith("meeting-") && <>
-					{selectedItem && <CourseInline course={selectedItem as Course} day={selectedEvent.event.start} meetingId={selectedEvent.event.id.replace("meeting-", "")} />}
+					{selectedItem && <CourseInline course={selectedItem as Course}
+						day={selectedEvent.event.start && epochToTemporal(selectedEvent.event.start.getTime() - new Date().getTimezoneOffset() * MINUTES)}
+						meetingId={selectedEvent.event.id.replace("meeting-", "")}
+					/>}
 					{selectedItem && <MeetingsInline meetings={meetings.filter(m => m.courseId === selectedItem.id)} />}
 				</>}
 				{selectedEvent.event.id.startsWith("ical-") && <>
 					<p className="font-bold">{selectedEvent.event.title}</p>
 					{selectedEvent.event.start && selectedEvent.event.end &&
 						<p>
-							{/* I hate timezones */}
 							{prettyTimeRange(
-								new Date(selectedEvent.event.start.getTime() + selectedEvent.event.start.getTimezoneOffset() * MINUTES),
-								new Date(selectedEvent.event.end.getTime() + selectedEvent.event.start.getTimezoneOffset() * MINUTES)
+								epochToTemporal(selectedEvent.event.start.getTime() - new Date().getTimezoneOffset() * MINUTES),
+								epochToTemporal(selectedEvent.event.end.getTime() - new Date().getTimezoneOffset() * MINUTES)
 							)}
 						</p>
 					}

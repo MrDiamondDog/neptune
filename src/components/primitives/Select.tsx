@@ -24,7 +24,7 @@ export function Select({ options, value, onChange, placeholder, disabledOptions,
 					<ChevronDown />
 				</button>
 			</DropdownTrigger>
-			<DropdownContent className="z-200 drop-shadow-lg">
+			<DropdownContent className="z-200 drop-shadow-lg overflow-y-scroll max-h-100">
 				{Object.keys(options)
 					.map(k => <DropdownItem
 						onClick={() => onChange(k)}
