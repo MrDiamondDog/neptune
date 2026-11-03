@@ -43,7 +43,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 						email: user.email as string,
 						name: user.name as string,
 						icalUrl: user.icalUrl,
-						timezoneOffset: user.timezoneOffset,
+						timezone: user.timezone,
 						icalColor: user.icalColor,
 						pushNotifications: defaultNotificationSettings,
 						pushSubscriptions: [],

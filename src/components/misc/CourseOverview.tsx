@@ -3,10 +3,9 @@
 import { PopoverTrigger } from "@radix-ui/react-popover";
 
 import { Course, Meeting } from "@/db/types";
-import { getDimmedColor } from "@/lib/colors";
 import { getMeetingsOnDay, minutesToTime } from "@/lib/meetings";
 import { getCurrentTerm } from "@/lib/terms";
-import { DAYS, MINUTES, timeToMinutes } from "@/lib/time";
+import { timeToMinutes } from "@/lib/time";
 
 import { useApp } from "../context/NeptuneContext";
 import CourseInline from "../courses/CourseInline";
@@ -30,7 +29,7 @@ function CourseTitle({ course, meetings }: { course: Course, meetings: Meeting[]
 			</span>
 		</PopoverTrigger>
 		<PopoverContent side="bottom" className="border border-bg-lighter">
-			<CourseInline course={course} meetingId={meeting.id} day={new Date(today.getTime() + meeting.timeStart * MINUTES)} />
+			<CourseInline course={course} meetingId={meeting.id} day={Temporal.Now.plainDateTimeISO().add({ minutes: meeting.timeStart })} />
 			<MeetingsInline meetings={meetings.filter(m => m.courseId === course.id)} />
 		</PopoverContent>
 	</Popover>;
@@ -39,9 +38,11 @@ function CourseTitle({ course, meetings }: { course: Course, meetings: Meeting[]
 export default function CourseOverview() {
 	const data = useApp();
 
+	const now = Temporal.Now.plainDateTimeISO();
+
 	const meetingsToday = getMeetingsOnDay(data.meetings, data.courses, getCurrentTerm(data.terms));
 
-	const timeMinutes = timeToMinutes(`${new Date().getHours()}:${new Date().getMinutes()}`);
+	const timeMinutes = timeToMinutes(`${now.hour}:${now.minute}`);
 	const meetingsLater = meetingsToday.filter(t => t.timeStart > timeMinutes);
 
 	const coursesLater = data.courses.filter(c => meetingsLater.map(m => m.courseId).includes(c.id))
@@ -59,7 +60,7 @@ export default function CourseOverview() {
 		return <p>You have <NodeList nodes={nodes} />.</p>;
 	// No meetings today
 	} else if (!meetingsToday.length || !meetingsLater.length) {
-		const meetingsTomorrow = getMeetingsOnDay(data.meetings, data.courses, getCurrentTerm(data.terms), new Date(new Date().getTime() + 1 * DAYS));
+		const meetingsTomorrow = getMeetingsOnDay(data.meetings, data.courses, getCurrentTerm(data.terms), now.add({ days: 1 }));
 
 		const coursesTomorrow = data.courses.filter(c => meetingsTomorrow.map(m => m.courseId).includes(c.id))
 				.sort((a, b) => meetingsTomorrow.find(m => m.courseId === a.id)!.timeStart - meetingsTomorrow.find(m => m.courseId === b.id)!.timeStart);

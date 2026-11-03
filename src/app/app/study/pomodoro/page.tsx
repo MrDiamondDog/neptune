@@ -14,7 +14,7 @@ import Subtext from "@/components/primitives/Subtext";
 import { Task } from "@/db/types";
 import { getDimmedColor } from "@/lib/colors";
 import { sortTasks } from "@/lib/tasks";
-import { relativeDate } from "@/lib/time";
+import { epochToTemporal, relativeDate } from "@/lib/time";
 import { getPublicEnv } from "@/public-env";
 
 function TaskDropdown({ task }: { task: Task }) {
@@ -24,7 +24,7 @@ function TaskDropdown({ task }: { task: Task }) {
 
 	return <div className="flex flex-col gap text-left">
 		<p>{task.title}</p>
-		{task.dueDate && <Subtext>{relativeDate(task.dueDate)}</Subtext>}
+		{task.dueDate && <Subtext>{relativeDate(epochToTemporal(task.dueDate))}</Subtext>}
 		<div className="flex gap-1">
 			{task.priority && <div className="text-xs bg-danger-secondary px-1 border border-danger w-fit">{"!".repeat(task.priority)}</div>}
 			{course && <div className="text-xs px-1 border w-fit"

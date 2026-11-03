@@ -1,42 +1,12 @@
-import { RRule, Weekday } from "rrule";
+import "temporal-polyfill/global";
 
 import { RecurringEvent } from "@/components/calendars/Calendar";
 import { NeptuneData } from "@/components/context/NeptuneContext";
 import { Course, Meeting, MeetingInsert, Term } from "@/db/types";
 
 import { getDimmedColor } from "./colors";
-import { DAYS, HOURS, inDST, MINUTES, toUTCDate } from "./time";
-
-
-const daysOfWeek = {
-	"U": "Sun",
-	"M": "Mon",
-	"T": "Tue",
-	"W": "Wed",
-	"R": "Thu",
-	"F": "Fri",
-	"S": "Sat"
-};
-const dayOrder = [..."UMTWRFS"];
-const rruleDaysOfWeek = {
-	U: RRule.SU,
-	M: RRule.MO,
-	T: RRule.TU,
-	W: RRule.WE,
-	R: RRule.TH,
-	F: RRule.FR,
-	S: RRule.SA
-};
-
-/**
- * Sorts a days-of-the-week string by order of days of the week.
- * Ex. "WM" (Wednesday Monday) => "MW" (Monday Wednesday)
- * Defaults to UMTWRFS order.
- * @param days
- */
-export function sortDaysOfWeek(days: string): string {
-	return [...days].sort((a, b) => dayOrder.indexOf(a) - dayOrder.indexOf(b)).join("");
-}
+import { meetingToRRule } from "./rrule";
+import { dayOrder, daysOfWeek, epochToTemporal, sortDaysOfWeek } from "./time";
 
 /**
  * Sorts and converts abbriviated days of week to 3-letter versions
@@ -50,13 +20,8 @@ export function prettyDaysOfWeek(days: string): string {
  * Converts minute of day into time of day.
  * @param mins The minute of day.
  * @param mode 24/12 hour mode for the output time.
- * @param tzOffset Timezone offset in minutes. Defaults to `new Date().getTimezoneOffset()`
  */
-export function minutesToTime(mins: number, mode: "24" | "12" = "12", tzOffset?: number): string {
-	mins += tzOffset ?? new Date().getTimezoneOffset();
-	if (!inDST(new Date()))
-		mins -= 60;
-
+export function minutesToTime(mins: number, mode: "24" | "12" = "12"): string {
 	let hours = Math.floor(mins / 60);
 	const minutes = mins - hours * 60;
 
@@ -72,8 +37,8 @@ export function minutesToTime(mins: number, mode: "24" | "12" = "12", tzOffset?:
  * Gets the current day of the week as a single letter abbriviation.
  * @param date The date to get the day of week. Defaults to new Date
  */
-export function getDayOfWeekAbbr(date?: Date) {
-	return dayOrder[(date ?? new Date()).getDay()];
+export function getDayOfWeekAbbr(date?: Temporal.PlainDateTime) {
+	return dayOrder[(date ?? Temporal.Now.plainDateTimeISO()).day];
 }
 
 /**
@@ -95,42 +60,16 @@ export function meetingToCalendar(data: NeptuneData, meetingId: string): Recurri
 	if (!term)
 		return null;
 
-	const firstMeeting = new Date(
-		term.start.getTime() +
-		(DAYS * dayOrder.indexOf(sortDaysOfWeek(meeting.days)[0])) +
-		(MINUTES * meeting.timeStart) +
-		(MINUTES * new Date().getTimezoneOffset()) +
-		(!inDST(new Date()) ? -HOURS : 0)
-	);
-
-	let byweekday: Weekday[] = [];
-	// Fix for a FullCalendar bug where if the time of an event + UTC offset would be on another day, it would fuck up the recurrence.
-	// This simply changes the days it repeats so it doesn't do that
-	// if (firstMeeting.getHours() + (new Date().getTimezoneOffset() / 60) >= 24)
-	// 	byweekday = [...sortDaysOfWeek(meeting.days)].map(d => Object.values(rruleDaysOfWeek)[Object.keys(rruleDaysOfWeek).indexOf(d) + 1]);
-	// else
-		byweekday = [...sortDaysOfWeek(meeting.days)].map(d => rruleDaysOfWeek[d as keyof typeof rruleDaysOfWeek]);
+	const rrule = meetingToRRule(term, meeting);
 
 	return {
 		id: `meeting-${meeting.id}`,
 		title: course.name,
-		duration: { minutes: meeting.timeEnd - meeting.timeStart },
-		exdate: meeting.exclusions ?? undefined,
+		duration: Temporal.Duration.from({ minutes: meeting.timeEnd - meeting.timeStart }),
+		exdate: meeting.exclusions?.map(exclusion => epochToTemporal(exclusion).toString()) ?? undefined,
 		color: getDimmedColor(course.color),
 		borderColor: course.color,
-		// startTime: firstMeeting.toTimeString(),
-		// startRecur: firstMeeting.toTimeString(),
-		// // endRecur is exclusive, add a day to make sure it's included
-		// endRecur: new Date(term.end.getTime() + 1 * DAYS).toISOString(),
-		// daysOfWeek: [...sortDaysOfWeek(meeting.days)].map(d => Object.keys(daysOfWeek).indexOf(d)),
-		rrule: new RRule({
-			freq: RRule.WEEKLY,
-			interval: 1,
-			byweekday,
-			dtstart: toUTCDate(firstMeeting),
-			until: toUTCDate(term.end),
-			wkst: RRule.SU,
-		}).toString()
+		rrule
 	};
 }
 
@@ -164,15 +103,18 @@ export function getUniqueLocations(meetings: (Meeting | MeetingInsert)[]): strin
  * @param day Date to use (defaults to now)
  * @returns All of the meetings that take place on the given day of week in the given term.
  */
-export function getMeetingsOnDay(meetings: Meeting[], courses: Course[], currentTerm?: Term, day?: Date): Meeting[] {
+export function getMeetingsOnDay(meetings: Meeting[], courses: Course[], currentTerm?: Term | null, day?: Temporal.PlainDateTime): Meeting[] {
+	if (!currentTerm)
+		return [];
+
 	if (!day)
-		day = new Date();
+		day = Temporal.Now.plainDateTimeISO();
 
 	return meetings.filter(m =>
 		m.days.includes(getDayOfWeekAbbr(day)) &&
-		courses.find(c => c.id === m.courseId)?.termId === currentTerm?.id &&
+		courses.find(c => c.id === m.courseId)?.termId === currentTerm.id &&
 		!([...(m.exclusions ?? [])]
-			.map(e => new Date(e.toString()))
-			.find(e => e.getDate() === day.getDate() && e.getMonth() === day.getMonth() && e.getFullYear() === day.getFullYear()))
+			.map(e => epochToTemporal(e))
+			.find(e => e.equals(day)))
 	);
 }

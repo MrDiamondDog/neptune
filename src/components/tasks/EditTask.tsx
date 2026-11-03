@@ -7,7 +7,7 @@ import { getDimmedColor } from "@/lib/colors";
 import { throwToast } from "@/lib/errors";
 import { useObjectState } from "@/lib/hooks";
 import { findDate, findDateMatch } from "@/lib/tasks";
-import { relativeDate } from "@/lib/time";
+import { epochToTemporal, relativeDate, temporalToEpoch } from "@/lib/time";
 
 import { useApp } from "../context/NeptuneContext";
 import Input from "../primitives/Input";
@@ -28,7 +28,8 @@ export default function EditTask({ task: defaultTask, onEditEnd }: { task?: Task
 
 	// Uses a bunch of regex expressions to find due date, priority, course, or URL fields, then updates the task with those fields.
 	function updateTaskFields(title: string) {
-		const dueDate = findDate(title);
+		const foundDate = findDate(title);
+		const dueDate = foundDate && temporalToEpoch(foundDate);
 
 		const priorityMatch = title.match(priorityRegex);
 		const priority = priorityMatch ? parseInt(priorityMatch[1]) : null;
@@ -93,7 +94,7 @@ export default function EditTask({ task: defaultTask, onEditEnd }: { task?: Task
 			<div className="flex flex-col gap-1 w-full">
 				<Input className="w-full" placeholder="Task" value={task?.title ?? ""} onChange={updateTaskFields} autoFocus
 					onKeyDown={e => e.key === "Enter" && onCreate()} />
-				{task?.dueDate && <Subtext>{relativeDate(task.dueDate)}</Subtext>}
+				{task?.dueDate && <Subtext>{relativeDate(epochToTemporal(task.dueDate))}</Subtext>}
 				<div className="flex gap-1">
 					{task?.priority && <div className="text-xs bg-danger-secondary px-1 border border-danger w-fit">{"!".repeat(task.priority)}</div>}
 					{course && <div className="text-xs px-1 border w-fit"

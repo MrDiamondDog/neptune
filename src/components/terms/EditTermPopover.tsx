@@ -4,6 +4,7 @@ import { createTerm, editTerm } from "@/app/actions/terms";
 import { Term, TermInsert } from "@/db/types";
 import { throwToast } from "@/lib/errors";
 import { useObjectState } from "@/lib/hooks";
+import { epochToTemporal, temporalToEpoch } from "@/lib/time";
 
 import { useApp } from "../context/NeptuneContext";
 import Button from "../primitives/Button";
@@ -18,10 +19,15 @@ export default function EditTermPopover({ term: defaultTerm, onCreate, side }: {
 
 	const [term, setTerm] = useObjectState<TermInsert>(defaultTerm ?? {
 		season: "",
-		year: new Date().getFullYear(),
-		start: new Date(),
-		end: new Date(),
+		year: Temporal.Now.plainDateISO().year,
+		start: Temporal.Now.instant().epochMilliseconds,
+		end: Temporal.Now.instant().epochMilliseconds,
 	});
+
+	function toDateInputValue(ms: number) {
+		const date = epochToTemporal(ms);
+		return `${date.year}-${date.month.toString().padStart(2, "0")}-${date.day.toString().padStart(2, "0")}`;
+	}
 
 	async function create() {
 		setError("");
@@ -29,32 +35,26 @@ export default function EditTermPopover({ term: defaultTerm, onCreate, side }: {
 		if (!term.start || !term.end || !term.season || !term.year)
 			return void setError("Fill out all required values.");
 
-		let termStart = term.start;
-		let termEnd = term.end;
+		const termStart = epochToTemporal(term.start);
+		const termEnd = epochToTemporal(term.end);
 
-		// Timezones are weird with date inputs
-		termStart = new Date(term.start.getUTCFullYear(), term.start.getUTCMonth(), term.start.getUTCDate(), 0, 0);
-		termEnd = new Date(term.end.getUTCFullYear(), term.end.getUTCMonth(), term.end.getUTCDate(), 0, 0);
-
-		console.log(termStart, termEnd);
-
-		if (termStart.getDay() !== 0 || termEnd.getDay() !== 6)
+		if (termStart.dayOfWeek !== 7 || termEnd.dayOfWeek !== 6)
 			return void setError("Start must be a Sunday and end must be a Saturday.");
 
-		if (term.year !== term.start.getFullYear())
+		if (term.year !== termStart.year)
 			return void setError("Term start year must match term year.");
 
 		setLoading(true);
 
 		if (!defaultTerm) {
-			const res = await createTerm({ ...term, start: termStart, end: termEnd }).catch(e => {
+			const res = await createTerm({ ...term, start: temporalToEpoch(termStart), end: temporalToEpoch(termEnd) }).catch(e => {
 				setLoading(false);
 				throw throwToast("Could not create term", e);
 			});
 			onCreate?.(res);
 			dispatch({ context: "terms", type: "create", data: res });
 		} else {
-			const res = await editTerm({ ...term, id: defaultTerm.id, start: termStart, end: termEnd }).catch(e => {
+			const res = await editTerm({ ...term, id: defaultTerm.id, start: temporalToEpoch(termStart), end: temporalToEpoch(termEnd) }).catch(e => {
 				setLoading(false);
 				throw throwToast("Could not edit term", e);
 			});
@@ -73,8 +73,8 @@ export default function EditTermPopover({ term: defaultTerm, onCreate, side }: {
 			<Input label="Year" placeholder="2026" required type="number" value={term.year} onChange={v => setTerm({ year: parseInt(v) })} />
 		</div>
 		<div className="flex w-full *:w-full items-center gap-2 mb-2">
-			<Input label="Start (must be Sunday)" type="date" className="w-full" required value={term.start.toISOString().split("T")[0]} onChange={v => setTerm({ start: new Date(v) })} />
-			<Input label="End (must be Saturday)" type="date" className="w-full" required value={term.end.toISOString().split("T")[0]} onChange={v => setTerm({ end: new Date(v) })} />
+			<Input label="Start (must be Sunday)" type="date" className="w-full" required value={toDateInputValue(term.start)} onChange={v => setTerm({ start: new Date(v).getTime() })} />
+			<Input label="End (must be Saturday)" type="date" className="w-full" required value={toDateInputValue(term.end)} onChange={v => setTerm({ end: new Date(v).getTime() })} />
 		</div>
 		<Button onClick={create} loading={loading}>{defaultTerm ? "Edit" : "Create"}</Button>
 		{error && <p className="text-danger w-full text-center">{error}</p>}

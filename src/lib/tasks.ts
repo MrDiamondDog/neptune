@@ -3,7 +3,7 @@ import { NeptuneData } from "@/components/context/NeptuneContext";
 import { Task, User } from "@/db/types";
 
 import { getDimmedColor } from "./colors";
-import { DAYS, MINUTES, toUTCDate, unitTime, WEEKS } from "./time";
+import { epochToTemporal, unitTime } from "./time";
 
 export type DateMatcher = {
 	/**
@@ -18,7 +18,7 @@ export type DateMatcher = {
 	 * Returns the date given the match of this regex.
 	 * Returns undefined if match is not valid.
 	 */
-	date: (match: RegExpMatchArray) => Date | undefined;
+	date: (match: RegExpMatchArray) => Temporal.PlainDateTime | undefined;
 };
 
 export const dateMatchers: DateMatcher[] = [
@@ -27,10 +27,8 @@ export const dateMatchers: DateMatcher[] = [
 		match: /tonight/i,
 		priority: 10,
 		date: () => {
-			const today = new Date();
-			today.setHours(23);
-			today.setMinutes(59);
-			return today;
+			const today = Temporal.Now.plainDateTimeISO();
+			return new Temporal.PlainDateTime(today.year, today.month, today.day, 23, 59);
 		}
 	},
 	{
@@ -38,10 +36,8 @@ export const dateMatchers: DateMatcher[] = [
 		match: /next week/i,
 		priority: 10,
 		date: () => {
-			const nextWeek = new Date(new Date().getTime() + WEEKS);
-			nextWeek.setHours(23);
-			nextWeek.setMinutes(59);
-			return nextWeek;
+			const nextWeek = Temporal.Now.plainDateTimeISO().add({ weeks: 1 });
+			return new Temporal.PlainDateTime(nextWeek.year, nextWeek.month, nextWeek.day, 23, 59);
 		}
 	},
 	{
@@ -49,11 +45,11 @@ export const dateMatchers: DateMatcher[] = [
 		match: /(tomorrow|tmrw)(( at| @)? (1[0-2]|0?\d|[2][0-3])((:([0-5]\d) ?(am|pm)?)|(am|pm)))?/i,
 		priority: 10,
 		date: match => {
+			const today = Temporal.Now.plainDateTimeISO();
+			const tomorrow = today.add({ days: 1 });
 			// match[2] is time, if there isn't a time, default to tomorrow at 11:59pm
-			if (!match[2]) {
-				const tomorrow = new Date(new Date().getTime() + 1 * DAYS);
-				return new Date(tomorrow.getFullYear(), tomorrow.getMonth(), tomorrow.getDate(), 23, 59);
-			}
+			if (!match[2])
+				return new Temporal.PlainDateTime(tomorrow.year, tomorrow.month, tomorrow.day, 23, 59);
 
 			let hour = parseInt(match[4]);
 			const minute = parseInt(match[7]);
@@ -69,13 +65,7 @@ export const dateMatchers: DateMatcher[] = [
 			if (ampm === "pm" && hour !== 12)
 				hour += 12;
 
-			const today = new Date();
-			const res = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1, hour, minute);
-
-			if (!res.getTime())
-				return undefined;
-
-			return res;
+			return new Temporal.PlainDateTime(tomorrow.year, tomorrow.month, tomorrow.day, hour, minute);
 		}
 	},
 	{
@@ -98,8 +88,8 @@ export const dateMatchers: DateMatcher[] = [
 				return;
 
 			const totalDeltaTime = timeNum * timeOfUnit;
-			const date = new Date(new Date().getTime() + (isPast ? -totalDeltaTime : totalDeltaTime));
-			return new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59);
+			const date = Temporal.Now.plainDateTimeISO().add({ milliseconds: (isPast ? -totalDeltaTime : totalDeltaTime) });
+			return new Temporal.PlainDateTime(date.year, date.month, date.day, 23, 59);
 		}
 	},
 	{
@@ -110,23 +100,25 @@ export const dateMatchers: DateMatcher[] = [
 		match: /(0?[1-9]|1[0-2])(-|\.|\\|\/)(3[01]|[12][0-9]|0?[1-9])(-|\.|\\|\/)?((20|19)(\d{2}))?(( at| @)? (1[0-2]|0?\d|[2][0-3])((:([0-5]\d) ?(am|pm)?)|(am|pm)))?/i,
 		priority: 8,
 		date: match => {
+			const today = Temporal.Now.plainDateTimeISO();
+
 			const month = parseInt(match[1]);
-			const date = parseInt(match[3]);
+			const day = parseInt(match[3]);
 			let year = match[5] ? parseInt(match[5]) : null;
 			// If no hour is present, it must be only a date, then default to 11:59
 			let hour = parseInt(match[10] ?? "23");
 			const minute = parseInt(match[13] ?? (Number.isNaN(parseInt(match[10])) ? "59" : "0"));
 			const ampm = match[15] ?? match[14];
 
-			if ([month, date, hour, minute].map(Number.isNaN).filter(b => !!b).length > 0)
+			if ([month, day, hour, minute].map(Number.isNaN).filter(b => !!b).length > 0)
 				return undefined;
 
 			// If no specified year, check if the date this year has passed, if so, use next year, otherwise, it's this year
 			if (!year) {
-				if (new Date(new Date().getFullYear(), month - 1, date).getTime() < new Date().getTime())
-					year = new Date().getFullYear() + 1;
+				if (new Temporal.PlainDateTime(today.year, month, day).since(today).total("millisecond") < 0)
+					year = today.year + 1;
 				else
-					year = new Date().getFullYear();
+					year = today.year;
 			}
 
 			if (ampm && hour > 12)
@@ -135,12 +127,7 @@ export const dateMatchers: DateMatcher[] = [
 			if (ampm === "pm" && hour !== 12)
 				hour += 12;
 
-			const res = new Date(year, month - 1, date, hour, minute);
-
-			if (!res.getTime())
-				return undefined;
-
-			return res;
+			return new Temporal.PlainDateTime(year, month, day, hour, minute);
 		}
 	},
 	{
@@ -163,15 +150,12 @@ export const dateMatchers: DateMatcher[] = [
 			if (ampm === "pm" && hour !== 12)
 				hour += 12;
 
-			const today = new Date();
-			let res = new Date(today.getFullYear(), today.getMonth(), today.getDate(), hour, minute);
-
-			if (!res.getTime())
-				return undefined;
+			const today = Temporal.Now.plainDateTimeISO();
+			let res = new Temporal.PlainDateTime(today.year, today.month, today.day, hour, minute);
 
 			// If res is in past, add a day
-			if (new Date().getTime() > res.getTime())
-				res = new Date(res.getTime() + 1 * DAYS);
+			if (res.since(today).total("millisecond") < 0)
+				res = res.add({ days: 1 });
 
 			return res;
 		}
@@ -183,7 +167,7 @@ export const dateMatchers: DateMatcher[] = [
  * @param str The string to search.
  * @returns A date if found, null otherwise.
  */
-export function findDate(str: string): Date | null {
+export function findDate(str: string): Temporal.PlainDateTime | null {
 	for (const matcher of [...dateMatchers].sort((a, b) => b.priority - a.priority)) {
 		const match = matcher.match.exec(str);
 		if (!match)
@@ -221,11 +205,12 @@ export function findDateMatch(str: string): RegExpMatchArray | null {
  * @returns Sorted list of tasks.
  */
 export function sortTasks(tasks: Task[]) {
+	const now = new Date();
 	return tasks
 		// Sort by name
 		.sort((a, b) => a.title.localeCompare(b.title))
 		// Then by due date
-		.sort((a, b) => (a.dueDate ?? new Date()).getTime() - (b.dueDate ?? new Date()).getTime())
+		.sort((a, b) => (a.dueDate ?? now.getTime()) - (b.dueDate ?? now.getTime()))
 		// Then completed tasks to the bottom
 		.sort((a, b) => a.complete === b.complete ? 0 : a.complete ? 1 : -1);
 }
@@ -237,16 +222,14 @@ export function taskToCalendar(data: NeptuneData, user: User, task: Task): Calen
 	const course = data.courses.find(c => c.id === task.courseId);
 	const color = course?.color ?? user.icalColor;
 
-	const { dueDate } = task;
-	const allDay = dueDate.getHours() === 23 && dueDate.getMinutes() === 59;
+	const dueDate = epochToTemporal(task.dueDate);
 
 	return {
 		id: `task-${task.id}${task.complete ? "-COMPLETE" : ""}`,
 		title: task.title,
 		color: getDimmedColor(color),
 		borderColor: color,
-		allDay,
-		start: toUTCDate(dueDate),
-		end: allDay ? undefined : toUTCDate(new Date(dueDate.getTime() + 30 * MINUTES))
+		allDay: true,
+		start: dueDate.toString(),
 	};
 }

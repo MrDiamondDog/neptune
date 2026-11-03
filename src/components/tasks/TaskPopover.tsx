@@ -4,7 +4,7 @@ import { useState } from "react";
 import { deleteTask, editTask } from "@/app/actions/tasks";
 import { Task } from "@/db/types";
 import { getDimmedColor } from "@/lib/colors";
-import { prettyDate, relativeDate } from "@/lib/time";
+import { epochToTemporal, prettyDate, relativeDate } from "@/lib/time";
 
 import { useApp } from "../context/NeptuneContext";
 import Button, { ButtonLooks } from "../primitives/Button";
@@ -41,7 +41,7 @@ export default function TaskPopover({ task }: { task: Task }) {
 			</div>
 			<div className="flex flex-col gap-1">
 				<p className="w-full">{task.title}</p>
-				{task.dueDate && <Subtext>Due {relativeDate(task.dueDate)} ({prettyDate(task.dueDate)})</Subtext>}
+				{task.dueDate && <Subtext>Due {relativeDate(epochToTemporal(task.dueDate))} ({prettyDate(epochToTemporal(task.dueDate))})</Subtext>}
 				<div className="flex gap-1">
 					{task.priority && <div className="text-xs bg-danger-secondary px-1 border border-danger w-fit">{"!".repeat(task.priority)}</div>}
 					{course && <div className="text-xs px-1 border w-fit"

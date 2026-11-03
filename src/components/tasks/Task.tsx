@@ -7,7 +7,7 @@ import { editTask } from "@/app/actions/tasks";
 import { Task as TaskType } from "@/db/types";
 import { getDimmedColor } from "@/lib/colors";
 import { useDevice } from "@/lib/hooks";
-import { relativeDate } from "@/lib/time";
+import { epochToTemporal, relativeDate } from "@/lib/time";
 
 import { useApp } from "../context/NeptuneContext";
 import { Popover, PopoverContent } from "../primitives/Popover";
@@ -31,8 +31,8 @@ export default function Task({ task }: { task: TaskType }) {
 					<div className={`min-w-5 min-h-5 border border-bg-lighter ${task.complete ? "bg-primary" : "bg-bg"} ml-1 mt-1 cursor-pointer flex items-center justify-center`}
 						onClick={e => {
 							e.stopPropagation();
-							dispatch({ context: "tasks", type: "edit", data: { id: task.id, complete: task.complete ? null : new Date() } });
-							editTask({ id: task.id, complete: task.complete ? null : new Date() });
+							dispatch({ context: "tasks", type: "edit", data: { id: task.id, complete: task.complete ? null : Temporal.Now.instant().epochMilliseconds } });
+							editTask({ id: task.id, complete: task.complete ? null : Temporal.Now.instant().epochMilliseconds });
 							if (!task.complete) {
 								setConfettiComplete(false);
 								const box = checkRef.current!.getBoundingClientRect();
@@ -57,7 +57,7 @@ export default function Task({ task }: { task: TaskType }) {
 				</div>
 				<div className="flex flex-col gap-1 w-full overflow-hidden">
 					<p className="w-full overflow-hidden text-ellipsis text-nowrap">{task.title}</p>
-					{task.dueDate && <Subtext>{relativeDate(task.dueDate)}</Subtext>}
+					{task.dueDate && <Subtext>{relativeDate(epochToTemporal(task.dueDate))}</Subtext>}
 					<div className="flex gap-1">
 						{task.priority && <div className="text-xs bg-danger-secondary px-1 border border-danger w-fit">{"!".repeat(task.priority)}</div>}
 						{course && <div className="text-xs px-1 border w-fit"

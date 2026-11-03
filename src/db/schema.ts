@@ -1,4 +1,3 @@
-import { DateInput } from "@fullcalendar/core/index.js";
 import { createClient } from "@libsql/client";
 import { drizzle } from "drizzle-orm/libsql";
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
@@ -24,9 +23,7 @@ export const usersTable = sqliteTable("user", {
 	password: text("password").notNull(),
 	name: text("name").notNull(),
 
-	// Timezone offset, in minutes
-	// (result of Date.getTimezoneOffset())
-	timezoneOffset: integer("timezoneOffset").notNull(),
+	timezone: text("timezone").notNull().default("America/Denver"),
 
 	icalUrl: text("icalUrl"),
 	icalColor: text("icalColor").default("#38c773").notNull(),
@@ -44,9 +41,9 @@ export const termsTable = sqliteTable("term", {
 	year: integer("year").notNull(),
 
 	// Start must be a Sunday.
-	start: integer("start", { mode: "timestamp" }).notNull(),
+	start: integer("start").notNull(),
 	// End must be a Saturday.
-	end: integer("end", { mode: "timestamp" }).notNull(),
+	end: integer("end").notNull(),
 });
 
 // Represents a course. Each course is divided into sections.
@@ -90,7 +87,7 @@ export const meetingsTable = sqliteTable("meeting", {
 	location: text("location"),
 	// A list of excluded dates this meeting will not happen on.
 	exclusions: text("exclusions", { mode: "json" }).default([])
-		.$type<DateInput[]>()
+		.$type<number[]>()
 });
 
 export const tasksTable = sqliteTable("task", {
@@ -100,8 +97,8 @@ export const tasksTable = sqliteTable("task", {
 	title: text("title").notNull(),
 	// The title before any auto-fill options were removed
 	originalTitle: text("originalTitle").notNull(),
-	complete: integer("complete", { mode: "timestamp" }),
-	dueDate: integer("dueDate", { mode: "timestamp" }),
+	complete: integer("complete"),
+	dueDate: integer("dueDate"),
 	// Optionally attach a course to this task.
 	courseId: text("courseId").references(() => coursesTable.id, { onDelete: "cascade" }),
 	link: text("link"),
@@ -114,7 +111,7 @@ export const studySessionsTable = sqliteTable("studySessions", {
 	userId: text("userId").references(() => usersTable.id, { onDelete: "cascade" }).notNull(),
 
 	type: text("type", { enum: ["pomodoro", "flashcards", "quiz"] }).notNull(),
-	date: integer("date", { mode: "timestamp" }).notNull(),
+	date: integer("date").notNull(),
 	secondsElapsed: integer("secondsElapsed").notNull()
 });
 
@@ -124,5 +121,5 @@ export const flashcardsTable = sqliteTable("flashcards", {
 
 	name: text("name").notNull(),
 	data: text("data", { mode: "json" }).$type<[string, string][]>().notNull(),
-	lastUsed: integer("lastUsed", { mode: "timestamp" }),
+	lastUsed: integer("lastUsed"),
 });

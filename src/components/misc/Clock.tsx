@@ -5,12 +5,12 @@ import { useEffect, useState } from "react";
 import { prettyDate, prettyTime } from "@/lib/time";
 
 export default function Clock() {
-	const [date, setDate] = useState<Date>();
+	const [date, setDate] = useState<Temporal.PlainDateTime>();
 
 	useEffect(() => {
-		setDate(new Date());
+		setDate(Temporal.Now.plainDateTimeISO());
 		const interval = setInterval(() => {
-			setDate(new Date());
+			setDate(Temporal.Now.plainDateTimeISO());
 		}, 1000);
 		return () => clearInterval(interval);
 	}, []);

@@ -17,11 +17,12 @@ import PopoverColorPicker from "@/components/primitives/ColorPicker";
 import DeletePopover from "@/components/primitives/DeletePopover";
 import Divider from "@/components/primitives/Divider";
 import Input from "@/components/primitives/Input";
+import { Select } from "@/components/primitives/Select";
 import Subtext from "@/components/primitives/Subtext";
 import EditTermPopover from "@/components/terms/EditTermPopover";
 import { throwToast } from "@/lib/errors";
 import { titleCase } from "@/lib/string";
-import { prettyTimeRange } from "@/lib/time";
+import { epochToTemporal, prettyTimeRange } from "@/lib/time";
 import { getPublicEnv } from "@/public-env";
 
 export default function SettingsPage() {
@@ -30,6 +31,7 @@ export default function SettingsPage() {
 	const [loading, setLoading] = useState(false);
 
 	const [name, setName] = useState("");
+	const [timezone, setTimezone] = useState("");
 	const [userId, setUserId] = useState("");
 	const [icalUrl, setIcalUrl] = useState("");
 	const [icalColor, setIcalColor] = useState("#38c773");
@@ -41,6 +43,7 @@ export default function SettingsPage() {
 			if (!user)
 				return;
 			setName(user.name);
+			setTimezone(user.timezone);
 			setUserId(user.id);
 			setIcalUrl(user.icalUrl ?? "");
 			setIcalColor(user.icalColor);
@@ -52,6 +55,7 @@ export default function SettingsPage() {
 
 		editUser({
 			name,
+			timezone,
 			icalUrl,
 			icalColor,
 		}).catch(async e => {
@@ -78,6 +82,9 @@ export default function SettingsPage() {
 			<p>Name</p>
 			<Input className="w-full" value={name} onChange={setName} />
 
+			<p>Timezone</p>
+			<Select className="w-full" value={timezone} onChange={setTimezone} options={Intl.supportedValuesOf("timeZone").reduce((prev, curr) => ({ ...prev, [curr]: curr }), {})} placeholder="Timezone" />
+
 			<p>iCalendar URL</p>
 			<Input className="w-full" type="password" value={icalUrl} onChange={setIcalUrl} />
 			<Subtext>Subscribe to another calendar to show them in Neptune. Must be a valid ICS URL.</Subtext>
@@ -89,7 +96,7 @@ export default function SettingsPage() {
 			<Divider />
 
 			<p>Neptune Course ICS URL</p>
-			<div className="flex gap-1">
+			{!!userId && <div className="flex gap-1">
 				<Input className="w-full text-gray-400" type="password" disabled value={`${getPublicEnv().AUTH_URL}/api/ical/${userId}.ics`} />
 				<Button
 					className="py-1 w-fit!"
@@ -99,7 +106,7 @@ export default function SettingsPage() {
 						toast.info("Copied!");
 					}}
 				>Copy</Button>
-			</div>
+			</div>}
 			<Subtext>Subscribe to this calendar in the calendar app of your choice to add all of your Neptune courses and tasks.</Subtext>
 			<Subtext>Don't share this!</Subtext>
 		</DashboardCard>
@@ -114,11 +121,11 @@ export default function SettingsPage() {
 				<EditTermPopover onCreate={() => setTermPopover("")} side="bottom" />
 			</Popover>
 
-			{terms.sort((a, b) => a.start.getTime() - b.start.getTime())
+			{terms.sort((a, b) => a.start - b.start)
 				.map(term => <div className="flex justify-between items-center bg-bg-lighter p-2" key={term.id}>
 					<div>
 						{titleCase(term.season)} {term.year}
-						<Subtext>{prettyTimeRange(term.start, term.end)}</Subtext>
+						<Subtext>{prettyTimeRange(epochToTemporal(term.start), epochToTemporal(term.end))}</Subtext>
 						<Subtext>
 							{courses.filter(c => c.termId === term.id).length} course(s) -{" "}
 							{courses.filter(c => c.termId === term.id).map(c => c.creditHours).reduce((prev, curr) => (prev ?? 0) + (curr ?? 0), 0)} credit hours</Subtext>
