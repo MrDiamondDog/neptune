@@ -115,6 +115,6 @@ export function getMeetingsOnDay(meetings: Meeting[], courses: Course[], current
 		courses.find(c => c.id === m.courseId)?.termId === currentTerm.id &&
 		!([...(m.exclusions ?? [])]
 			.map(e => epochToTemporal(e))
-			.find(e => e.equals(day)))
+			.find(e => e.round({ roundingMode: "floor", smallestUnit: "day" }).equals(day.round({ roundingMode: "floor", smallestUnit: "day" }))))
 	);
 }
