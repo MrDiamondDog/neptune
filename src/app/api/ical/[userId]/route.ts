@@ -81,5 +81,6 @@ export async function GET(req: NextRequest, ctx: RouteContext<"/api/ical/[userId
 		});
 	});
 
-	return new NextResponse(calendar.toString());
+	// Apple calendar freaks out when you have the timezone specified for EXDATEs...this is the best ur gonna get
+	return new NextResponse(calendar.toString().replaceAll("EXDATE;TZID=America/Denver", "EXDATE"));
 }
