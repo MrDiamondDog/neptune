@@ -1,13 +1,12 @@
 import { PopoverTrigger } from "@radix-ui/react-popover";
-import { Check } from "lucide-react";
+import { Check, Dot } from "lucide-react";
 import { useRef, useState } from "react";
 import Confetti from "react-confetti";
 
 import { editTask } from "@/app/actions/tasks";
 import { Task as TaskType } from "@/db/types";
-import { getDimmedColor } from "@/lib/colors";
 import { useDevice } from "@/lib/hooks";
-import { epochToTemporal, relativeDate } from "@/lib/time";
+import { DAYS, epochToTemporal, relativeDate } from "@/lib/time";
 
 import { useApp } from "../context/NeptuneContext";
 import { Popover, PopoverContent } from "../primitives/Popover";
@@ -57,11 +56,15 @@ export default function Task({ task }: { task: TaskType }) {
 				</div>
 				<div className="flex flex-col gap-1 w-full overflow-hidden">
 					<p className="w-full overflow-hidden text-ellipsis text-nowrap">{task.title}</p>
-					{task.dueDate && <Subtext>{relativeDate(epochToTemporal(task.dueDate))}</Subtext>}
-					<div className="flex gap-1">
-						{task.priority && <div className="text-xs bg-danger-secondary px-1 border border-danger w-fit">{"!".repeat(task.priority)}</div>}
-						{course && <div className="text-xs px-1 border w-fit"
-							style={{ backgroundColor: getDimmedColor(course.color), borderColor: course.color }}
+					<div className="flex items-center *:text-nowrap">
+						{task.dueDate && <Subtext
+							className={(task.dueDate - Temporal.Now.instant().epochMilliseconds < DAYS && !task.complete) ? "text-red-500" : ""}
+						>
+							{relativeDate(epochToTemporal(task.dueDate))}
+						</Subtext>}
+						{(task.dueDate && task.courseId) && <Dot className="text-gray-500" size={16} />}
+						{course && <div className="text-sm underline text-nowrap text-ellipsis overflow-hidden"
+							style={{ color: course.color }}
 						>
 							{course.name}
 						</div>}

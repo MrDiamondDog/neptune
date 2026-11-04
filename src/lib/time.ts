@@ -119,7 +119,7 @@ export function relativeDate(date: Temporal.PlainDateTime) {
 	let relativeString = "";
 	let isPast = false;
 
-	if (relativeTime.sign === -1)
+	if (date.since(today).sign === -1)
 		isPast = true;
 
 	// If date is further than 7 days, just return date
