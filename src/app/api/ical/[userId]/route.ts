@@ -12,7 +12,7 @@ import { epochToTemporal, rruleDaysOfWeek, sortDaysOfWeek } from "@/lib/time";
  */
 export async function GET(req: NextRequest, ctx: RouteContext<"/api/ical/[userId]">) {
 	const params = await ctx.params;
-	const userId = params.userId.replace(".ics", "");
+	const userId = params.userId.replace(/(\.ics)|(\.ical)|(\.ifb)|(\.icalendar)/i, "");
 
 	const user = (await db.select().from(usersTable).where(eq(usersTable.id, userId)))[0];
 

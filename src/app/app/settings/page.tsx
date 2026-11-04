@@ -85,17 +85,9 @@ export default function SettingsPage() {
 			<p>Timezone</p>
 			<Select className="w-full" value={timezone} onChange={setTimezone} options={Intl.supportedValuesOf("timeZone").reduce((prev, curr) => ({ ...prev, [curr]: curr }), {})} placeholder="Timezone" />
 
-			<p>iCalendar URL</p>
-			<Input className="w-full" type="password" value={icalUrl} onChange={setIcalUrl} />
-			<Subtext>Subscribe to another calendar to show them in Neptune. Must be a valid ICS URL.</Subtext>
-			<Subtext>Make sure to use the private URL or make the calendar public so Neptune can access it.</Subtext>
-
-			<p>iCalendar Event Color</p>
-			<PopoverColorPicker color={icalColor} onChange={setIcalColor} />
-
 			<Divider />
 
-			<p>Neptune Course ICS URL</p>
+			<p>Neptune Course iCalendar URL</p>
 			{!!userId && <div className="flex gap-1">
 				<Input className="w-full text-gray-400" type="password" disabled value={`${getPublicEnv().AUTH_URL}/api/ical/${userId}.ics`} />
 				<Button
@@ -109,6 +101,16 @@ export default function SettingsPage() {
 			</div>}
 			<Subtext>Subscribe to this calendar in the calendar app of your choice to add all of your Neptune courses and tasks.</Subtext>
 			<Subtext>Don't share this!</Subtext>
+
+			<Divider />
+
+			<p>Import iCalendar</p>
+			<Input className="w-full" type="password" value={icalUrl} onChange={setIcalUrl} />
+			<Subtext>Neptune will automatically fetch events from this URL and display them. Must be a valid iCalendar URL.</Subtext>
+			<Subtext>Make sure to use the private URL or make the calendar public so Neptune can access it.</Subtext>
+
+			<p>Imported Event Color</p>
+			<PopoverColorPicker color={icalColor} onChange={setIcalColor} />
 		</DashboardCard>
 
 		<DashboardCard>
