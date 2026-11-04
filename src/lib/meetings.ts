@@ -38,7 +38,7 @@ export function minutesToTime(mins: number, mode: "24" | "12" = "12"): string {
  * @param date The date to get the day of week. Defaults to new Date
  */
 export function getDayOfWeekAbbr(date?: Temporal.PlainDateTime) {
-	return dayOrder[(date ?? Temporal.Now.plainDateTimeISO()).day];
+	return dayOrder[(date ?? Temporal.Now.plainDateTimeISO()).dayOfWeek - 1];
 }
 
 /**

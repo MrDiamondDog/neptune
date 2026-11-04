@@ -43,7 +43,7 @@ export default function CourseOverview() {
 	const meetingsToday = getMeetingsOnDay(data.meetings, data.courses, getCurrentTerm(data.terms));
 
 	const timeMinutes = timeToMinutes(`${now.hour}:${now.minute}`);
-	const meetingsLater = meetingsToday.filter(t => t.timeStart > timeMinutes);
+	const meetingsLater = meetingsToday.filter(t => t.timeEnd > timeMinutes);
 
 	const coursesLater = data.courses.filter(c => meetingsLater.map(m => m.courseId).includes(c.id))
 		.sort((a, b) => meetingsToday.find(m => m.courseId === a.id)!.timeStart - meetingsToday.find(m => m.courseId === b.id)!.timeStart);
