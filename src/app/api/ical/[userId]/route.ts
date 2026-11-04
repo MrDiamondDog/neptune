@@ -25,7 +25,7 @@ export async function GET(req: NextRequest, ctx: RouteContext<"/api/ical/[userId
 
 	const calendar = ical({
 		name: "Neptune",
-		timezone: "Etc/Utc"
+		timezone: user.timezone
 	});
 
 	meetings.forEach(meeting => {
